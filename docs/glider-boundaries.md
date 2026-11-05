@@ -12,7 +12,7 @@ Assessment date: 8 October 2026.
 
 | Capability | Status | Detail |
 |---|---|---|
-| Custom Schroders portfolios | ✅ | Global Income (11 holdings), Quality 7 (7) and Future Leaders (9) all pass `POST /v2/strategies/validate`. |
+| Custom Schroders portfolios | ✅ | Global Income (11 holdings), Quality 7 (7) and Sustainable Leaders (10) all pass `POST /v2/strategies/validate`. All 210 combinations of strategy, model version, risk level and theme passed on 19 October 2026 (`sprout-lab/data/goal_strategy_validation.json`). |
 | Assets available | ✅ | 177 of 178 tested assets are accepted: 143 Ondo stocks and ETFs on BNB Chain, 8 Coinbase stocks on Base, plus stablecoins and crypto. NextEra (NEE) is blocklisted. |
 | Size and weights | ✅ | 1 to 50 assets per portfolio. Weights are percentages with up to two decimals and must sum to exactly 100. |
 | One chain per portfolio | ⚠️ | Glider rejects mixed chains ("Allocation must use a single chain"). Ondo (BNB) and Coinbase (Base) need separate portfolios. |

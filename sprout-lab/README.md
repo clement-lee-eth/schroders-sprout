@@ -1,42 +1,59 @@
 # SPROUT Lab
 
-Confidential local mock for composing portfolios from the tokenised equities available on Glider.
+The local server behind the SPROUT prototype. For what SPROUT is and how to demo it, see the [main README](../README.md).
+
+## Run
 
 ```bash
-cd sprout-lab
-python3 seed.py     # rebuild sprout.db from ./data (resets saved mock portfolios)
-python3 server.py   # http://127.0.0.1:8765
+python3 server.py     # http://127.0.0.1:8765
+python3 seed.py       # optional: rebuild sprout.db from data/ (deletes saved mock portfolios)
 ```
 
-- `/` is the C-suite landing page. Sections in order:
-  1. Hero
-  2. How it works
-  3. Model cards
-  4. **What you get**: interactive flow from deposit → Schroders core / personal sleeve / cash → tokens, with live prices
-  5. **Scale**: animated network of wallets with publish, daily-run and add-partner controls
-  6. Digital investors
-  7. Distribution
-  8. The unlock
-  9. Live proof wallet
-  10. **Can we build it?**: what's proven on Glider vs what's needed
-  11. FAQ
-- The earlier single-model view, "Schroders Quality 7":
-  - **Investor view:** a $10,000 mock position funded at closing prices about a month ago, live prices, current vs target allocation, and daily automatic rebalancing (with a demo fast-forward).
-  - **Schroders view:** illustrative distribution across channels, fee income, and publishing a model update to every wallet.
-  - **The unlock:** a comparison of a fund today with the same model on SPROUT.
-- `/console` is the earlier three-client console.
-- `/api/glider/live` is a read-only snapshot from Glider production, cached 60 s: connection status, our strategy and portfolio counts, public strategies, and Bitwise Mag7X wallets and AUM. It never returns the key or the account email. The key is read from `../.env.local`.
-- `/api/prices?symbols=MSFT,NVDA` serves live quotes from Yahoo Finance (cached 30 s). These are prices of the underlying shares.
-- `/onboarding` is the earlier first-time investor flow. `/lab` is the internal builder over the full asset catalogue.
-- The manager name is the `MANAGER` constant at the top of the script in `static/index.html`.
-- Python 3 standard library only. Binds to 127.0.0.1, so it isn't reachable from other machines.
-- `data/` holds read-only snapshots from the Glider production API (1 Oct 2026): asset metadata, per-asset validation results and public strategies. It contains no API key.
-- Mock portfolios are saved to `sprout.db` only. Nothing is created on Glider.
-- Optional: put `GLIDER_API_KEY=...` in `../.env.local` to enable **Check with Glider**. It calls only the dry-run `POST /v2/strategies/validate`.
+It needs only the Python 3 standard library. The server binds to `127.0.0.1`, so other machines can't reach it. Set `PORT` to use a different port.
 
-Rules enforced, matching the live API:
-- 1–50 assets.
-- Weights above 0 with at most 2 decimals, summing to exactly 100.
-- One chain per strategy. No blocklisted assets (NEE on BNB).
-- Interval schedules only, because cron is not enabled for the tenant.
-- Slippage and price impact 0–1000 bps. Minimum trade at least $1.
+## Pages
+
+| Address | File | Purpose |
+|---|---|---|
+| `/` | `static/index.html` | Website |
+| `/app` | `static/app.html` | Investor app |
+| `/console` | `static/console.html` | Admin console. Add `?tour=1` to start the guided tour. |
+| `/lab` | `static/lab.html` | Portfolio builder over the full asset catalogue |
+
+`/go` and `/onboarding` are earlier versions that now redirect to `/`. Their files, `static/go.html` and `static/onboarding.html`, are no longer served.
+
+## API
+
+| Route | What it does |
+|---|---|
+| `GET /api/prices?symbols=MSFT,NVDA` | Live quotes for the underlying shares from Yahoo Finance, cached for 30 seconds |
+| `GET /api/glider/live` | Read-only Glider snapshot, cached for 60 seconds. Never returns the key or the account email. |
+| `GET /api/validation` | Summary of the saved goal strategy validation results |
+| `GET /api/config` | Optional Privy app ID and any recorded strategy IDs |
+| `GET /api/meta` | Chains, rebalance frequencies, and whether the Glider check is on |
+| `GET /api/assets`, `GET /api/strategies` | Asset catalogue and public strategies from `sprout.db` |
+| `POST /api/check` | Runs the local rules below on a portfolio |
+| `POST /api/glider-validate` | Runs the local rules, then the Glider dry run `POST /v2/strategies/validate` |
+| `GET` and `POST /api/portfolios`, `DELETE /api/portfolios/<id>` | List, save and delete mock portfolios in `sprout.db` |
+
+POST routes accept only `application/json`. Mock portfolios stay in `sprout.db`, and the server never creates anything on Glider.
+
+## Glider key
+
+Put `GLIDER_API_KEY=...` in `.env.local` in the top folder of the repo to turn on the Glider snapshot and dry run. The file is ignored by git, so never force-add it.
+
+## Portfolio rules
+
+These match what the live Glider API accepted when tested:
+
+- A portfolio holds 1 to 50 assets.
+- Weights are above 0, have at most 2 decimals, and sum to exactly 100.
+- All assets are on one chain, and none are blocklisted (NEE on BNB Chain).
+- Schedules are interval-based, because cron isn't enabled for the account.
+- Slippage and price impact are 0 to 1000 bps, and the minimum trade is at least $1.
+
+## Files
+
+- `data/` holds snapshots from the Glider production API and validation results. It contains no API key.
+- `scripts/validate_goal_strategies.py` re-runs the dry run for every goal strategy. It needs the server running.
+- `scripts/create_strategies.py` creates real strategies on Glider production, and Glider has no delete endpoint. Don't run it without approval. Its list of strategies predates the current range.
