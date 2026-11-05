@@ -142,6 +142,7 @@ details summary { cursor: pointer; font-size: .82rem; font-weight: 600; color: v
 .tour-on { position: relative; z-index: 2; border-radius: 14px; box-shadow: 0 0 0 4px var(--card), 0 0 0 7px var(--accent) !important; animation: tring 2s ease-in-out infinite; scroll-margin: 90px; }
 @keyframes tring { 50% { box-shadow: 0 0 0 4px var(--card), 0 0 0 12px rgba(0,116,183,.25) !important; } }
 body.touring .vsw { display: none; } body.touring .toast { left: auto; right: 24px; transform: none; }
+.coach[hidden] { display: none; }
 @media (max-width: 860px) { .coach { left: 16px; bottom: 16px; } .tourbtn { padding: 4px 10px; } }
 @media (prefers-reduced-motion: reduce) { .tour-on, .coach { animation: none; } }
 </style>
