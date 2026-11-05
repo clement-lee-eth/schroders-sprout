@@ -2,8 +2,7 @@
 .env
 .env.*
 
-# Local database, rebuilt with: python3 seed.py
-*.db
+# SQLite temporary files
 *.db-journal
 
 # Local clutter
