@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SPROUT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a phone-width app column, centred. A "How it works" drawer slides in from the right on any width. */
+:root {
+  --bg: #f4f6f3; --card: #ffffff; --ink: #0f1f18; --muted: #5d6d64; --line: #e2e8e3;
+  --brand: #0d6b47; --brand-ink: #ffffff; --mint: #dcf1e4; --sun: #b9861f; --sun-soft: #f6edd8;
+  --b1: #0d6b47; --b2: #2f9a68; --b3: #63bb8d; --b4: #9ed3b3; --b5: #c8e6d3; --gold: #c39a3a; --cash: #a7b3ac;
+  --bad: #b23b2e; --bad-soft: #f8e4e1;
+  --f-ui: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --f-display: "Bricolage Grotesque", "Geist", "Helvetica Neue", sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 18px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1511; --card: #131f19; --ink: #e7efe9; --muted: #98aa9f; --line: #24342b;
+    --brand: #5fd19a; --brand-ink: #062015; --mint: #173326; --sun: #e3b55a; --sun-soft: #2f2716;
+    --b1: #5fd19a; --b2: #3fae79; --b3: #2f8a60; --b4: #246b4b; --b5: #1d523a; --gold: #d8b25a; --cash: #5d6b63;
+    --bad: #f08d80; --bad-soft: #3a201c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1511; --card: #131f19; --ink: #e7efe9; --muted: #98aa9f; --line: #24342b;
+  --brand: #5fd19a; --brand-ink: #062015; --mint: #173326; --sun: #e3b55a; --sun-soft: #2f2716;
+  --b1: #5fd19a; --b2: #3fae79; --b3: #2f8a60; --b4: #246b4b; --b5: #1d523a; --gold: #d8b25a; --cash: #5d6b63;
+  --bad: #f08d80; --bad-soft: #3a201c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 16px; line-height: 1.5;
+  padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px); -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; font-family: var(--f-display); letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 7vw, 2.6rem); }
+h2 { font-size: 1.7rem; }
+h3 { font-size: 1.05rem; letter-spacing: -0.01em; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.app { max-width: 520px; margin: 0 auto; padding-block: 14px 48px; display: grid; gap: 20px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.logo { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+.logo i { width: 22px; height: 22px; border-radius: 50% 50% 50% 4px; background: var(--brand); display: inline-block; transform: rotate(-45deg); }
+.how { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+.how b { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); display: inline-block; }
+.progress { height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--brand); border-radius: 4px; transition: width 300ms ease; }
+
+.screen { display: grid; gap: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 12px; }
+.cta { appearance: none; border: 0; background: var(--brand); color: var(--brand-ink); font-weight: 600; font-size: 1.02rem; padding: 15px 18px; border-radius: 14px; cursor: pointer; width: 100%; }
+.cta:disabled { opacity: 0.45; cursor: default; }
+.ghost { appearance: none; background: transparent; border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; cursor: pointer; font-weight: 500; width: 100%; }
+.back { appearance: none; border: 0; background: none; padding: 4px 0; cursor: pointer; color: var(--muted); font-size: 0.9rem; justify-self: start; }
+.stack { display: grid; gap: 10px; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+/* Welcome */
+.hero { display: grid; gap: 14px; padding-top: 8px; }
+.points { display: grid; gap: 10px; }
+.point { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; align-items: start; }
+.point .ic { width: 36px; height: 36px; border-radius: 12px; background: var(--mint); color: var(--brand); display: grid; place-items: center; font-weight: 700; font-family: var(--f-display); }
+.logos { display: flex; flex-wrap: wrap; gap: 6px; }
+.tk { font-family: var(--f-mono); font-size: 0.78rem; padding: 4px 8px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); }
+.credit { font-size: 0.8rem; color: var(--muted); text-align: center; }
+
+/* Options */
+.opts { display: grid; gap: 10px; }
+.opt { appearance: none; text-align: left; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; cursor: pointer; display: grid; gap: 2px; }
+.opt[aria-pressed="true"] { border-color: var(--brand); background: var(--mint); }
+.opt b { font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { appearance: none; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 9px 14px; cursor: pointer; font-size: 0.93rem; }
+.chip[aria-pressed="true"] { border-color: var(--brand); background: var(--mint); color: var(--ink); }
+.chip.avoid[aria-pressed="true"] { border-color: var(--bad); background: var(--bad-soft); }
+.amount { display: flex; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--brand); padding-bottom: 6px; }
+.amount span { font-family: var(--f-display); font-size: 2.4rem; font-weight: 700; }
+.amount input { border: 0; background: transparent; font-family: var(--f-display); font-size: 2.4rem; font-weight: 700; width: 100%; min-width: 0; outline: none; }
+
+/* Portfolio */
+.summary { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 18px; align-items: center; }
+@media (max-width: 400px) { .summary { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.donut { width: 140px; height: 140px; max-width: 100%; }
+.legend { display: grid; gap: 8px; min-width: 0; }
+.lg { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 0.92rem; }
+.lg i { width: 12px; height: 12px; border-radius: 4px; display: block; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; background: var(--mint); color: var(--brand); font-weight: 500; }
+.pill.warn { background: var(--sun-soft); color: var(--sun); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.blocks { display: grid; gap: 8px; }
+.block { display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; }
+.block i { width: 6px; align-self: stretch; border-radius: 6px; }
+.block .t { display: grid; gap: 0; min-width: 0; }
+.block .t span { font-size: 0.82rem; color: var(--muted); }
+.plus { text-align: center; color: var(--muted); font-family: var(--f-mono); font-size: 0.8rem; margin: -4px 0; }
+.holdings { display: grid; }
+.h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.h:last-child { border-bottom: 0; }
+.av { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-family: var(--f-mono); font-size: 0.68rem; font-weight: 500; background: var(--bg); border: 1px solid var(--line); }
+.h .n { min-width: 0; }
+.h .n b { font-weight: 500; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h .n span { font-size: 0.78rem; color: var(--muted); }
+.h .w { text-align: right; font-family: var(--f-mono); font-size: 0.9rem; }
+.h .w small { display: block; color: var(--muted); font-size: 0.75rem; }
+details > summary { cursor: pointer; list-style: none; font-weight: 500; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::after { content: " +"; color: var(--muted); }
+details[open] > summary::after { content: " −"; }
+
+/* Account + fund */
+.field { display: grid; gap: 6px; }
+.field input { border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 13px 14px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.steps li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; color: var(--muted); }
+.steps li .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 0.75rem; }
+.steps li.on { color: var(--ink); }
+.steps li.on .dot { border-color: var(--brand); }
+.steps li.done { color: var(--ink); }
+.steps li.done .dot { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.addr { font-family: var(--f-mono); font-size: 0.82rem; background: var(--bg); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 10px; overflow-wrap: anywhere; }
+
+/* Dashboard */
+.value { font-family: var(--f-display); font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; }
+.delta { font-family: var(--f-mono); font-size: 0.9rem; }
+.up { color: var(--brand); } .down { color: var(--bad); }
+.drift { height: 8px; border-radius: 8px; background: var(--line); position: relative; overflow: hidden; }
+.drift span { position: absolute; inset: 0 auto 0 0; background: var(--sun); border-radius: 8px; transition: width 400ms ease; }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ops { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.9rem; }
+.ops li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: 8px; }
+.sell { color: var(--sun); } .buy { color: var(--brand); } .skip { color: var(--muted); }
+.wbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3px; }
+.track { height: 6px; border-radius: 6px; background: var(--bg); position: relative; }
+.track .f { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--b2); transition: width 500ms ease; }
+.track .f.over { background: var(--sun); }
+.track .tg { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: 0.6; }
+
+/* Drawer */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: var(--card); border-left: 1px solid var(--line);
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 20px calc(18px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; display: grid; gap: 14px; align-content: start;
+  box-shadow: -24px 0 48px rgba(0,0,0,0.12); transform: translateX(105%); transition: transform 260ms ease; z-index: 10; }
+.drawer.open { transform: none; }
+.drawer .call { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 4px; }
+.drawer code { font-family: var(--f-mono); font-size: 0.8rem; overflow-wrap: anywhere; }
+.verb { font-family: var(--f-mono); font-size: 0.72rem; padding: 1px 6px; border-radius: 6px; background: var(--mint); color: var(--brand); margin-right: 6px; }
+.tag { font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; justify-self: start; }
+.tag.live { background: var(--mint); color: var(--brand); }
+.tag.sim { background: var(--sun-soft); color: var(--sun); }
+pre { margin: 0; background: var(--bg); padding: 10px; border-radius: 10px; font-family: var(--f-mono); font-size: 0.72rem; overflow: auto; max-height: 240px; }
+.close { appearance: none; border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <div class="logo"><i aria-hidden="true"></i>sprout</div>
+    <button class="how" id="howBtn" type="button" aria-expanded="false" aria-controls="drawer"><b aria-hidden="true"></b>How it works</button>
+  </div>
+  <div class="progress" aria-hidden="true"><span id="prog" style="width:0%"></span></div>
+  <main id="screen" class="screen" aria-live="polite"></main>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="How it works">
+  <div class="row"><h3>Under the hood</h3><button class="close" id="closeDrawer" type="button">Close</button></div>
+  <div id="drawerBody" class="stack"></div>
+</aside>
+
+<script>
+(function () {
+  // Curator shown to users. Kept neutral for the confidential pilot; change this one line to rebrand.
+  var CURATOR = "SPROUT Investment Team";
+
+  var NAMES = { MSFT: "Microsoft", AAPL: "Apple", NVDA: "Nvidia", GOOGL: "Alphabet", AMZN: "Amazon", TSM: "TSMC", ASML: "ASML", LLY: "Eli Lilly",
+    V: "Visa", COST: "Costco", SO: "Southern Company", AVGO: "Broadcom", AMD: "AMD", MU: "Micron", ANET: "Arista Networks", NVO: "Novo Nordisk",
+    ISRG: "Intuitive Surgical", VRTX: "Vertex", REGN: "Regeneron", ABBV: "AbbVie", CEG: "Constellation Energy", VST: "Vistra", GEV: "GE Vernova",
+    ETN: "Eaton", PWR: "Quanta Services", ENPH: "Enphase", WMT: "Walmart", KO: "Coca-Cola", PEP: "PepsiCo", MCD: "McDonald's", HD: "Home Depot",
+    RKLB: "Rocket Lab", ASTS: "AST SpaceMobile", LMT: "Lockheed Martin", NOC: "Northrop Grumman", GD: "General Dynamics", RTX: "RTX",
+    GLD: "Gold", SLV: "Silver", USDT: "Cash (USDT)" };
+
+  var BLOCKS = {
+    core:   { name: "Global Quality Core", sub: "11 market leaders, curated by " + CURATOR, color: "var(--b1)",
+              items: { MSFT: 12, AAPL: 10, NVDA: 10, GOOGL: 8, AMZN: 8, TSM: 7, ASML: 7, LLY: 7, V: 6, COST: 5, SO: 5 } },
+    ai:     { name: "AI & chips", sub: "The companies building AI", color: "var(--b2)", items: { NVDA: 1, AVGO: 1, AMD: 1, TSM: 1, ASML: 1, MU: 1, ANET: 1 } },
+    health: { name: "Healthcare innovation", sub: "New medicines and medtech", color: "var(--b3)", items: { LLY: 1, NVO: 1, ISRG: 1, VRTX: 1, REGN: 1, ABBV: 1 } },
+    energy: { name: "Energy transition", sub: "Power for a cleaner grid", color: "var(--b4)", items: { CEG: 1, VST: 1, GEV: 1, ETN: 1, PWR: 1, ENPH: 1 } },
+    brands: { name: "Everyday brands", sub: "Names you use every week", color: "var(--b5)", items: { COST: 1, WMT: 1, KO: 1, PEP: 1, MCD: 1, HD: 1 } },
+    space:  { name: "Space & defence", sub: "Satellites, launch and security", color: "var(--b4)", items: { RKLB: 1, ASTS: 1, LMT: 1, NOC: 1, GD: 1, RTX: 1 } },
+    gold:   { name: "Gold & silver", sub: "A steadier store of value", color: "var(--gold)", items: { GLD: 7, SLV: 3 } },
+    cash:   { name: "Cash buffer", sub: "Held as USDT, ready to rebalance", color: "var(--cash)", items: { USDT: 1 } }
+  };
+  var THEMES = ["ai", "health", "energy", "brands", "space"];
+  var AVOID = { fossil: { name: "Fossil fuels", tickers: ["XOM", "CVX", "COP", "OXY", "EQT", "HAL", "SLB", "WMB"] },
+                defence: { name: "Weapons & defence", tickers: ["LMT", "NOC", "GD", "RTX", "BA"] } };
+  var MIX = { 1: { label: "Cautious", core: 55, themes: 15, gold: 10, cash: 20 },
+              2: { label: "Balanced", core: 65, themes: 20, gold: 5, cash: 10 },
+              3: { label: "Adventurous", core: 60, themes: 35, gold: 0, cash: 5 } };
+
+  var S = { step: "welcome", goal: null, risk: null, themes: [], avoid: [], amount: 5000, monthly: 0,
+            assets: {}, alloc: [], blockW: {}, check: null, email: "", addr: "", holdings: null, round: 0, op: null };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var money = function (v) { return "$" + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, reduce ? 0 : ms); }); };
+
+  // ---------- Composition: curated blocks + personal choices -> one Glider allocation ----------
+  function compose() {
+    var mix = MIX[S.risk || 2], excluded = {};
+    S.avoid.forEach(function (k) { AVOID[k].tickers.forEach(function (t) { excluded[t] = 1; }); });
+    var themes = S.themes.filter(function (t) { return Object.keys(BLOCKS[t].items).some(function (x) { return !excluded[x]; }); });
+    var bw = { core: mix.core + (themes.length ? 0 : mix.themes) };
+    themes.forEach(function (t) { bw[t] = mix.themes / themes.length; });
+    bw.gold = mix.gold; bw.cash = mix.cash;
+    var w = {}, from = {};
+    Object.keys(bw).forEach(function (b) {
+      if (!bw[b]) return;
+      var items = BLOCKS[b].items, keys = Object.keys(items).filter(function (t) { return !excluded[t] && S.assets[t]; });
+      var tot = keys.reduce(function (s, t) { return s + items[t]; }, 0);
+      keys.forEach(function (t) { w[t] = (w[t] || 0) + bw[b] * items[t] / tot; (from[t] = from[t] || []).push(b); });
+    });
+    var rows = Object.keys(w).map(function (t) { return { t: t, w: Math.floor(w[t] * 100) / 100, from: from[t] }; })
+      .sort(function (a, b) { return b.w - a.w; });
+    var diff = Math.round((100 - rows.reduce(function (s, r) { return s + r.w; }, 0)) * 100) / 100;
+    if (rows.length) rows[0].w = Math.round((rows[0].w + diff) * 100) / 100;
+    S.alloc = rows; S.blockW = bw;
+    return rows;
+  }
+  function checkAlloc() {
+    var body = { name: "SPROUT · " + MIX[S.risk || 2].label + (S.themes.length ? " · " + S.themes.map(function (t) { return BLOCKS[t].name; }).join(", ") : ""),
+      frequency: "daily", slippage_bps: 100, price_impact_bps: 100, threshold_usd: "5.00",
+      allocation: S.alloc.map(function (r) { return { caip_id: S.assets[r.t].caip_id, weight: String(r.w), symbol: r.t }; }) };
+    S.checkBody = body;
+    return fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); }).then(function (j) { S.check = j; return j; });
+  }
+
+  // ---------- Screens ----------
+  var ORDER = ["welcome", "goal", "risk", "themes", "avoid", "amount", "portfolio", "account", "fund", "home"];
+  function go(step) { S.step = step; render(); window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); }
+  function next() { go(ORDER[ORDER.indexOf(S.step) + 1]); }
+  function back() { go(ORDER[ORDER.indexOf(S.step) - 1]); }
+  var backBtn = '<button class="back" type="button" data-act="back">← Back</button>';
+
+  function optList(name, opts, cur) {
+    return '<div class="opts" role="group">' + opts.map(function (o) {
+      return '<button type="button" class="opt" data-' + name + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '"><b>' + o[1] + '</b><span class="muted small">' + o[2] + '</span></button>';
+    }).join("") + '</div>';
+  }
+
+  function donut(bw) {
+    var keys = Object.keys(bw).filter(function (k) { return bw[k] > 0; }), r = 54, c = 2 * Math.PI * r, off = 0;
+    var arcs = keys.map(function (k) {
+      var len = c * bw[k] / 100, s = '<circle cx="70" cy="70" r="' + r + '" fill="none" stroke="' + BLOCKS[k].color + '" stroke-width="22" stroke-dasharray="' + Math.max(len - 2, 0) + ' ' + (c - Math.max(len - 2, 0)) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 70 70)"/>';
+      off += len; return s;
+    }).join("");
+    return '<svg class="donut" viewBox="0 0 140 140" role="img" aria-label="Allocation by building block">' + arcs +
+      '<text x="70" y="66" text-anchor="middle" font-family="Geist Mono, monospace" font-size="11" fill="var(--muted)">' + S.alloc.length + ' holdings</text>' +
+      '<text x="70" y="84" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="16" fill="var(--ink)">' + MIX[S.risk || 2].label + '</text></svg>';
+  }
+  function blockList(bw) {
+    var keys = Object.keys(bw).filter(function (k) { return bw[k] > 0; });
+    return '<div class="blocks">' + keys.map(function (k, i) {
+      return (i ? '<div class="plus" aria-hidden="true">+</div>' : '') + '<div class="block"><i style="background:' + BLOCKS[k].color + '"></i><div class="t"><b>' + esc(BLOCKS[k].name) + '</b><span>' + esc(BLOCKS[k].sub) + '</span></div><span class="mono">' + (Math.round(bw[k] * 10) / 10) + '%</span></div>';
+    }).join("") + '</div>';
+  }
+  function holdingRow(r, extra) {
+    return '<div class="h"><div class="av" aria-hidden="true">' + esc(r.t.slice(0, 4)) + '</div><div class="n"><b>' + esc(NAMES[r.t] || r.t) + '</b><span>' + esc(S.assets[r.t].token_symbol) + ' · ' + r.from.map(function (b) { return BLOCKS[b].name; }).join(" + ") + '</span></div><div class="w">' + (extra || (r.w.toFixed(2) + '%')) + '</div></div>';
+  }
+
+  var SCREENS = {
+    welcome: function () {
+      return '<section class="hero"><span class="pill">Tokenised shares · Pilot</span><h1>Own a slice of the world\'s best companies.</h1>' +
+        '<p class="muted">A portfolio built around you, made of tokenised shares in companies like Apple and Nvidia. Held in your own account and rebalanced automatically.</p></section>' +
+        '<div class="card points">' +
+        '<div class="point"><span class="ic">1</span><div><b>Personal</b><p class="muted small">Answer four questions. We compose your portfolio from curated building blocks.</p></div></div>' +
+        '<div class="point"><span class="ic">2</span><div><b>Yours</b><p class="muted small">Every share sits in your own account, not a pooled fund. Withdraw anytime.</p></div></div>' +
+        '<div class="point"><span class="ic">3</span><div><b>On autopilot</b><p class="muted small">Your portfolio rebalances itself onchain, so it stays on target.</p></div></div></div>' +
+        '<div class="logos" aria-label="Examples of available shares">' + ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "TSM", "LLY", "V", "COST", "+130 more"].map(function (t) { return '<span class="tk">' + t + '</span>'; }).join("") + '</div>' +
+        '<button class="cta" type="button" data-act="next">Build my portfolio</button><p class="credit">Takes about a minute · Strategies curated by ' + esc(CURATOR) + ' · Powered by Glider</p>';
+    },
+    goal: function () {
+      return backBtn + '<h2>What are you investing for?</h2>' + optList("goal", [
+        ["grow", "Grow my wealth over time", "I'm thinking 10 years or more"],
+        ["goal", "A goal in 3 to 5 years", "A home, a wedding, further study"],
+        ["steady", "A steadier ride", "I want fewer ups and downs"]], S.goal) +
+        '<button class="cta" type="button" data-act="next"' + (S.goal ? '' : ' disabled') + '>Continue</button>';
+    },
+    risk: function () {
+      return backBtn + '<h2>If your portfolio fell 15% in a month, you would…</h2>' + optList("risk", [
+        [1, "Sell to stop the loss", "Protecting what I have matters most"],
+        [2, "Hold and wait it out", "Markets recover over time"],
+        [3, "Invest more at lower prices", "I'm comfortable with big swings"]], S.risk) +
+        (S.risk ? '<p class="muted small">Your risk level: <b style="color:var(--ink)">' + MIX[S.risk].label + '</b></p>' : '') +
+        '<button class="cta" type="button" data-act="next"' + (S.risk ? '' : ' disabled') + '>Continue</button>';
+    },
+    themes: function () {
+      return backBtn + '<h2>Anything you\'d like more of?</h2><p class="muted">Pick up to 3 themes. Each one adds a curated block to your core portfolio.</p>' +
+        '<div class="chips" role="group">' + THEMES.map(function (t) { return '<button type="button" class="chip" data-theme="' + t + '" aria-pressed="' + (S.themes.indexOf(t) >= 0) + '">' + esc(BLOCKS[t].name) + '</button>'; }).join("") + '</div>' +
+        '<button class="cta" type="button" data-act="next">' + (S.themes.length ? "Continue" : "Skip, keep it simple") + '</button>';
+    },
+    avoid: function () {
+      return backBtn + '<h2>Anything to leave out?</h2><p class="muted">We\'ll remove these companies from every block in your portfolio.</p>' +
+        '<div class="chips" role="group">' + Object.keys(AVOID).map(function (k) { return '<button type="button" class="chip avoid" data-avoid="' + k + '" aria-pressed="' + (S.avoid.indexOf(k) >= 0) + '">' + esc(AVOID[k].name) + '</button>'; }).join("") + '</div>' +
+        '<button class="cta" type="button" data-act="next">Continue</button>';
+    },
+    amount: function () {
+      return backBtn + '<h2>How much would you like to start with?</h2>' +
+        '<label class="amount" for="amt"><span>$</span><input id="amt" inputmode="numeric" value="' + S.amount + '" aria-label="Starting amount in US dollars"></label>' +
+        '<div class="chips">' + [100, 500, 1000, 5000].map(function (v) { return '<button type="button" class="chip" data-amt="' + v + '" aria-pressed="' + (S.amount === v) + '">$' + v.toLocaleString() + '</button>'; }).join("") + '</div>' +
+        '<p class="muted small">Start from $100. Smaller amounts work, but trades under $5 are skipped, so very small portfolios rebalance less precisely.</p>' +
+        '<button class="cta" type="button" data-act="build"' + (S.amount >= 100 ? '' : ' disabled') + '>See my portfolio</button>';
+    },
+    portfolio: function () {
+      var ok = S.check && S.check.valid;
+      return backBtn + '<div class="row"><h2>Your portfolio</h2><span class="pill' + (ok ? '' : ' bad') + '">' + (ok ? '✓ Ready on Glider' : 'Check needed') + '</span></div>' +
+        '<div class="card"><div class="summary">' + donut(S.blockW) + '<div class="legend">' + Object.keys(S.blockW).filter(function (k) { return S.blockW[k] > 0; }).map(function (k) {
+          return '<div class="lg"><i style="background:' + BLOCKS[k].color + '"></i><span>' + esc(BLOCKS[k].name) + '</span><span class="mono">' + (Math.round(S.blockW[k] * 10) / 10) + '%</span></div>'; }).join("") + '</div></div></div>' +
+        '<div class="card"><h3>Built from building blocks</h3><p class="muted small">Each block is a curated strategy. Yours are combined into one portfolio that rebalances as a whole.</p>' + blockList(S.blockW) +
+        '<p class="muted small" style="margin-top:4px">Try a different mix:</p><div class="chips">' + THEMES.map(function (t) { return '<button type="button" class="chip" data-retheme="' + t + '" aria-pressed="' + (S.themes.indexOf(t) >= 0) + '">' + esc(BLOCKS[t].name) + '</button>'; }).join("") + '</div></div>' +
+        '<div class="card"><details><summary>' + S.alloc.length + ' holdings in your portfolio</summary><div class="holdings" style="margin-top:8px">' + S.alloc.map(function (r) { return holdingRow(r, r.w.toFixed(2) + '%<small>' + money(S.amount * r.w / 100) + '</small>'); }).join("") + '</div></details></div>' +
+        (ok ? '' : '<p class="pill bad">' + esc((S.check && S.check.errors || ["Checking…"]).join(" ")) + '</p>') +
+        '<button class="cta" type="button" data-act="next"' + (ok ? '' : ' disabled') + '>Invest ' + money(S.amount) + '</button>' +
+        '<p class="credit">Illustrative pilot. Not investment advice. Tokenised shares are available to eligible investors only.</p>';
+    },
+    account: function () {
+      var made = !!S.addr, approved = !!S.approved;
+      return backBtn + '<h2>' + (made ? "Your account is ready" : "Create your account") + '</h2>' +
+        (made ? '' : '<div class="field"><label for="email" class="small muted">Email</label><input id="email" type="email" autocomplete="off" placeholder="you@example.com" value="' + esc(S.email) + '"></div>' +
+          '<button class="cta" type="button" data-act="signup">Continue with email</button><p class="muted small">No seed phrases. A secure account is created for you behind the scenes.</p>') +
+        (made ? '<div class="card"><p class="small muted">Your portfolio account on BNB Chain (demo)</p><div class="addr">' + esc(S.addr) + '</div><p class="small muted">Only you control it. Shares are held here, not in a pooled fund.</p></div>' +
+          '<div class="card"><h3>Turn on autopilot</h3><p class="muted small">One approval lets SPROUT rebalance your portfolio. It can trade within your portfolio but cannot withdraw your money. You can switch it off anytime.</p>' +
+          (approved ? '<span class="pill">✓ Autopilot approved</span>' : '<button class="cta" type="button" data-act="approve">Approve autopilot</button>') + '</div>' +
+          '<button class="cta" type="button" data-act="next"' + (approved ? '' : ' disabled') + '>Continue to funding</button>' : '');
+    },
+    fund: function () {
+      var st = S.fundStep || 0;
+      var items = ["Deposit " + money(S.amount) + " received", "Buying " + S.alloc.length + " holdings", "Portfolio live, autopilot on"];
+      return (st ? '' : backBtn) + '<h2>Fund your portfolio</h2>' +
+        '<div class="card"><div class="row"><span>Amount</span><b class="mono">' + money(S.amount) + '</b></div><div class="row"><span class="muted small">Pay with</span><span class="small">USDT on BNB Chain</span></div><div class="row"><span class="muted small">Platform fee on trades</span><span class="small mono">0.30%</span></div></div>' +
+        '<ol class="steps">' + items.map(function (t, i) { var cls = st > i + 1 ? "done" : st === i + 1 ? "on" : ""; return '<li class="' + cls + '"><span class="dot">' + (st > i + 1 ? "✓" : "") + '</span><span>' + t + '</span></li>'; }).join("") + '</ol>' +
+        (st ? '' : '<button class="cta" type="button" data-act="fund">Add ' + money(S.amount) + '</button><p class="muted small">Demo only. No real money moves.</p>');
+    },
+    home: function () {
+      var h = S.holdings, total = h.reduce(function (s, x) { return s + x.v; }, 0), base = S.amount;
+      var chg = total - base, pct = chg / base * 100;
+      var drift = h.reduce(function (s, x) { return s + Math.abs(x.v / total * 100 - x.target); }, 0) / 2;
+      var op = S.op;
+      return '<div class="stack"><span class="muted small">Portfolio value</span><div class="value mono" style="font-family:var(--f-display)">' + money(total) + '</div>' +
+        '<span class="delta ' + (chg >= 0 ? 'up' : 'down') + '">' + (chg >= 0 ? "+" : "−") + money(Math.abs(chg)) + ' (' + (chg >= 0 ? "+" : "−") + Math.abs(pct).toFixed(2) + '%) since you started</span></div>' +
+        '<div class="card"><div class="row"><h3>Autopilot</h3><span class="pill' + (drift > 1 ? ' warn' : '') + '">' + (drift > 1 ? 'Drifted ' + drift.toFixed(1) + '% · rebalance due' : '✓ On target') + '</span></div>' +
+        '<div class="drift" aria-hidden="true"><span style="width:' + Math.min(drift * 10, 100) + '%"></span></div>' +
+        '<p class="muted small">Checks daily. When prices move your mix away from target, it trades back inside your account.</p>' +
+        '<div class="btns"><button class="ghost" type="button" data-act="move"' + (op && op.running ? ' disabled' : '') + '>Simulate a market move</button><button class="cta" type="button" data-act="rebalance"' + (drift > 0.05 && !(op && op.running) ? '' : ' disabled') + '>Rebalance now</button></div>' +
+        (op ? '<ol class="steps">' + ["accepted", "running", "completed"].map(function (s, i) { var k = op.stage > i ? "done" : op.stage === i ? "on" : ""; return '<li class="' + k + '"><span class="dot">' + (op.stage > i ? "✓" : "") + '</span><span class="mono small">' + s + (i === 2 && op.stage > 2 ? ' · ' + op.trades.filter(function (t) { return !t.skip; }).length + ' trades, fee ' + money(op.fee) : '') + '</span></li>'; }).join("") + '</ol>' +
+          (op.stage > 2 ? '<ul class="ops">' + op.trades.map(function (t) { return '<li><span class="' + (t.skip ? 'skip' : t.d < 0 ? 'sell' : 'buy') + '">' + (t.skip ? 'Skip' : t.d < 0 ? 'Sell' : 'Buy') + '</span><span>' + esc(NAMES[t.t] || t.t) + '</span><span class="mono">' + money(Math.abs(t.d)) + '</span></li>'; }).join("") + '</ul>' : '') : '') + '</div>' +
+        '<div class="card"><h3>Your mix vs target</h3><div class="holdings">' + h.slice().sort(function (a, b) { return b.target - a.target; }).map(function (x) {
+          var cw = x.v / total * 100, over = cw > x.target + 0.3;
+          return '<div class="h"><div class="av" aria-hidden="true">' + esc(x.t.slice(0, 4)) + '</div><div class="wbar"><div class="row"><b style="font-weight:500">' + esc(NAMES[x.t] || x.t) + '</b><span class="mono small">' + cw.toFixed(1) + '% <span class="muted">/ ' + x.target.toFixed(1) + '%</span></span></div><div class="track"><div class="f' + (over ? ' over' : '') + '" style="width:' + Math.min(cw / 16 * 100, 100) + '%"></div><div class="tg" style="left:' + Math.min(x.target / 16 * 100, 100) + '%"></div></div></div><div class="w">' + money(x.v) + '</div></div>';
+        }).join("") + '</div></div>' +
+        '<div class="card"><h3>Change your mix anytime</h3><p class="muted small">Add or remove a block. Your target updates, and the next rebalance moves you there. No new account, no selling everything.</p><div class="chips">' +
+        THEMES.map(function (t) { return '<button type="button" class="chip" data-hometheme="' + t + '" aria-pressed="' + (S.themes.indexOf(t) >= 0) + '">' + esc(BLOCKS[t].name) + '</button>'; }).join("") + '</div></div>' +
+        '<button class="ghost" type="button" data-act="restart">Start again</button>';
+    }
+  };
+
+  // ---------- Drawer content per step ----------
+  function call(verb, path, note, live) { return '<div class="call"><code><span class="verb">' + verb + '</span>' + path + '</code><span class="muted small">' + note + '</span><span class="tag ' + (live ? 'live' : 'sim') + '">' + (live ? 'Verified on live API' : 'Simulated in this demo') + '</span></div>'; }
+  function drawer() {
+    var s = S.step, out = "";
+    if (["welcome", "goal", "risk", "themes", "avoid", "amount"].indexOf(s) >= 0) {
+      out = '<p class="muted small">These answers stay with SPROUT. They choose which curated blocks go into the client\'s portfolio and how much of each. No Glider calls yet.</p>' +
+        call("POST", "/v2/assets/allocation-breakdown", "Where the catalogue of tokenised shares and sectors comes from.", true) +
+        '<p class="muted small">Available today: 143 Ondo tokenised shares on BNB Chain and 8 Coinbase shares on Base.</p>';
+    } else if (s === "portfolio") {
+      out = '<p class="muted small">The blocks are merged into one allocation on one chain (BNB Chain, Ondo shares), because each Glider strategy must use a single chain.</p>' +
+        call("POST", "/v2/strategies/validate", "Dry run of this exact allocation. 177 of 178 assets pass on the live API.", true) +
+        call("POST", "/v2/strategies", "Creates a private strategy for this client: their personalised portfolio template.", false) +
+        '<details><summary class="small">Request body</summary><pre>' + esc(JSON.stringify(S.check && S.check.payload, null, 2)) + '</pre></details>';
+    } else if (s === "account") {
+      out = call("SDK", "Privy · email login", "Creates an embedded wallet. No seed phrase for the client.", false) +
+        call("POST", "/v2/enroll/signature", "Glider prepares the message that grants the autopilot permission.", false) +
+        call("SIGN", "personal_sign", "The client signs once, in their own wallet.", false) +
+        call("POST", "/v2/enroll", "Creates the client's smart account on BNB Chain. The client stays the owner.", false);
+    } else if (s === "fund") {
+      out = call("TX", "USDT → smart account", "The client deposits into their own account. Glider never holds the funds.", false) +
+        call("GET", "/v2/portfolios/{id}/positions", "Confirms the deposit has arrived.", false) +
+        call("POST", "/v2/portfolios/{id}/start", "Turns on the daily schedule; the first rebalance buys the holdings.", false);
+    } else if (s === "home") {
+      out = call("CRON", "Daily schedule", "Glider checks drift daily and trades back to target. Market-hours scheduling needs enabling for our account.", false) +
+        call("POST", "/v2/portfolios/{id}/rebalance", "An on-demand rebalance, as triggered by the button.", false) +
+        call("GET", "/v2/portfolios/{id}/operations/{opId}", "Status moves accepted → running → completed, as shown on screen.", false) +
+        call("POST", "/v2/strategies/{id}/versions", "Changing blocks publishes a new version of the client's strategy. The next rebalance moves to it.", false) +
+        '<p class="muted small">Guardrails on every trade: 1% max slippage, 1% max price impact, no trades under $5.</p>';
+    }
+    $("drawerBody").innerHTML = out;
+  }
+
+  // ---------- Simulation ----------
+  function startHoldings() {
+    S.holdings = S.alloc.map(function (r) { return { t: r.t, target: r.w, v: S.amount * r.w / 100 * 0.997 }; });
+  }
+  function seeded(t, n) { var h = 0, s = t + ":" + n; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return (h % 1000) / 1000; }
+  function marketMove() {
+    S.round += 1; S.op = null;
+    S.holdings.forEach(function (x) { if (x.t !== "USDT") x.v *= 1 + (seeded(x.t, S.round) * 0.22 - 0.09); });
+  }
+  function retarget() {
+    var map = {}; S.alloc.forEach(function (r) { map[r.t] = r.w; });
+    var have = {}; S.holdings.forEach(function (x) { have[x.t] = 1; x.target = map[x.t] || 0; });
+    S.alloc.forEach(function (r) { if (!have[r.t]) S.holdings.push({ t: r.t, target: r.w, v: 0 }); });
+  }
+  function rebalance() {
+    var total = S.holdings.reduce(function (s, x) { return s + x.v; }, 0);
+    var trades = S.holdings.map(function (x) { var d = total * x.target / 100 - x.v; return { t: x.t, d: d, skip: Math.abs(d) < 5 }; })
+      .filter(function (t) { return Math.abs(t.d) >= 0.01; }).sort(function (a, b) { return a.d - b.d; });
+    var fee = trades.filter(function (t) { return !t.skip && t.d > 0; }).reduce(function (s, t) { return s + t.d; }, 0) * 0.003;
+    S.op = { stage: 0, running: true, trades: trades, fee: fee };
+    render();
+    wait(700).then(function () { S.op.stage = 1; render(); return wait(1100); }).then(function () {
+      trades.forEach(function (t) { if (!t.skip) S.holdings.forEach(function (x) { if (x.t === t.t) x.v += t.d; }); });
+      var cash = S.holdings.filter(function (x) { return x.t === "USDT"; })[0] || S.holdings[0]; cash.v -= fee;
+      S.holdings = S.holdings.filter(function (x) { return x.target > 0 || x.v > 0.01; });
+      S.op.stage = 3; S.op.running = false; render();
+    });
+  }
+
+  // ---------- Render + events ----------
+  function render() {
+    $("screen").innerHTML = SCREENS[S.step]();
+    var i = ORDER.indexOf(S.step);
+    $("prog").style.width = (S.step === "welcome" ? 0 : S.step === "home" ? 100 : Math.round(i / (ORDER.length - 1) * 100)) + "%";
+    drawer();
+    var amt = $("amt");
+    if (amt) amt.addEventListener("input", function () { S.amount = parseInt(amt.value.replace(/[^0-9]/g, ""), 10) || 0; var b = document.querySelector('[data-act="build"]'); if (b) b.disabled = S.amount < 100; document.querySelectorAll("[data-amt]").forEach(function (c) { c.setAttribute("aria-pressed", String(+c.dataset.amt === S.amount)); }); });
+    var em = $("email"); if (em) em.addEventListener("input", function () { S.email = em.value; });
+  }
+  function rebuild(thenStep) { compose(); return checkAlloc().then(function () { if (thenStep) go(thenStep); else render(); }); }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var d = b.dataset;
+    if (d.goal) { S.goal = d.goal; if (!S.risk) S.risk = d.goal === "grow" ? 3 : d.goal === "goal" ? 2 : 1; return render(); }
+    if (d.risk) { S.risk = +d.risk; return render(); }
+    if (d.theme) { var i = S.themes.indexOf(d.theme); if (i >= 0) S.themes.splice(i, 1); else if (S.themes.length < 3) S.themes.push(d.theme); return render(); }
+    if (d.avoid) { var j = S.avoid.indexOf(d.avoid); if (j >= 0) S.avoid.splice(j, 1); else S.avoid.push(d.avoid); return render(); }
+    if (d.amt) { S.amount = +d.amt; return render(); }
+    if (d.retheme) { var k = S.themes.indexOf(d.retheme); if (k >= 0) S.themes.splice(k, 1); else if (S.themes.length < 3) S.themes.push(d.retheme); return rebuild(); }
+    if (d.hometheme) { var m = S.themes.indexOf(d.hometheme); if (m >= 0) S.themes.splice(m, 1); else if (S.themes.length < 3) S.themes.push(d.hometheme); compose(); retarget(); S.op = null; return checkAlloc().then(render); }
+    switch (d.act) {
+      case "next": return next();
+      case "back": return back();
+      case "build": return rebuild("portfolio");
+      case "signup":
+        if (!/^\S+@\S+\.\S+$/.test(S.email)) { var f = $("email"); f.focus(); f.setCustomValidity("Enter an email address"); f.reportValidity(); return; }
+        b.disabled = true; b.textContent = "Creating your account…";
+        return wait(900).then(function () { var hex = ""; for (var q = 0; q < 40; q++) hex += "0123456789abcdef"[Math.floor(Math.random() * 16)]; S.addr = "0x" + hex; render(); });
+      case "approve":
+        b.disabled = true; b.textContent = "Waiting for your approval…";
+        return wait(900).then(function () { S.approved = true; render(); });
+      case "fund":
+        S.fundStep = 1; render();
+        return wait(900).then(function () { S.fundStep = 2; render(); return wait(1200); }).then(function () {
+          S.fundStep = 3; render();
+          fetch("/api/portfolios", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(S.checkBody) });
+          return wait(900);
+        }).then(function () { S.fundStep = 4; startHoldings(); go("home"); });
+      case "move": marketMove(); return render();
+      case "rebalance": return rebalance();
+      case "restart": S = Object.assign(S, { step: "welcome", goal: null, risk: null, themes: [], avoid: [], amount: 5000, addr: "", approved: false, fundStep: 0, holdings: null, op: null, round: 0 }); return render();
+    }
+  });
+  $("howBtn").addEventListener("click", function () { var o = $("drawer").classList.toggle("open"); $("howBtn").setAttribute("aria-expanded", String(o)); });
+  $("closeDrawer").addEventListener("click", function () { $("drawer").classList.remove("open"); $("howBtn").setAttribute("aria-expanded", "false"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("closeDrawer").click(); });
+
+  fetch("/api/assets").then(function (r) { return r.json(); }).then(function (list) {
+    list.forEach(function (a) { if (a.chain_id === 56 && a.usable) S.assets[a.symbol] = a; });
+    render();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SPROUT Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workbench. Catalogue on the left, the portfolio being composed on the right, templates and saved portfolios below. */
+:root {
+  --paper: #f3f6f2; --sheet: #ffffff; --ink: #17251d; --muted: #5b6b61; --rule: #d5ddd6;
+  --leaf: #1f6b45; --leaf-soft: #e1eee5; --amber: #a5620f; --amber-soft: #f6ead8; --alert: #a3352a; --alert-soft: #f7e3e0;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "Source Serif 4", Georgia, serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101813; --sheet: #16211a; --ink: #e4ece6; --muted: #9aab9f; --rule: #2a3a30;
+    --leaf: #6cc495; --leaf-soft: #1c3226; --amber: #e0a55a; --amber-soft: #33281a; --alert: #ef8f83; --alert-soft: #3a211e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101813; --sheet: #16211a; --ink: #e4ece6; --muted: #9aab9f; --rule: #2a3a30;
+  --leaf: #6cc495; --leaf-soft: #1c3226; --amber: #e0a55a; --amber-soft: #33281a; --alert: #ef8f83; --alert-soft: #3a211e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.5;
+  padding: env(safe-area-inset-top, 0px) 20px env(safe-area-inset-bottom, 0px); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 22px 56px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: 2rem; color: var(--leaf); letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; }
+p { margin: 0; }
+.label { font-family: var(--f-data); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--f-data); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.strip { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; }
+.strip .conf { color: var(--alert); }
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.stats div { display: grid; }
+.stats b { font-family: var(--f-data); font-size: 1.2rem; font-weight: 500; color: var(--leaf); font-variant-numeric: tabular-nums; }
+
+.bench { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .bench { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+
+/* Catalogue */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { font-family: var(--f-data); font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; }
+.tab[aria-pressed="true"] { background: var(--leaf); border-color: var(--leaf); color: var(--sheet); }
+.tab:disabled { opacity: 0.4; cursor: not-allowed; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+input, select { font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 7px 9px; min-width: 0; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--leaf); outline-offset: 1px; }
+#q { flex: 1 1 180px; }
+.list { max-height: 520px; overflow-y: auto; border-top: 1px solid var(--rule); }
+.asset { display: grid; grid-template-columns: 5.6rem minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 2px; border-bottom: 1px solid var(--rule); }
+.asset .sym { font-family: var(--f-data); font-weight: 500; font-size: 0.88rem; }
+.asset .nm { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asset .meta { font-family: var(--f-data); font-size: 0.72rem; color: var(--muted); }
+.asset.blocked .sym, .asset.blocked .nm { color: var(--alert); text-decoration: line-through; }
+.btn { font-family: var(--f-display); font-weight: 500; font-size: 0.9rem; padding: 6px 12px; border-radius: 6px; cursor: pointer; border: 1px solid var(--leaf); background: var(--leaf); color: var(--sheet); }
+.btn.ghost { background: transparent; color: var(--leaf); }
+.btn.small { padding: 3px 9px; font-size: 0.82rem; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.danger { border-color: var(--alert); color: var(--alert); background: transparent; }
+
+/* Builder */
+.field { display: grid; gap: 4px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.holdings { display: grid; gap: 6px; }
+.holding { display: grid; grid-template-columns: 5.6rem minmax(0, 1fr) 5.2rem auto; gap: 8px; align-items: center; }
+.holding input { width: 100%; text-align: right; font-family: var(--f-data); }
+.empty { padding: 18px; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 0.92rem; }
+.bar { display: flex; height: 16px; border-radius: 3px; overflow: hidden; background: var(--paper); }
+.bar span { height: 100%; border-right: 1px solid var(--sheet); }
+.sum { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 0.9rem; }
+.checks li { padding-left: 1.3rem; position: relative; }
+.checks li::before { position: absolute; left: 0; font-family: var(--f-data); }
+.checks li.pass::before { content: "✓"; color: var(--leaf); }
+.checks li.fail { color: var(--alert); }
+.checks li.fail::before { content: "×"; }
+.result { font-size: 0.9rem; padding: 8px 10px; border-radius: 6px; background: var(--paper); }
+.result.ok { background: var(--leaf-soft); color: var(--leaf); }
+.result.bad { background: var(--alert-soft); color: var(--alert); }
+details summary { cursor: pointer; font-family: var(--f-data); font-size: 0.8rem; color: var(--muted); }
+pre { margin: 8px 0 0; padding: 10px; background: var(--paper); border-radius: 6px; font-family: var(--f-data); font-size: 0.75rem; overflow-x: auto; max-height: 260px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Templates + saved */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.card h3 { font-size: 1rem; }
+.card .row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.chips { font-family: var(--f-data); font-size: 0.74rem; color: var(--muted); line-height: 1.6; }
+section { display: grid; gap: 12px; }
+footer { border-top: 1px solid var(--rule); padding-top: 12px; color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="strip">
+    <span class="label">SPROUT Lab · Local mock · Data from Glider production API, 1 Oct 2026</span>
+    <span class="label conf">Confidential · Internal only</span>
+  </div>
+
+  <div class="top">
+    <div style="display:grid;gap:6px">
+      <h1>SPROUT Lab</h1>
+      <p class="muted">Compose a portfolio from the tokenised equities available on Glider. Rules match what the live API enforces.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="bench">
+    <div class="panel" aria-labelledby="cat-h">
+      <h2 id="cat-h">What's available</h2>
+      <div class="tabs" id="tabs" role="group" aria-label="Chain"></div>
+      <div class="filters">
+        <input id="q" type="search" placeholder="Search ticker or company" aria-label="Search assets">
+        <select id="type" aria-label="Asset type"><option value="">All types</option></select>
+        <select id="sector" aria-label="Sector"><option value="">All sectors</option></select>
+      </div>
+      <p class="mono muted" id="count"></p>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div class="panel" aria-labelledby="b-h">
+      <h2 id="b-h">Portfolio builder</h2>
+      <div class="field"><label class="label" for="name">Strategy name</label><input id="name" maxlength="256" value="SPROUT Pilot – Global Quality Core"></div>
+      <div class="sum"><span class="label" id="chainlabel">Chain: not set</span><span class="mono" id="total">Total 0%</span></div>
+      <div class="bar" id="bar" aria-hidden="true"></div>
+      <div class="holdings" id="holdings"></div>
+      <div class="actions">
+        <button class="btn ghost small" id="equal" type="button">Equal weight</button>
+        <button class="btn ghost small" id="clear" type="button">Clear</button>
+      </div>
+      <div class="grid3">
+        <div class="field"><label class="label" for="freq">Rebalance</label><select id="freq"></select></div>
+        <div class="field"><label class="label" for="slip">Max slippage (bps)</label><input id="slip" type="number" min="0" max="1000" value="100"></div>
+        <div class="field"><label class="label" for="impact">Max price impact (bps)</label><input id="impact" type="number" min="0" max="1000" value="100"></div>
+        <div class="field"><label class="label" for="thr">Min trade ($)</label><input id="thr" type="number" min="1" step="0.01" value="5.00"></div>
+      </div>
+      <ul class="checks" id="checks" aria-live="polite"></ul>
+      <div class="actions">
+        <button class="btn" id="save" type="button">Save mock portfolio</button>
+        <button class="btn ghost" id="glider" type="button">Check with Glider (dry run)</button>
+      </div>
+      <div class="result" id="result" hidden></div>
+      <details><summary>Request Glider would receive (POST /v2/strategies)</summary><pre id="payload"></pre></details>
+    </div>
+  </div>
+
+  <section>
+    <h2>Start from a live public strategy</h2>
+    <p class="muted">The 31 strategies currently public on Glider. Load one as a template, then change it.</p>
+    <div class="cards" id="templates"></div>
+  </section>
+
+  <section>
+    <h2>Saved mock portfolios</h2>
+    <div class="cards" id="saved"></div>
+  </section>
+
+  <footer>Mock portfolios are stored in a local database on this machine. Nothing is created on Glider. "Check with Glider" runs the read-only validation endpoint only.</footer>
+</div>
+
+<script>
+(function () {
+  var S = { assets: [], byId: {}, chains: [], chain: 56, holdings: [], gliderCheck: false };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var issuerOf = { 56: "Ondo", 8453: "Coinbase + crypto", 1: "RWAs", 42161: "Crypto" };
+  var api = function (path, opts) { return fetch(path, opts).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; }); }); };
+
+  function lockedChain() { return S.holdings.length ? S.byId[S.holdings[0].caip_id].chain_id : null; }
+
+  function renderStats() {
+    var eq = S.assets.filter(function (a) { return a.asset_type === "Equity" || a.asset_type === "ETF / trust"; });
+    var usable = S.assets.filter(function (a) { return a.usable; }).length;
+    $("stats").innerHTML =
+      '<div><b>' + eq.length + '</b><span class="label">Equities &amp; ETFs</span></div>' +
+      '<div><b>' + S.assets.filter(function (a) { return a.issuer === "Ondo" && a.asset_type !== "Tokenised RWA"; }).length + '</b><span class="label">Ondo · BNB</span></div>' +
+      '<div><b>' + S.assets.filter(function (a) { return a.issuer === "Coinbase"; }).length + '</b><span class="label">Coinbase · Base</span></div>' +
+      '<div><b>' + usable + '/' + S.assets.length + '</b><span class="label">Usable</span></div>';
+  }
+
+  function renderTabs() {
+    var lock = lockedChain();
+    $("tabs").innerHTML = S.chains.map(function (c) {
+      var n = S.assets.filter(function (a) { return a.chain_id === c.chain_id; }).length;
+      var dis = lock !== null && lock !== c.chain_id;
+      return '<button type="button" class="tab" data-chain="' + c.chain_id + '" aria-pressed="' + (S.chain === c.chain_id) + '"' + (dis ? ' disabled title="A strategy must use a single chain"' : '') + '>' + esc(c.name) + ' · ' + n + '<br><span style="opacity:.75">' + issuerOf[c.chain_id] + '</span></button>';
+    }).join("");
+  }
+
+  function renderFilters() {
+    var inChain = S.assets.filter(function (a) { return a.chain_id === S.chain; });
+    var fill = function (sel, vals, label) {
+      var cur = sel.value;
+      sel.innerHTML = '<option value="">' + label + '</option>' + vals.map(function (v) { return '<option' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join("");
+      if (vals.indexOf(cur) < 0) sel.value = "";
+    };
+    fill($("type"), Array.from(new Set(inChain.map(function (a) { return a.asset_type; }))).sort(), "All types");
+    fill($("sector"), Array.from(new Set(inChain.map(function (a) { return a.sector; }).filter(Boolean))).sort(), "All sectors");
+  }
+
+  function renderList() {
+    var q = $("q").value.trim().toLowerCase(), t = $("type").value, sec = $("sector").value;
+    var held = {}; S.holdings.forEach(function (h) { held[h.caip_id] = 1; });
+    var items = S.assets.filter(function (a) {
+      return a.chain_id === S.chain && (!t || a.asset_type === t) && (!sec || a.sector === sec) &&
+        (!q || a.symbol.toLowerCase().indexOf(q) >= 0 || (a.name || "").toLowerCase().indexOf(q) >= 0);
+    });
+    $("count").textContent = items.length + " shown · issuer and contract verified onchain";
+    $("list").innerHTML = items.map(function (a) {
+      var dis = !a.usable || held[a.caip_id] || S.holdings.length >= 50;
+      return '<div class="asset' + (a.usable ? '' : ' blocked') + '"><span class="sym">' + esc(a.token_symbol) + '</span>' +
+        '<div style="min-width:0"><div class="nm" title="' + esc(a.name) + '">' + esc(a.name) + '</div><div class="meta">' + esc(a.issuer) + ' · ' + esc(a.asset_type) + (a.sector ? ' · ' + esc(a.sector) : '') + (a.usable ? '' : ' · blocklisted') + '</div></div>' +
+        '<button type="button" class="btn small' + (held[a.caip_id] ? ' ghost' : '') + '" data-add="' + esc(a.caip_id) + '"' + (dis ? ' disabled' : '') + '>' + (held[a.caip_id] ? 'Added' : 'Add') + '</button></div>';
+    }).join("") || '<p class="empty">No assets match.</p>';
+  }
+
+  function total() { return S.holdings.reduce(function (s, h) { var v = parseFloat(h.weight); return s + (isNaN(v) ? 0 : v); }, 0); }
+
+  function renderBuilder() {
+    var lock = lockedChain();
+    var cname = lock ? S.chains.filter(function (c) { return c.chain_id === lock; })[0].name : null;
+    $("chainlabel").textContent = cname ? "Chain: " + cname + " (locked by first asset)" : "Chain: not set";
+    var tot = total();
+    $("total").textContent = "Total " + (Math.round(tot * 100) / 100) + "%";
+    $("total").style.color = Math.abs(tot - 100) < 0.001 ? "var(--leaf)" : "var(--amber)";
+    $("bar").innerHTML = S.holdings.map(function (h, i) {
+      var w = Math.max(0, parseFloat(h.weight) || 0);
+      var cash = S.byId[h.caip_id].asset_type === "Stablecoin";
+      return '<span style="width:' + Math.min(w, 100) + '%;background:' + (cash ? 'var(--amber)' : 'var(--leaf)') + ';opacity:' + (cash ? 1 : Math.max(0.3, 1 - i * 0.06)) + '"></span>';
+    }).join("");
+    $("holdings").innerHTML = S.holdings.length ? S.holdings.map(function (h, i) {
+      var a = S.byId[h.caip_id];
+      return '<div class="holding"><span class="mono">' + esc(a.token_symbol) + '</span><span style="font-size:.88rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(a.name) + '</span>' +
+        '<input id="w-' + i + '" aria-label="Weight for ' + esc(a.symbol) + '" inputmode="decimal" value="' + esc(h.weight) + '" data-w="' + i + '">' +
+        '<button type="button" class="btn danger small" data-rm="' + i + '" aria-label="Remove ' + esc(a.symbol) + '">Remove</button></div>';
+    }).join("") : '<p class="empty">Add assets from the catalogue. The first asset sets the chain.</p>';
+    runCheck();
+  }
+
+  function body() {
+    return {
+      name: $("name").value, frequency: $("freq").value,
+      slippage_bps: parseInt($("slip").value, 10), price_impact_bps: parseInt($("impact").value, 10),
+      threshold_usd: $("thr").value,
+      allocation: S.holdings.map(function (h) { return { caip_id: h.caip_id, weight: h.weight, symbol: S.byId[h.caip_id].symbol }; })
+    };
+  }
+
+  var checkTimer;
+  function runCheck() {
+    clearTimeout(checkTimer);
+    checkTimer = setTimeout(function () {
+      api("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body()) }).then(function (r) {
+        var rules = [
+          ["1–50 assets", /1 and 50/], ["Weights sum to exactly 100", /sum to exactly|must be above 0/],
+          ["Single chain", /single chain/], ["No blocklisted assets", /blocklisted/], ["No duplicates", /only once/],
+          ["Guardrails within Glider's limits", /slippage|price impact|trade size|Minimum/], ["Name set", /Name must/]
+        ];
+        var errs = r.body.errors || [];
+        $("checks").innerHTML = rules.map(function (rule) {
+          var hit = errs.filter(function (e) { return rule[1].test(e); });
+          return '<li class="' + (hit.length ? 'fail' : 'pass') + '">' + rule[0] + (hit.length ? ': ' + esc(hit[0]) : '') + '</li>';
+        }).join("");
+        $("payload").textContent = JSON.stringify(r.body.payload, null, 2);
+        $("save").disabled = !r.body.valid;
+        $("glider").disabled = !r.body.valid || !S.gliderCheck;
+        $("glider").title = S.gliderCheck ? "Runs POST /v2/strategies/validate. Nothing is saved on Glider." : "Add GLIDER_API_KEY to .env.local to enable";
+      });
+    }, 120);
+  }
+
+  function addAsset(id) {
+    if (S.holdings.some(function (h) { return h.caip_id === id; })) return;
+    S.holdings.push({ caip_id: id, weight: "" });
+    equalWeight(); refresh();
+  }
+  function equalWeight() {
+    var n = S.holdings.length; if (!n) return;
+    var base = Math.floor(10000 / n) / 100, rem = Math.round((100 - base * n) * 100) / 100;
+    S.holdings.forEach(function (h, i) { h.weight = (i === 0 ? Math.round((base + rem) * 100) / 100 : base).toFixed(2).replace(/\.00$/, ""); });
+  }
+  function refresh() { renderTabs(); renderList(); renderBuilder(); showResult(); }
+  function showResult(kind, text) { var el = $("result"); if (!kind) { el.hidden = true; return; } el.hidden = false; el.className = "result " + kind; el.textContent = text; }
+
+  function loadTemplate(s) {
+    var usable = s.allocation.filter(function (a) { return S.byId[a.caip_id] && S.byId[a.caip_id].usable; });
+    S.holdings = usable.map(function (a) { return { caip_id: a.caip_id, weight: a.weight }; });
+    if (usable.length !== s.allocation.length || Math.abs(total() - 100) > 0.001) equalWeight();
+    S.chain = s.chain_id; $("name").value = "SPROUT – based on " + s.name;
+    renderFilters(); refresh();
+    var dropped = s.allocation.length - usable.length;
+    if (dropped) showResult("bad", dropped + " asset(s) from this template are blocklisted or unknown and were left out. Weights were reset to equal.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function renderTemplates(list) {
+    var chainName = {}; S.chains.forEach(function (c) { chainName[c.chain_id] = c.name; });
+    $("templates").innerHTML = list.map(function (s, i) {
+      var syms = s.allocation.map(function (a) { var x = S.byId[a.caip_id]; return x ? x.symbol : "?"; });
+      return '<div class="card"><h3>' + esc(s.name) + '</h3><div class="row"><span class="label">' + esc(chainName[s.chain_id]) + '</span><span class="mono">' + s.allocation.length + ' assets</span></div>' +
+        '<div class="row mono"><span>$' + (s.tvl_usd ? Math.round(s.tvl_usd).toLocaleString() : "–") + '</span><span>' + (s.portfolio_count || 0).toLocaleString() + ' portfolios</span></div>' +
+        '<div class="chips">' + esc(syms.join(" · ")) + '</div><button type="button" class="btn ghost small" data-tpl="' + i + '">Load as template</button></div>';
+    }).join("");
+    $("templates").onclick = function (e) { var b = e.target.closest("[data-tpl]"); if (b) loadTemplate(list[+b.dataset.tpl]); };
+  }
+
+  function renderSaved() {
+    api("/api/portfolios").then(function (r) {
+      var chainName = {}; S.chains.forEach(function (c) { chainName[c.chain_id] = c.name; });
+      $("saved").innerHTML = r.body.length ? r.body.map(function (p) {
+        return '<div class="card"><h3>' + esc(p.name) + '</h3><div class="row"><span class="label">' + esc(chainName[p.chain_id]) + ' · ' + esc(p.frequency) + '</span><span class="mono">' + p.allocation.length + ' assets</span></div>' +
+          '<div class="chips">' + p.allocation.map(function (a) { return esc(a.symbol) + ' ' + esc(a.weight) + '%'; }).join(" · ") + '</div>' +
+          '<div class="row"><span class="mono muted">' + esc(p.created_at) + ' UTC</span><button type="button" class="btn danger small" data-del="' + p.id + '">Delete</button></div></div>';
+      }).join("") : '<p class="empty">No mock portfolios yet. Build one above and save it.</p>';
+    });
+  }
+
+  // Events
+  $("tabs").onclick = function (e) { var b = e.target.closest("[data-chain]"); if (!b || b.disabled) return; S.chain = +b.dataset.chain; renderFilters(); renderTabs(); renderList(); };
+  $("list").onclick = function (e) { var b = e.target.closest("[data-add]"); if (b && !b.disabled) addAsset(b.dataset.add); };
+  ["q", "type", "sector"].forEach(function (id) { $(id).addEventListener("input", renderList); });
+  $("holdings").addEventListener("input", function (e) {
+    if (e.target.dataset.w == null) return;
+    S.holdings[+e.target.dataset.w].weight = e.target.value;
+    var tot = total(); $("total").textContent = "Total " + (Math.round(tot * 100) / 100) + "%";
+    $("total").style.color = Math.abs(tot - 100) < 0.001 ? "var(--leaf)" : "var(--amber)";
+    $("bar").innerHTML = S.holdings.map(function (h) { var w = Math.max(0, parseFloat(h.weight) || 0); var cash = S.byId[h.caip_id].asset_type === "Stablecoin"; return '<span style="width:' + Math.min(w, 100) + '%;background:' + (cash ? 'var(--amber)' : 'var(--leaf)') + '"></span>'; }).join("");
+    runCheck();
+  });
+  $("holdings").addEventListener("click", function (e) { var b = e.target.closest("[data-rm]"); if (!b) return; S.holdings.splice(+b.dataset.rm, 1); refresh(); });
+  ["name", "freq", "slip", "impact", "thr"].forEach(function (id) { $(id).addEventListener("input", runCheck); });
+  $("equal").onclick = function () { equalWeight(); renderBuilder(); };
+  $("clear").onclick = function () { S.holdings = []; refresh(); };
+  $("save").onclick = function () {
+    api("/api/portfolios", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body()) }).then(function (r) {
+      if (r.ok) { showResult("ok", "Saved to the local mock database. Nothing was created on Glider."); renderSaved(); }
+      else showResult("bad", (r.body.errors || ["Could not save."]).join(" "));
+    });
+  };
+  $("glider").onclick = function () {
+    showResult("", "Checking with Glider…"); $("result").hidden = false;
+    api("/api/glider-validate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body()) }).then(function (r) {
+      var g = r.body.glider;
+      if (g && g.success) showResult("ok", "Glider accepted this strategy (dry run, nothing created).");
+      else if (g && g.error) showResult("bad", "Glider rejected it: " + (g.error.message || g.error.code));
+      else showResult("bad", r.body.message || "No response from Glider.");
+    });
+  };
+  $("saved").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-del]"); if (!b) return;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Confirm delete"; return; }
+    api("/api/portfolios/" + b.dataset.del, { method: "DELETE" }).then(renderSaved);
+  });
+
+  // Boot with a realistic starting portfolio
+  Promise.all([api("/api/meta"), api("/api/assets"), api("/api/strategies")]).then(function (res) {
+    S.chains = res[0].body.chains; S.gliderCheck = res[0].body.gliderCheck;
+    $("freq").innerHTML = res[0].body.frequencies.map(function (f) { return '<option' + (f === "daily" ? " selected" : "") + '>' + f + '</option>'; }).join("");
+    S.assets = res[1].body; S.assets.forEach(function (a) { S.byId[a.caip_id] = a; });
+    var pick = function (sym, w) { var a = S.assets.filter(function (x) { return x.chain_id === 56 && x.symbol === sym; })[0]; return a ? { caip_id: a.caip_id, weight: w } : null; };
+    S.holdings = [["MSFT", "12"], ["AAPL", "10"], ["NVDA", "10"], ["GOOGL", "8"], ["AMZN", "8"], ["TSM", "7"], ["ASML", "7"], ["LLY", "7"], ["V", "6"], ["COST", "5"], ["SO", "5"], ["USDT", "15"]]
+      .map(function (p) { return pick(p[0], p[1]); }).filter(Boolean);
+    renderStats(); renderFilters(); refresh(); renderTemplates(res[2].body); renderSaved();
+  });
+})();
+</script>
+</body>
+</html>

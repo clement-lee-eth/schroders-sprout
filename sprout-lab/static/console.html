@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPROUT · Admin console</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+:root { --core: #001e41; --theme: #0074b7; --two: #5aaee0; --priv: #c98a1b; --done: #0a7d4f; --small: #c3ccd8; --side: 232px; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; } body { color: var(--ink); font-size: 14.5px; line-height: 1.5; }
+h1, h2, h3 { margin: 0; color: var(--ink); } p { margin: 0; } button, input, select, textarea { font: inherit; }
+/* shell */
+.sb { position: fixed; inset: 0 auto 0 0; width: var(--side); background: #001e41; color: #cfe0f2; display: flex; flex-direction: column; gap: 2px; padding: 18px 12px; z-index: 30; overflow-y: auto; }
+.sb .brand { padding: 4px 10px 20px; }
+.sb .grp { font-size: .66rem; text-transform: uppercase; letter-spacing: .1em; color: #6f89a8; padding: 16px 10px 4px; font-weight: 700; }
+.sb a:not(.lk) { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: #cfe0f2; text-decoration: none; font-size: .9rem; }
+.sb a:not(.lk):hover { background: rgba(255,255,255,.06); } .sb a.on { background: #fff; color: #001e41; font-weight: 600; }
+.sb a .dot { width: 8px; height: 8px; border-radius: 50%; background: #3f5f84; flex: none; margin-left: auto; } .sb a .dot.busy { background: #e5b25b; box-shadow: 0 0 0 3px rgba(229,178,91,.25); }
+.sb .foot { margin-top: auto; padding: 14px 10px 0; font-size: .74rem; color: #7f98b5; display: grid; gap: 8px; } .sb .foot a { padding: 0 !important; color: #9fc1e6 !important; font-size: .8rem !important; }
+.sb .who { display: flex; gap: 8px; align-items: center; } .sb .who i { width: 28px; height: 28px; border-radius: 50%; background: #0074b7; color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: .7rem; } .sb .who b { display: block; color: #fff; font-size: .8rem; }
+.main { margin-left: var(--side); min-height: 100%; }
+.top { position: sticky; top: 0; z-index: 20; background: var(--card); border-bottom: 1px solid var(--line); }
+.top .in { padding: 11px 28px; display: flex; gap: 14px; align-items: center; justify-content: space-between; }
+.crumb { font-size: .86rem; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .crumb b { color: var(--ink); }
+.tchips { display: flex; gap: 8px; flex: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; padding: 4px 10px; border-radius: 999px; background: var(--hover); color: var(--sub); white-space: nowrap; } .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.page { padding: 26px 28px 80px; display: grid; gap: 20px; max-width: 1240px; }
+@media (max-width: 860px) { .sb { position: static; width: auto; flex-direction: row; flex-wrap: wrap; padding: 12px; gap: 4px; } .sb .brand { width: 100%; padding: 2px 6px 8px; } .sb .grp, .sb .foot, .sb a .dot { display: none; } .sb a:not(.lk) { padding: 6px 10px; font-size: .84rem; } .main { margin-left: 0; } .top .in { padding: 10px 16px; } .page { padding: 18px 16px 70px; } .crumb { display: none; } .tchips { flex-wrap: wrap; flex: 1; } }
+/* primitives */
+.ph { display: grid; gap: 6px; } .ph h1 { font-size: 1.6rem; letter-spacing: -.02em; } .ph p { color: var(--sub); max-width: 72ch; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 14px; box-shadow: var(--shadow); min-width: 0; align-content: start; }
+.card h2 { font-size: 1.05rem; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sub { color: var(--sub); } .faint { color: var(--faint); } .small { font-size: .8rem; } .up { color: var(--green); } .down { color: var(--red); }
+.kick { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--accent); }
+.g2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; } .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1080px) { .g2, .g3 { grid-template-columns: minmax(0, 1fr); } }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; } .kpi span { font-size: .74rem; color: var(--sub); } .kpi b { font-family: var(--h); font-size: 1.5rem; letter-spacing: -.02em; line-height: 1.2; } .kpi small { font-size: .72rem; color: var(--faint); }
+.kpis.flat .kpi { background: var(--hover); border: 0; } .kpis.flat .kpi b { font-size: 1.3rem; }
+.btn { border: 0; border-radius: 6px; padding: 10px 16px; font-weight: 700; cursor: pointer; background: var(--navy); color: #fff; white-space: nowrap; font-size: .88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn.blue { background: var(--accent); } .btn.green { background: var(--green); } .btn.ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); } .btn.red { background: transparent; border: 1.5px solid var(--red); color: var(--red); } .btn.sm { padding: 6px 11px; font-size: .8rem; } .btn:disabled { opacity: .4; cursor: not-allowed; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; } .pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.live { background: var(--green-soft); color: var(--green); } .pill.draft { background: var(--hover); color: var(--sub); } .pill.review { background: var(--amber-soft); color: var(--amber); } .pill.ready { background: var(--accent-soft); color: var(--accent); } .pill.pub { background: #e8e3f8; color: #5b3fb5; }
+table.t { width: 100%; border-collapse: collapse; font-size: .84rem; } table.t th { text-align: left; font-size: .68rem; color: var(--faint); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.t td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; } table.t tr.click { cursor: pointer; } table.t tr.click:hover td { background: var(--hover); } td.r, th.r { text-align: right; } tr.me td { background: #fff0f5; }
+.mk { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-weight: 700; font-size: .56rem; position: relative; overflow: hidden; flex: none; background: var(--navy); color: #fff; vertical-align: middle; }
+.mk img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; } .mk img.fb { object-fit: contain; padding: 14%; }
+.stack { display: inline-flex; } .stack .mk { margin-left: -6px; box-shadow: 0 0 0 2px var(--card); } .stack .mk:first-child { margin-left: 0; }
+.note { font-size: .84rem; padding: 11px 14px; border-radius: 8px; background: var(--hover); } .note.ok { background: var(--green-soft); color: var(--ink); } .note.warn { background: var(--amber-soft); }
+.empty { padding: 22px; text-align: center; color: var(--sub); }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; font-size: .86rem; margin: 0; } .kv dt { color: var(--sub); } .kv dd { margin: 0; text-align: right; font-weight: 600; }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 11px 18px; border-radius: 8px; z-index: 70; font-size: .88rem; box-shadow: 0 12px 30px -10px rgba(0,0,0,.4); }
+.prog { height: 8px; border-radius: 4px; background: var(--hover); overflow: hidden; } .prog span { display: block; height: 100%; background: var(--accent); transition: width .15s; } .prog.g span { background: var(--done); }
+/* overview */
+.sc { display: grid; gap: 14px; align-content: start; }
+.sc .nm { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; } .sc .meta { font-size: .8rem; color: var(--sub); }
+.sc .nums { display: flex; gap: 18px; font-size: .8rem; color: var(--sub); } .sc .nums b { display: block; font-size: 1.1rem; color: var(--ink); font-family: var(--h); }
+.sc .chg { font-size: .84rem; padding: 9px 12px; border-radius: 8px; background: var(--amber-soft); } .sc .chg b { display: block; }
+.mix { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 1px; background: var(--line); } .mix span { display: block; }
+.how { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.how div { background: var(--card); padding: 16px 18px; display: grid; gap: 4px; align-content: start; } .how b { font-size: .92rem; } .how p { font-size: .8rem; color: var(--sub); }
+.how .n { width: 24px; height: 24px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-size: .72rem; font-weight: 800; margin-bottom: 4px; }
+@media (max-width: 900px) { .how { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.dr { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2.4fr) auto; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); } .dr:last-child { border-bottom: 0; }
+.dr .lab { font-size: .78rem; color: var(--sub); margin-top: 5px; } @media (max-width: 700px) { .dr { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+/* strategy journey */
+.rail { display: flex; gap: 6px; flex-wrap: wrap; } .rail span { display: inline-flex; align-items: center; gap: 7px; font-size: .78rem; font-weight: 600; color: var(--faint); padding: 5px 11px 5px 6px; border-radius: 999px; background: var(--hover); }
+.rail span i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .68rem; background: var(--line); color: var(--sub); }
+.rail span.done { color: var(--green); } .rail span.done i { background: var(--green); color: #fff; } .rail span.now { color: var(--ink); background: var(--accent-soft); } .rail span.now i { background: var(--navy); color: #fff; }
+.stp { background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); min-width: 0; }
+.stp > header { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 20px; }
+.stp .n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .85rem; background: var(--hover); color: var(--faint); }
+.stp.now .n { background: var(--navy); color: #fff; } .stp.done .n { background: var(--green); color: #fff; }
+.stp header h2 { font-size: 1.05rem; } .stp header p { font-size: .82rem; color: var(--sub); }
+.stp .rs { font-size: .8rem; color: var(--sub); text-align: right; display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
+.stp.todo header { opacity: .55; } .stp.now { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
+.stp .bd { padding: 4px 20px 22px 68px; display: grid; gap: 18px; } @media (max-width: 760px) { .stp .bd { padding: 4px 16px 18px; } .stp > header { grid-template-columns: 32px minmax(0, 1fr); } .stp .rs { grid-column: 1 / -1; justify-content: flex-start; text-align: left; } }
+.tog { border: 0; background: none; color: var(--accent); font-weight: 600; font-size: .8rem; cursor: pointer; padding: 0; }
+.panel { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.panel h3 { font-size: .95rem; }
+.acts { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; padding-top: 4px; border-top: 1px solid var(--line); } .acts .faint { margin-right: auto; font-size: .8rem; }
+/* weights editor */
+.wrow { display: grid; grid-template-columns: 26px minmax(0, 1.4fr) 58px minmax(70px, 2fr) 62px 22px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.wrow .nm b { display: block; font-size: .86rem; } .wrow .nm small { color: var(--faint); font-size: .72rem; } .wrow.new { background: linear-gradient(90deg, var(--green-soft), transparent); } .wrow.out { opacity: .5; }
+.dlt { font-size: .7rem; font-weight: 700; text-align: center; border-radius: 4px; padding: 2px 4px; } .dlt.p { background: var(--green-soft); color: var(--green); } .dlt.m { background: var(--red-soft); color: var(--red); } .dlt.z { color: var(--faint); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.wnum { width: 62px; border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; text-align: right; background: var(--card); color: var(--ink); }
+.x { border: 0; background: none; color: var(--faint); cursor: pointer; } .x:hover { color: var(--red); }
+.addrow { display: flex; gap: 8px; } .addrow select, .filters select, .filters input { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--card); color: var(--ink); min-width: 0; } .addrow select { flex: 1; }
+.total { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 6px; font-size: .84rem; } .total.ok { background: var(--green-soft); color: var(--green); } .total.bad { background: var(--amber-soft); color: var(--amber); }
+.sbar { display: grid; gap: 4px; } .sbar .lab { display: flex; justify-content: space-between; font-size: .74rem; color: var(--sub); }
+.sbar .bar { display: flex; height: 28px; border-radius: 5px; overflow: hidden; gap: 1px; } .sbar .bar span { display: grid; place-items: center; font-size: .64rem; color: #fff; font-weight: 700; overflow: hidden; white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; } .chips span { font-size: .76rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; } .chips .p { background: var(--green-soft); color: var(--green); } .chips .m { background: var(--red-soft); color: var(--red); }
+.headline { font-family: var(--h); font-size: 1.2rem; font-weight: 700; letter-spacing: -.02em; }
+textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; min-height: 64px; resize: vertical; background: var(--card); color: var(--ink); font-size: .86rem; }
+.rules { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; } .rules div { display: flex; gap: 6px; align-items: center; } .rules i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .62rem; background: var(--hover); color: var(--faint); flex: none; } .rules .ok i { background: var(--green); color: #fff; } .rules .no i { background: var(--amber); color: #fff; }
+/* applied to every portfolio */
+.lvr { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1.3fr); gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .82rem; } .lvr:last-child { border-bottom: 0; }
+.lvr b { display: block; font-size: .86rem; } .lvr small { color: var(--faint); font-size: .74rem; } .lvr .mixl { font-size: .7rem; color: var(--sub); margin-top: 3px; }
+@media (max-width: 760px) { .lvr { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+.chc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; } .chc div { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 8px; font-size: .82rem; } .chc i { width: 12px; height: 12px; border-radius: 3px; margin-top: 3px; } .chc small { display: block; color: var(--faint); font-size: .74rem; } @media (max-width: 700px) { .chc { grid-template-columns: minmax(0, 1fr); } }
+.lgd { display: flex; gap: 14px; flex-wrap: wrap; font-size: .74rem; color: var(--sub); } .lgd i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.ex { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; } @media (max-width: 900px) { .ex { grid-template-columns: minmax(0, 1fr); } }
+.ex .e { border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 4px; font-size: .8rem; align-content: start; } .ex .e.lv { border-color: #ff4f8b; } .ex .tag { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #d6336c; }
+/* checks + approval */
+.chk { display: grid; } .chk div { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .84rem; } .chk div:last-child { border-bottom: 0; }
+.chk i { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .66rem; color: #fff; background: var(--green); } .chk .no i { background: var(--red); } .chk .na i { background: var(--faint); } .chk small { color: var(--faint); display: block; font-size: .72rem; }
+.lvls { display: flex; gap: 6px; flex-wrap: wrap; } .lvls span { font-size: .76rem; font-weight: 600; padding: 5px 10px; border-radius: 6px; background: var(--hover); color: var(--faint); } .lvls span.ok { background: var(--green-soft); color: var(--green); } .lvls span.no { background: var(--red-soft); color: var(--red); }
+.signer { display: flex; gap: 12px; align-items: center; } .signer i { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .78rem; flex: none; } .signer b { display: block; font-size: .9rem; } .signer small { color: var(--sub); font-size: .78rem; }
+/* fan-out */
+.fan svg { width: 100%; height: auto; display: block; }
+.fan .lnk { fill: none; stroke: #bcd3ea; } .fan .lnk.flow { stroke: var(--accent); stroke-dasharray: 5 7; animation: dash .9s linear infinite; } @keyframes dash { to { stroke-dashoffset: -24; } }
+.fan rect.q { transition: fill 250ms ease, opacity 250ms ease; } .fan rect.q.pend { opacity: .35; } .fan rect.q.done { fill: var(--done) !important; opacity: 1; } .fan rect.q.small { fill: var(--small) !important; opacity: 1; } .fan rect.q.live { stroke: #ff4f8b; stroke-width: 1.6; }
+.runst { display: flex; gap: 22px; flex-wrap: wrap; font-size: .82rem; color: var(--sub); } .runst b { font-family: var(--h); font-size: 1.15rem; color: var(--ink); display: block; }
+.exec { font-family: ui-monospace, Menlo, monospace; font-size: .74rem; background: #0b1726; color: #b9cde4; border-radius: 8px; padding: 12px 14px; max-height: 240px; overflow: auto; display: grid; gap: 2px; margin-top: 8px; } .exec .ok { color: #5fd49b; } .exec .dim { color: #6f89a8; }
+details summary { cursor: pointer; font-size: .82rem; font-weight: 600; color: var(--accent); }
+.fin { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 18px; border-radius: 12px; background: var(--green-soft); } .fin i { width: 40px; height: 40px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 800; } .fin b { font-size: 1rem; } .fin small { display: block; color: var(--sub); font-size: .82rem; }
+@media (max-width: 700px) { .fin { grid-template-columns: 40px minmax(0, 1fr); } .fin .btn { grid-column: 1 / -1; } }
+/* records */
+.log { display: grid; font-size: .82rem; } .log div { display: grid; grid-template-columns: 110px 96px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); } .log code { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--sub); }
+@media (max-width: 700px) { .log div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+.tagx { font-size: .64rem; font-weight: 800; padding: 2px 6px; border-radius: 3px; justify-self: start; } .tagx.s { background: var(--navy); color: #fff; } .tagx.r { background: var(--amber-soft); color: var(--amber); } .tagx.g { background: var(--green-soft); color: var(--green); } .tagx.i { background: var(--accent-soft); color: var(--accent); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; } .pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; font-size: .8rem; }
+.ov { position: fixed; inset: 0; background: rgba(0,20,45,.25); z-index: 60; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%); background: var(--card); z-index: 61; box-shadow: -20px 0 60px -20px rgba(0,0,0,.4); padding: 22px; overflow: auto; display: grid; gap: 14px; align-content: start; }
+@media (max-width: 700px) { .card { overflow-x: auto; } }
+/* guided tour: a coach card bottom-left and a soft ring on the part of the page it describes (as in SCALE) */
+.tourbtn { display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px; border: 1.5px solid var(--navy); border-radius: 999px; background: var(--card); font: inherit; font-size: .76rem; font-weight: 700; color: var(--navy); cursor: pointer; white-space: nowrap; }
+.tourbtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; } .tourbtn:hover { background: var(--navy); color: #fff; } body.touring .tourbtn { display: none; }
+.coach { position: fixed; z-index: 65; left: calc(var(--side) + 24px); bottom: 24px; width: min(430px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 9px; padding: 18px 20px 16px; border-radius: 18px; background: #001e41; color: #fff; box-shadow: 0 24px 60px -20px rgba(0,18,40,.7); animation: coin .4s ease both; }
+@keyframes coin { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.cohead { display: flex; align-items: center; justify-content: space-between; } .coeye { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7cc4f5; }
+.cox { width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; display: grid; place-items: center; } .cox:hover { background: rgba(255,255,255,.28); }
+.cophase { display: flex; flex-wrap: wrap; gap: 4px; } .cophase span { font-size: .66rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.08); color: #9fb6d1; } .cophase span.done { color: #5fd49b; } .cophase span.on { background: #fff; color: #001e41; }
+.coach > b { font-size: 1.12rem; font-weight: 700; letter-spacing: -.01em; } .coach > p { margin: 0; font-size: .9rem; line-height: 1.5; color: #d6e4f2; } .coach > p b { color: #fff; } .coerr { color: #ffb4a8; }
+.colink { color: #7cc4f5; font-weight: 700; font-size: .86rem; text-decoration: none; } .colink:hover { text-decoration: underline; }
+.cofoot { display: flex; align-items: center; gap: 8px; margin-top: 4px; } .coend { border: 0; background: none; padding: 0; color: #9fb6d1; font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; } .coend:hover { color: #fff; } .codots { display: flex; gap: 4px; margin-right: auto; flex-wrap: wrap; }
+.codots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.25); } .codots i.done { background: rgba(255,255,255,.6); } .codots i.on { width: 18px; border-radius: 99px; background: #fff; }
+.coach .btn { border: 1.5px solid rgba(255,255,255,.4); color: #fff; background: transparent; } .coach .btn.primary { background: #fff; color: #001e41; border-color: #fff; } .coach .btn:disabled { opacity: .55; }
+.tour-on { position: relative; z-index: 2; border-radius: 14px; box-shadow: 0 0 0 4px var(--card), 0 0 0 7px var(--accent) !important; animation: tring 2s ease-in-out infinite; scroll-margin: 90px; }
+@keyframes tring { 50% { box-shadow: 0 0 0 4px var(--card), 0 0 0 12px rgba(0,116,183,.25) !important; } }
+body.touring .vsw { display: none; } body.touring .toast { left: auto; right: 24px; transform: none; }
+@media (max-width: 860px) { .coach { left: 16px; bottom: 16px; } .tourbtn { padding: 4px 10px; } }
+@media (prefers-reduced-motion: reduce) { .tour-on, .coach { animation: none; } }
+</style>
+<link rel="stylesheet" href="/sim.css">
+<script>addEventListener("unhandledrejection", function (e) { var r = e.reason; if (r && /transition/i.test(r.message || "")) e.preventDefault(); }); addEventListener("pagereveal", function (e) { var v = e.viewTransition; if (v) { v.ready.catch(function () {}); v.finished.catch(function () {}); } }); addEventListener("pageswap", function (e) { var v = e.viewTransition; if (v) { v.ready.catch(function () {}); v.finished.catch(function () {}); } });</script>
+</head>
+<body>
+<aside class="sb" id="side"></aside>
+<div class="main">
+  <header class="top"><div class="in"><div class="crumb" id="crumb"></div>
+    <div class="tchips"><button class="tourbtn" data-tour="start"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><path d="M8.2 7l4.6 3-4.6 3z"/></svg>Take the tour</button><span class="chip" id="gl"><i></i>Glider · connecting…</span><span class="chip" id="clock">Next rebalance 14:00 UTC</span></div></div></header>
+  <main class="page" id="page"></main>
+</div>
+<div id="layer"></div>
+<div class="coach" id="coach" hidden role="dialog" aria-live="polite" aria-label="Guided tour"></div>
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var usd = function (v, d) { d = d == null ? 0 : d; return "$" + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var big = function (v) { v = Math.abs(v); return v >= 1e6 ? "$" + (v / 1e6).toFixed(2) + "m" : v >= 1e3 ? "$" + (v / 1e3).toFixed(0) + "k" : usd(v); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, reduce ? 0 : ms); }); };
+  var copy = function (o) { return JSON.parse(JSON.stringify(o)); };
+  var ago = function (t) { var s = Math.round((Date.now() - t) / 1000); return s < 60 ? "just now" : s < 3600 ? Math.round(s / 60) + " min ago" : new Date(t).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); };
+
+  // ---------- Strategies, levels and add-ons: the same as the investor app and scripts/validate_goal_strategies.py ----------
+  var STRATS = {
+    quality: { name: "Schroders Quality 7", short: "Quality 7", purpose: "Growth", team: "Global Quality Equity team", pm: "A. Lim", mix: [5, 15, 40, 25, 15],
+      v1: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AMZN: 12, LLY: 12 }, prop: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AVGO: 12, LLY: 12 },
+      why: "We prefer Broadcom's direct exposure to custom AI chips and networking. Amazon remains a good business, but we hold its AI theme through Microsoft and Alphabet." },
+    income: { name: "Schroders Global Income", short: "Global Income", purpose: "Income", team: "Global Equity Income team", pm: "R. Shah", mix: [25, 40, 25, 7, 3],
+      v1: { KO: 12, PEP: 10, MCD: 10, WMT: 10, COST: 8, V: 8, ABBV: 10, MRK: 8, SO: 8, GLD: 6, USDT: 10 }, prop: { KO: 12, PEP: 10, MCD: 10, WMT: 10, COST: 8, V: 8, ABBV: 10, ABT: 8, SO: 8, GLD: 6, USDT: 10 },
+      why: "A key Merck patent expires within the review horizon. Abbott keeps healthcare exposure with steadier device growth." },
+    sustain: { name: "Schroders Sustainable Leaders", short: "Sustainable Leaders", purpose: "Sustainable", team: "Global Sustainable Equity team", pm: "J. Okafor", mix: [10, 25, 40, 15, 10],
+      v1: { MSFT: 14, ASML: 12, ETN: 12, ISRG: 10, NVO: 10, V: 10, COST: 10, PWR: 8, ABT: 8, ENPH: 6 }, prop: { MSFT: 14, ASML: 12, ETN: 12, ISRG: 10, NVO: 10, V: 10, COST: 10, PWR: 8, ABT: 8, GEV: 6 },
+      why: "Rooftop solar demand is weakening as incentives fade. GE Vernova gives broader exposure to the grid and power equipment the transition needs." }
+  };
+  var THEMES = { ai: { name: "AI & chips", items: ["AVGO", "AMD", "MU", "ANET"] }, health: { name: "Healthcare", items: ["NVO", "ISRG", "VRTX", "REGN"] }, energy: { name: "Energy transition", items: ["CEG", "GEV", "ETN", "VST"] }, brands: { name: "Everyday brands", items: ["COST", "WMT", "KO", "PEP"] } };
+  var LEVELS = { 1: { n: "Cautious", cash: 20, gold: 10, sleeve: 0 }, 2: { n: "Moderately cautious", cash: 12, gold: 6, sleeve: 0 }, 3: { n: "Balanced", cash: 7, gold: 0, sleeve: 18 }, 4: { n: "Moderately adventurous", cash: 4, gold: 0, sleeve: 24 }, 5: { n: "Adventurous", cash: 2, gold: 0, sleeve: 29 } };
+  var NAMES = { MSFT: "Microsoft", NVDA: "Nvidia", AAPL: "Apple", GOOGL: "Alphabet", TSM: "TSMC", AMZN: "Amazon", LLY: "Eli Lilly", AVGO: "Broadcom", META: "Meta", TSLA: "Tesla", NFLX: "Netflix", ORCL: "Oracle", AMD: "AMD", ASML: "ASML",
+    PLTR: "Palantir", CRWD: "CrowdStrike", PANW: "Palo Alto Networks", ARM: "Arm", QCOM: "Qualcomm", IBM: "IBM", CSCO: "Cisco", SHOP: "Shopify", UBER: "Uber", MU: "Micron", ANET: "Arista", V: "Visa", MA: "Mastercard", AXP: "American Express",
+    KO: "Coca-Cola", PEP: "PepsiCo", MCD: "McDonald's", SBUX: "Starbucks", WMT: "Walmart", COST: "Costco", HD: "Home Depot", NKE: "Nike", DIS: "Disney", ABBV: "AbbVie", MRK: "Merck", ABT: "Abbott", PFE: "Pfizer", UNH: "UnitedHealth",
+    ISRG: "Intuitive Surgical", NVO: "Novo Nordisk", VRTX: "Vertex", REGN: "Regeneron", SO: "Southern Co.", CEG: "Constellation", GEV: "GE Vernova", ETN: "Eaton", PWR: "Quanta Services", ENPH: "Enphase", VST: "Vistra", XOM: "ExxonMobil", CVX: "Chevron", GE: "GE Aerospace", GLD: "Gold", USDT: "Cash" };
+  var CONV0 = { MSFT: 3, NVDA: 3, AAPL: 2, GOOGL: 2, TSM: 3, AMZN: 2, LLY: 3, AVGO: 3, KO: 2, PEP: 2, MCD: 2, WMT: 2, COST: 3, V: 3, ABBV: 2, MRK: 1, ABT: 2, SO: 2, ASML: 3, ETN: 3, ISRG: 2, NVO: 2, PWR: 2, ENPH: 1, GEV: 3, GLD: 2, USDT: 2 };
+  var PAL = ["#001e41", "#0074b7", "#2d55b2", "#5aaee0", "#0a7d4f", "#7f9bef", "#3d5068", "#00a3e0", "#1c3a5e", "#5d7fa3", "#9fb6d1", "#c98a1b", "#6b7a8f", "#2b6cb0", "#0e4f7a"];
+
+  function personalW(base, c) {
+    var L = LEVELS[c.risk], ex = c.exclude || [], eq = {}, w = {};
+    Object.keys(base).forEach(function (t) { if (t !== "USDT" && t !== "GLD" && ex.indexOf(t) < 0 && base[t] > 0) eq[t] = base[t]; });
+    var themes = L.sleeve ? (c.themes || []) : [], sleeve = themes.length ? L.sleeve : 0, cash = Math.max(L.cash, c.cash || 0), gold = L.gold, core = 100 - cash - gold - sleeve;
+    var tot = Object.keys(eq).reduce(function (s, t) { return s + eq[t]; }, 0) || 1;
+    Object.keys(eq).forEach(function (t) { w[t] = core * eq[t] / tot; });
+    var items = []; themes.forEach(function (k) { THEMES[k].items.forEach(function (t) { if (ex.indexOf(t) < 0) items.push(t); }); });
+    items.forEach(function (t) { w[t] = (w[t] || 0) + sleeve / items.length; });
+    if (gold) w.GLD = gold; if (cash) w.USDT = cash;
+    return w;
+  }
+  function round100(w) { var out = {}; Object.keys(w).forEach(function (t) { if (w[t] > 0) out[t] = Math.floor(w[t] * 100) / 100; }); var k = Object.keys(out).sort(function (a, b) { return out[b] - out[a]; })[0]; if (k) out[k] = Math.round((out[k] + 100 - Object.values(out).reduce(function (a, b) { return a + b; }, 0)) * 100) / 100; return out; }
+  var skey = function (pid, c) { return [pid, c.risk, (c.themes || []).slice().sort().join("+"), (c.exclude || []).slice().sort().join("+"), c.cash || 0, c.priv || ""].join("|"); };
+  var kind = function (c) { return (c.exclude && c.exclude.length) || c.cash || c.priv ? "priv" : (c.themes || []).length === 2 ? "two" : (c.themes || []).length ? "theme" : "core"; };
+  // An investor's own choices on top of the model, in plain words ("Model as is" when they made none).
+  var addons = function (c) { return (c.themes || []).map(function (k) { return "+ " + THEMES[k].name + " theme"; }).concat((c.exclude || []).map(function (t) { return "left out " + (NAMES[t] || t); })).concat(c.cash ? ["+" + (c.cash - LEVELS[c.risk].cash) + "% extra cash"] : []).join(", ").replace(/^l/, "L") || "Model as is"; };
+
+  // ---------- Illustrative fleet (seeded) plus the live demo investor ----------
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var R = rng(20261019), FLEET = [], GOALN = ["Retirement", "Home deposit", "Children's education", "Rainy-day fund", "Grow my wealth", "Travel", "Wedding"];
+  var pick = function (arr) { var r = R() * arr.reduce(function (a, b) { return a + b; }, 0); for (var i = 0; i < arr.length; i++) { r -= arr[i]; if (r <= 0) return i; } return arr.length - 1; };
+  var SPLIT = { quality: 1240, income: 720, sustain: 470 }, PREF = { quality: ["ai", "ai", "health", "energy", "brands"], income: ["brands", "brands", "health", "energy", "ai"], sustain: ["energy", "energy", "health", "ai", "brands"] }, CTRY = ["ID", "MX", "AE", "TH", "PH", "NG", "KE", "SG", "HK", "BR"];
+  Object.keys(SPLIT).forEach(function (pid) {
+    for (var i = 0; i < SPLIT[pid]; i++) {
+      var lv = pick(STRATS[pid].mix) + 1, c = { risk: lv, themes: [], cash: 0, exclude: [] }, r = R();
+      if (LEVELS[lv].sleeve && r < 0.5) { var a = PREF[pid][Math.floor(R() * 5)]; c.themes.push(a); if (r < 0.1) { var b = Object.keys(THEMES)[Math.floor(R() * 4)]; if (b !== a) c.themes.push(b); } }
+      if (R() < 0.06) { var core = Object.keys(STRATS[pid].v1).filter(function (t) { return t !== "USDT" && t !== "GLD"; }); c.exclude.push(core[Math.floor(R() * core.length)]); }
+      if (R() < 0.04) c.cash = LEVELS[lv].cash + 5;
+      var id = "INV-" + (10000 + Math.floor(i / 1.35) * 3 + Object.keys(SPLIT).indexOf(pid));
+      var ct = CTRY[Math.floor(R() * CTRY.length)], wr = R();
+      FLEET.push({ pid: pid, c: c, amt: Math.min(50000, Math.max(20, Math.exp(5.9 + 2.6 * (R() + R() + R() - 1.5)))), inv: id, name: GOALN[Math.floor(R() * GOALN.length)], ctry: ct, wallet: wr < 0.68 ? "Created at sign-up" : wr < 0.84 ? "MetaMask" : wr < 0.95 ? "Coinbase Wallet" : "Rabby", elig: ["SG", "HK", "BR"].indexOf(ct) >= 0 ? "Professional" : "Retail", joined: Date.UTC(2026, 8, 8) + Math.floor(R() * 40) * 864e5 });
+    }
+  });
+  var APPKEY = "sprout-app-v2";
+  function app() { try { return JSON.parse(localStorage.getItem(APPKEY) || "null"); } catch (e) { return null; } }
+  function liveGoals(pid) { var A = app(); if (!A || !A.auth) return []; return Object.keys(A.holdings || {}).filter(function (g) { return !pid || g.split("~")[0] === pid; }).map(function (g) { var p = g.split("~")[0]; return { pid: p, c: A.custom[g] || { risk: 3, themes: [], exclude: [], cash: 0 }, amt: A.holdings[g].amount, live: true, name: (A.holdings[g].goal || {}).name || g, who: (A.auth.email || "Investor").split("@")[0].replace(/^./, function (x) { return x.toUpperCase(); }), inv: "Maya (live demo)", ctry: (A.profile || {}).country || "ID", wallet: A.auth.kind === "external" ? (A.auth.via || "Own wallet") : "Created at sign-up", elig: (A.profile || {}).pro ? "Professional" : "Retail", joined: A.holdings[g].funded || Date.now() }; }); }
+  var ORD = ["core", "theme", "two", "priv"];
+  function fleet(pid) { return FLEET.filter(function (g) { return g.pid === pid; }).concat(liveGoals(pid)).sort(function (a, b) { return a.c.risk - b.c.risk || ORD.indexOf(kind(a.c)) - ORD.indexOf(kind(b.c)) || (a.live ? 1 : 0) - (b.live ? 1 : 0); }); }
+
+  // ---------- State: draft → review → approved → published → live ----------
+  var CK = "sprout-admin-v1", C = { role: "pm", status: {}, drafts: {}, checked: {}, live: {}, history: {}, runs: [], log: [], review: {} };
+  try { var sv = JSON.parse(localStorage.getItem(CK) || "null"); if (sv) C = Object.assign(C, sv); } catch (e) {}
+  if (!C.runs.length) { var d0 = Date.now(); C.runs = [3, 2, 1].map(function (k, i) { return { at: d0 - k * 864e5, label: "Daily drift rebalance", strat: "All strategies", n: [312, 287, 341][i], trades: [904, 811, 1022][i], small: [2118, 2143, 2089][i], failed: 0, illus: true }; }); }
+  function save() { try { localStorage.setItem(CK, JSON.stringify(C)); } catch (e) {} }
+  // First visit: the Quality 7 team's proposal (Amazon out, Broadcom in) is already submitted and waiting for risk sign-off,
+  // so the console opens on the real workflow. Skipped if the investor app already holds that decision.
+  function seedDesk() {
+    if (C.seeded || C.log.length || Object.keys(C.status).length) return; C.seeded = true;
+    var S = STRATS.quality, now = Date.now(), h = 36e5, d = 864e5;
+    var last = new Date(now); last.setUTCHours(14, 0, 0, 0); if (last.getTime() > now) last = new Date(last.getTime() - d);
+    C.runs.forEach(function (r, i) { if (r.illus) r.at = last.getTime() - (C.runs.length - 1 - i) * d; });
+    var A = app(); if (A && A.versions && A.versions.quality === 2) return save();
+    C.drafts.quality = { w: copy(S.prop), conv: {}, why: S.why }; C.status.quality = "review"; C.checked.quality = { at: now - 2.2 * h }; C.review.quality = { at: now - 2 * h };
+    C.log = [
+      { at: now - 2 * h, who: "Schroders", what: "Quality 7: A. Lim submitted for risk sign-off: Amazon out, Broadcom in", call: "" },
+      { at: now - 2.2 * h, who: "Glider", what: "Quality 7: dry run accepted at all five risk levels", call: "Glider API · POST /v2/strategies/validate" },
+      { at: now - 2.5 * h, who: "Schroders", what: "Quality 7: investment committee proposal loaded (Amazon out, Broadcom in)", call: "" }]
+      .concat(C.runs.slice().reverse().map(function (r) { return { at: r.at, who: "Glider", what: "Daily drift rebalance: " + r.n + " portfolios rebalanced, " + r.trades.toLocaleString() + " trades, none failed", call: "Glider API · daily schedule" }; }));
+    save();
+  }
+  seedDesk();
+  var T = { route: "", run: null, open: null, valid: null, checking: false, sq: {}, assets: null, inv: { pid: "", lv: "", kind: "", q: "", page: 0 }, modal: null, drawer: null, toast: null, tab: "model" };
+  var status = function (pid) { return C.status[pid] || (summary(pid).changed ? "draft" : "live"); };
+  var STATUS = { live: ["live", "Live"], draft: ["draft", "Draft change"], review: ["review", "Awaiting risk sign-off"], approved: ["ready", "Approved · ready to publish"], published: ["pub", "Published · rebalance pending"] };
+  var pillOf = function (pid) { var s = STATUS[status(pid)]; return '<span class="pill ' + s[0] + '"><i></i>' + s[1] + '</span>'; };
+  var current = function (pid) { return C.live[pid] || STRATS[pid].v1; };
+  var version = function (pid) { return 1 + (C.history[pid] || []).length; };
+  function draft(pid) { if (!C.drafts[pid]) C.drafts[pid] = { w: copy(current(pid)), conv: {}, why: "" }; return C.drafts[pid]; }
+  var editable = function (pid) { var s = C.status[pid]; return !s || s === "draft" || s === "live"; };
+  function log(who, what, call) { C.log.unshift({ at: Date.now(), who: who, what: what, call: call || "" }); C.log = C.log.slice(0, 200); save(); }
+  var conv = function (pid, t) { var d = draft(pid).conv; return d[t] != null ? d[t] : CONV0[t] || 2; };
+
+  function summary(pid) {
+    var a = current(pid), b = (C.drafts[pid] || { w: a }).w, outs = [], ins = [], ch = [];
+    Object.keys(Object.assign({}, a, b)).forEach(function (t) { var x = a[t] || 0, y = b[t] || 0; if (x && !y) outs.push(t); else if (!x && y) ins.push(t); else if (Math.abs(y - x) >= 0.25) ch.push([t, y - x]); });
+    var nm = function (l) { return l.map(function (t) { return NAMES[t] || t; }).join(" and "); };
+    var head = outs.length || ins.length ? (outs.length ? nm(outs) + " out" : "") + (outs.length && ins.length ? ", " : "") + (ins.length ? nm(ins) + " in" : "") : ch.length ? "Reweighted: " + ch.sort(function (x, y) { return Math.abs(y[1]) - Math.abs(x[1]); }).slice(0, 2).map(function (x) { return NAMES[x[0]] + " " + (x[1] > 0 ? "+" : "−") + Math.abs(x[1]).toFixed(1) + "%"; }).join(", ") : "No change";
+    return { head: head, changed: outs.length + ins.length + ch.length > 0 };
+  }
+  function rules(pid) {
+    var w = draft(pid).w, ks = Object.keys(w).filter(function (t) { return w[t] > 0; }), tot = ks.reduce(function (s, t) { return s + w[t]; }, 0), mx = Math.max.apply(null, ks.map(function (t) { return w[t]; }).concat([0]));
+    return { tot: tot, ok: Math.abs(tot - 100) < 0.01 && mx <= 25 && ks.length >= 5 && ks.length <= 20 && ks.every(function (t) { return !T.assets || T.assets[t]; }),
+      list: [["Weights add up to 100%", Math.abs(tot - 100) < 0.01], ["No holding above 25%", mx <= 25], ["Between 5 and 20 holdings", ks.length >= 5 && ks.length <= 20], ["All holdings available on Glider", ks.every(function (t) { return !T.assets || T.assets[t]; })], ["Accepted by Glider at levels 1–5", !!C.checked[pid]]] };
+  }
+  function impact(pid) {
+    var gross = 0, list = fleet(pid), from = current(pid), to = round100(draft(pid).w), flow = {}, trades = 0, affected = 0, small = 0, fees = 0, res = [], ex = [], R2 = rng(7);
+    list.forEach(function (g) {
+      var a = personalW(from, g.c), b = personalW(to, g.c), my = [], buys = 0;
+      Object.keys(Object.assign({}, a, b)).forEach(function (t) { var d = ((b[t] || 0) - (a[t] || 0)) / 100 * g.amt; if (Math.abs(d) >= 5) { my.push([t, d]); flow[t] = (flow[t] || 0) + d; if (d > 0) buys += d; gross += Math.abs(d); } });
+      trades += my.length; if (my.length) { affected++; fees += buys * 0.003; } else small++;
+      res.push(my.length ? 1 : 0);
+      if (g.live || (ex.length < 2 && my.length && (g.c.themes.length || g.c.exclude.length) && R2() < 0.08)) ex.push({ g: g, my: my });
+    });
+    var vars = {}; list.forEach(function (g) { var k = skey(g.pid, g.c); vars[k] = vars[k] || { c: g.c, n: 0, aum: 0 }; vars[k].n++; vars[k].aum += g.amt; });
+    return { gross: gross, list: list, flow: flow, trades: trades, affected: affected, small: small, fees: fees, res: res, vars: vars, aum: list.reduce(function (s, g) { return s + g.amt; }, 0), ex: ex.sort(function (x, y) { return (y.g.live ? 1 : 0) - (x.g.live ? 1 : 0); }).slice(0, 3) };
+  }
+  function mark(t) { var col = { USDT: "#26A17B", GLD: "#C99A33" }[t] || "#001e41"; return '<span class="mk" style="background:' + col + '">' + (t === "USDT" ? "$" : t === "GLD" ? "Au" : t.slice(0, 2)) + (t === "USDT" || t === "GLD" ? "" : '<img src="https://assets.parqet.com/logos/symbol/' + t + '?format=png" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.f){this.remove()}else{this.dataset.f=1;this.className=\'fb\';this.src=\'https://financialmodelingprep.com/image-stock/' + t + '.png\'}">') + '</span>'; }
+  var stack = function (w, n) { return '<span class="stack">' + Object.keys(w).filter(function (t) { return t !== "USDT" && t !== "GLD"; }).sort(function (a, b) { return w[b] - w[a]; }).slice(0, n || 6).map(mark).join("") + '</span>'; };
+
+  // ---------- Live market data (Yahoo via /api/prices) and daily drift ----------
+  var PX = {}, DRIFT = {}, ROLES = { pm: ["A. Lim", "Portfolio manager · Global Quality Equity", "AL"], risk: ["M. Chen", "Risk officer · Investment Risk", "MC"] };
+  var RESTRICTED = { TSLA: "On Schroders' restricted list (illustrative)" }, ESG_OUT = { XOM: "Fossil fuel producer", CVX: "Fossil fuel producer", GE: "Defence revenue above threshold" };
+  var price = function (t) { return t === "USDT" ? 1 : (PX[t] && PX[t].price) || 0; };
+  var r1d = function (t) { return t === "USDT" || !PX[t] || !PX[t].prevClose ? 0 : PX[t].price / PX[t].prevClose - 1; };
+  var r1m = function (t) { return t === "USDT" || !PX[t] || !(PX[t].closes || []).length ? 0 : PX[t].price / PX[t].closes[0].c - 1; };
+  var mret = function (w, f) { return Object.keys(w).reduce(function (s, t) { return s + w[t] / 100 * f(t); }, 0); };
+  var pct = function (v, d) { d = d == null ? 2 : d; var s = Math.abs(v * 100).toFixed(d); if (+s === 0) v = 0; return '<span class="pct ' + (v >= 0 ? "up" : "down") + '">' + (v >= 0 ? "+" : "−") + s + '%</span>'; };
+  function gstats(g) {
+    var w = personalW(current(g.pid), g.c), v = g.amt * (1 + mret(w, r1m)), after = {}, tot = 0, n = 0, d = 0;
+    Object.keys(w).forEach(function (t) { after[t] = w[t] * (1 + r1d(t)); tot += after[t]; });
+    var flow = {}, gap = 0;
+    Object.keys(w).forEach(function (t) { var x = after[t] / tot * 100 - w[t], usd$ = Math.abs(x) / 100 * v; d += Math.abs(x) / 2; gap = Math.max(gap, usd$); if (usd$ >= 5) { n++; flow[t] = -x / 100 * v; } });
+    return { val: v, r1m: mret(w, r1m), drift: d, trades: n, flow: flow, gap: gap };
+  }
+  function drift(pid) {
+    if (DRIFT[pid]) return DRIFT[pid];
+    var out = { due: 0, trades: 0, value: 0, flags: [], dist: [], flow: {}, port: {}, gross: 0 };
+    fleet(pid).forEach(function (g) { var s = gstats(g); out.value += s.val; out.flags.push(s.trades ? 1 : 0); out.dist.push([s.gap, s.trades ? 1 : 0]); if (s.trades) { out.due++; out.trades += s.trades; }
+      Object.keys(s.flow).forEach(function (t) { out.flow[t] = (out.flow[t] || 0) + s.flow[t]; out.port[t] = (out.port[t] || 0) + 1; out.gross += Math.abs(s.flow[t]); }); });
+    if (C.ran && C.ran[pid] && new Date(C.ran[pid]).toDateString() === new Date().toDateString()) { out.doneToday = { due: out.due, trades: out.trades }; out.due = 0; out.trades = 0; }
+    return (DRIFT[pid] = out);
+  }
+  function loadPx() {
+    return fetch("/api/prices?symbols=" + Object.keys(NAMES).filter(function (t) { return t !== "USDT"; }).join(",")).then(function (r) { return r.json(); })
+      .then(function (j) { PX = j.prices || {}; T.pxAt = j.asOf; DRIFT = {}; var any = Object.values(PX)[0], el = document.activeElement; T.open = !!(any && any.marketOpen);
+        // Skip the redraw while someone is typing or dragging, so a price refresh never steals their input.
+        if (!T.run && !T.pub && !(el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) render(); }).catch(function () {});
+  }
+  function nextRun() { var n = new Date(); n.setUTCHours(14, 0, 0, 0); if (n <= new Date()) n.setUTCDate(n.getUTCDate() + 1); var ms = n - new Date(); return Math.floor(ms / 3.6e6) + "h " + Math.floor(ms % 3.6e6 / 6e4) + "m"; }
+  function checks(pid) {
+    var w = draft(pid).w, ks = Object.keys(w).filter(function (t) { return w[t] > 0; }), I = impact(pid), mx = ks.reduce(function (m, t) { return Math.max(m, w[t]); }, 0), top = ks.sort(function (a, b) { return w[b] - w[a]; })[0];
+    var turn = I.aum ? I.gross / 2 / I.aum : 0, cost = I.fees + I.gross * 0.001, rs = ks.filter(function (t) { return RESTRICTED[t]; }), es = pid === "sustain" ? ks.filter(function (t) { return ESG_OUT[t]; }) : [];
+    return [
+      ["Concentration", "Largest holding " + (NAMES[top] || top || "–") + " at " + mx.toFixed(1) + "% (limit 25%)", mx <= 25],
+      ["Diversification", ks.length + " holdings (5 to 20)", ks.length >= 5 && ks.length <= 20],
+      ["Restricted list", rs.length ? rs.map(function (t) { return NAMES[t] + ": " + RESTRICTED[t]; }).join("; ") : "No holdings on the restricted list (illustrative list)", !rs.length],
+      ["Sustainability screen", pid !== "sustain" ? "Not required for this strategy" : es.length ? es.map(function (t) { return NAMES[t] + ": " + ESG_OUT[t]; }).join("; ") : "All holdings pass the screen (illustrative)", pid !== "sustain" ? null : !es.length],
+      ["One-way turnover", (turn * 100).toFixed(1) + "% of strategy assets (limit 30%)", turn <= 0.3],
+      ["Estimated cost to investors", usd(cost) + " · fees plus 10 bps slippage (" + (I.aum ? (cost / I.aum * 1e4).toFixed(1) : "0") + " bps of assets)", true],
+      ["Suitability", "Each risk level keeps its cash and gold; only the Schroders core changes", true],
+      ["Glider dry run", C.checked[pid] ? "Accepted at all five risk levels" : "Not run yet", C.checked[pid] ? true : "pending"]];
+  }
+  function checksHtml(pid) { return '<div class="chk">' + checks(pid).map(function (c) { var na = c[2] === null || c[2] === "pending"; return '<div class="' + (na ? "na" : c[2] ? "" : "no") + '"><i>' + (na ? "–" : c[2] ? "✓" : "!") + '</i><span><b>' + c[0] + '</b><small>' + esc(c[1]) + '</small></span><span class="small ' + (c[2] === false ? "down" : "faint") + '">' + (c[2] === null ? "n/a" : c[2] === "pending" ? "Pending" : c[2] ? "Pass" : "Fail") + '</span></div>'; }).join("") + '</div>'; }
+  function execLine(cls, text) { T.exec = T.exec || []; T.exec.push([cls, text]); var el = $("exec"); if (el) { el.insertAdjacentHTML("beforeend", '<div class="' + cls + '">' + esc(text) + '</div>'); el.scrollTop = el.scrollHeight; } }
+  var simClock = function (k) { var d = new Date(); d.setUTCHours(14, 0, 0, 0); return new Date(d.getTime() + k * 1700).toISOString().slice(11, 19); };
+
+  // ---------- Router + shell ----------
+  // Overview, one page per strategy (the whole change journey), and two records pages. Old routes land on the nearest page.
+  T.done = {}; T.expand = {}; T.pub = null; // T.expand: which finished steps are shown (T.open is the market-open flag)
+  var OLD = { strategies: "overview", approvals: "overview", rebalancing: "overview", settings: "overview", audit: "activity" };
+  function route() {
+    var h = (location.hash || "#/overview").slice(2).split("/"), page = OLD[h[0]] || h[0] || "overview";
+    if (page === "strategy" && !STRATS[h[1]]) page = "overview";
+    if (["overview", "strategy", "investors", "activity"].indexOf(page) < 0) page = "overview";
+    return { page: page, id: h[1] };
+  }
+  function go(path) { location.hash = "#/" + path; }
+  var busy = function (pid) { var s = C.status[pid]; return !!s && s !== "live"; };
+  function renderShell(r) {
+    var link = function (href, label, on, extra) { return '<a href="' + href + '" class="' + (on ? "on" : "") + '">' + label + (extra || "") + '</a>'; };
+    $("side").innerHTML = '<div class="brand"><a class="lk dark vt" href="/" aria-label="Schroders SPROUT, home"><img class="lk-wm" src="/brand/schroders-logo-white.svg" alt="Schroders" width="101" height="18"><i class="lk-sep" aria-hidden="true"></i><span class="lk-p">sprout</span><small class="lk-by">Admin console · <em></em><b>Glider</b></small></a></div>' +
+      link("#/overview", "Overview", r.page === "overview") +
+      '<div class="grp">Model portfolios</div>' + Object.keys(STRATS).map(function (p) { return link("#/strategy/" + p, STRATS[p].short, r.page === "strategy" && r.id === p, '<span class="dot' + (busy(p) ? " busy" : "") + '" title="' + (busy(p) ? "Change in progress" : "Up to date") + '"></span>'); }).join("") +
+      '<div class="grp">Records</div>' + link("#/investors", "Investors", r.page === "investors") + link("#/activity", "Activity", r.page === "activity") +
+      '<div class="foot"><div class="who"><i>AL</i><span><b>A. Lim</b>Portfolio manager</span></div><a href="/app" target="_blank" rel="noopener">Investor app ↗</a><span>Pilot · illustrative fleet</span></div>';
+    var title = r.page === "strategy" ? STRATS[r.id].short : { overview: "Overview", investors: "Investors", activity: "Activity" }[r.page];
+    $("crumb").innerHTML = "SPROUT admin / <b>" + title + "</b>";
+  }
+  function render() {
+    var r = route(); renderShell(r);
+    ({ overview: pgOverview, strategy: pgStrategy, investors: pgInvestors, activity: pgActivity }[r.page])(r); renderLayer();
+    if (T.tour != null) tourMark(false);
+  }
+  function tick() { $("clock").textContent = "Next rebalance 14:00 UTC · in " + nextRun(); }
+
+  // ---------- Overview ----------
+  var NEXT = { live: "Change the model", draft: "Continue the change", review: "Review and approve", approved: "Publish", published: "Rebalance portfolios" };
+  function mixBar(w) {
+    var ks = Object.keys(w).filter(function (t) { return w[t] > 0; }).sort(function (a, b) { return w[b] - w[a]; });
+    return '<div class="mix" title="Live model">' + ks.map(function (t, i) { return '<span style="flex:' + w[t] + ';background:' + (t === "USDT" ? "#26A17B" : t === "GLD" ? "#C99A33" : PAL[i % PAL.length]) + '" title="' + (NAMES[t] || t) + ' ' + w[t] + '%"></span>'; }).join("") + '</div>';
+  }
+  function pgOverview() {
+    var all = Object.keys(STRATS).map(function (p) { return impact(p); }), goals = all.reduce(function (s, I) { return s + I.list.length; }, 0), aum = all.reduce(function (s, I) { return s + I.aum; }, 0), vars = all.reduce(function (s, I) { return s + Object.keys(I.vars).length; }, 0);
+    $("page").innerHTML = '<div class="ph"><div class="row"><h1>Model portfolios</h1><button class="btn" data-tour="start">▶ Take the admin tour</button></div><p>Change a Schroders model once. SPROUT applies it to every opted-in portfolio, and Glider rebalances them all in the investors\' own wallets.</p></div>' +
+      '<div class="kpis" id="ovk">' + [["Opted-in portfolios", goals.toLocaleString(), "each in the investor's own wallet"], ["Assets following the models", big(aum), "illustrative balances"], ["Personal versions on Glider", vars.toLocaleString(), "one per mix of risk level and investor choices"], ["Next rebalance", "14:00 UTC", "in " + nextRun() + ", every portfolio"]]
+        .map(function (k) { return '<div class="kpi"><span>' + k[0] + '</span><b>' + k[1] + '</b><small>' + k[2] + '</small></div>'; }).join("") + '</div>' +
+      '<div class="g3">' + Object.keys(STRATS).map(function (p, i) { var S = STRATS[p], I = all[i], s = status(p);
+        return '<div class="card sc" id="sc-' + p + '"><div class="row"><span class="kick">' + S.purpose + '</span>' + pillOf(p) + '</div><div><div class="nm">' + S.name + '</div><div class="meta">' + S.team + ' · PM ' + S.pm + '</div></div>' +
+          '<div class="nums"><span><b>' + I.list.length.toLocaleString() + '</b>portfolios</span><span><b>' + big(I.aum) + '</b>assets</span><span><b>v' + version(p) + '</b>live model</span></div>' +
+          '<div style="display:grid;gap:6px">' + mixBar(current(p)) + '<div class="row small faint"><span>' + stack(current(p), 6) + '</span><span>' + Object.keys(current(p)).length + ' holdings</span></div></div>' +
+          (s !== "live" ? '<div class="chg"><b>' + esc(summary(p).head) + '</b>' + STATUS[s][1] + '</div>' : "") +
+          '<a class="btn ' + (s === "live" ? "ghost" : "") + '" href="#/strategy/' + p + '">' + NEXT[s] + ' →</a></div>'; }).join("") + '</div>' +
+      '<div class="card"><div class="row"><div style="display:grid;gap:2px"><span class="kick">How a change reaches every portfolio</span><h2>Four steps, one page per strategy</h2></div></div><div class="how">' +
+        [["Change the model", "Set the Schroders core and see what it means for every portfolio."], ["Check and approve", "Automatic checks, a live check with Glider, then independent risk approval."], ["Publish", "Every personal version updates on Glider. Investors see why."], ["Rebalance", "Glider trades each wallet to its new target."]]
+        .map(function (x, i) { return '<div><span class="n">' + (i + 1) + '</span><b>' + x[0] + '</b><p>' + x[1] + '</p></div>'; }).join("") + '</div></div>' +
+      '<div class="card" id="daily"><div class="row"><div style="display:grid;gap:2px"><span class="kick">Daily rebalance · 14:00 UTC</span><h2>Keeping every portfolio on target</h2></div><span class="faint small">Real price moves since yesterday\'s close</span></div>' +
+        '<p class="sub small">Prices move every day, so portfolios drift. Each day Glider checks every one and trades only those $5 or more off target. Smaller gaps wait, so no fee is wasted on tiny trades.</p><div>' +
+        Object.keys(STRATS).map(function (p) { var dr = drift(p), n = fleet(p).length, run = T.run && T.run.pid === p && !T.run.model, done = dr.doneToday, due = done ? done.due : dr.due;
+          return '<div class="dr"><div><b>' + STRATS[p].short + '</b><div class="lab">' + n.toLocaleString() + ' portfolios</div></div><div><div class="prog g" id="dp-' + p + '"><span style="width:' + (run ? T.run.k / n * 100 : done ? 100 : due / n * 100) + '%;' + (run || done ? "" : "background:var(--amber)") + '"></span></div><div class="lab" id="dl-' + p + '">' +
+            (run ? "Checking " + T.run.k.toLocaleString() + " of " + n.toLocaleString() + "…" : done ? "Done today · " + done.due.toLocaleString() + " rebalanced, " + (n - done.due).toLocaleString() + " within tolerance" : '<b class="down" style="color:var(--amber)">' + due.toLocaleString() + ' due</b> · ' + dr.trades.toLocaleString() + ' trades · ' + (n - due).toLocaleString() + ' within $5') + '</div></div>' +
+            '<button class="btn sm ' + (done ? "ghost" : "") + '" data-a="rundrift" data-p="' + p + '" ' + (T.run || done ? "disabled" : "") + '>' + (done ? "Done today" : "Run now") + '</button></div>'; }).join("") + '</div>' +
+        '<p class="faint small">In production this runs automatically inside US market hours. Here you can run it now. Glider never holds investor money.</p></div>';
+  }
+
+  // ---------- Strategy: the whole change, one page ----------
+  var STEPS = [["Change the model", "Set the weights of the Schroders core, and see what it means for every portfolio before anything trades."], ["Check and approve", "Automatic pre-trade checks, a live check with Glider, then independent approval from Investment Risk."], ["Publish", "Update every personal version on Glider in one go. Investors see what changed and why."], ["Rebalance", "Glider trades each portfolio to its new target, inside the investor's own wallet."]];
+  function states(pid) {
+    var s = C.status[pid] || "";
+    if (T.done[pid] && (!s || s === "live")) return ["done", "done", "done", "done"];
+    if (s === "published") return ["done", "done", "done", "now"];
+    if (s === "approved") return ["done", "done", "now", "todo"];
+    if (s === "review") return ["done", "now", "todo", "todo"];
+    return ["now", summary(pid).changed && rules(pid).ok ? "now" : "todo", "todo", "todo"];
+  }
+  function stepRight(pid, i, st) {
+    var s = C.status[pid], sm = summary(pid), d = T.done[pid];
+    if (i === 0) return st === "done" ? esc(d && !s ? d.head : sm.head) + (s === "review" || s === "approved" ? ' <button class="btn ghost sm" data-a="withdraw" data-p="' + pid + '">Withdraw and edit</button>' : "") : sm.changed ? '<span class="pill draft"><i></i>Draft: ' + esc(sm.head) + '</span>' : "Live model v" + version(pid);
+    if (i === 1) return st === "done" ? "Approved by M. Chen" : s === "review" ? '<span class="pill review"><i></i>Waiting for risk sign-off</span>' : st === "now" ? (C.checked[pid] ? "Glider accepted · ready to submit" : "Not checked yet") : "";
+    if (i === 2) return st === "done" ? "v" + (d && !s ? d.v : version(pid) + 1) + " published" : st === "now" ? "Ready to publish" : "";
+    return st === "done" ? "Live in every portfolio" : st === "now" ? "Runs at 14:00 UTC, or now" : "";
+  }
+  function pgStrategy(r) {
+    var pid = r.id, S = STRATS[pid], I = impact(pid), st = states(pid), d = T.done[pid];
+    var body = [step1, step2, step3, step4];
+    $("page").innerHTML = '<div class="ph"><div class="row"><div style="display:grid;gap:4px"><span class="kick">' + S.purpose + ' · ' + S.team + ' · PM ' + S.pm + '</span><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h1>' + S.name + '</h1>' + pillOf(pid) + '</div></div>' + stack(current(pid), 7) + '</div>' +
+      '<p>' + I.list.length.toLocaleString() + ' opted-in portfolios · ' + big(I.aum) + ' · ' + Object.keys(I.vars).length + ' personal versions on Glider · live model v' + version(pid) + '</p></div>' +
+      '<div class="rail">' + STEPS.map(function (x, i) { return '<span class="' + st[i] + '"><i>' + (st[i] === "done" ? "✓" : i + 1) + '</i>' + x[0] + '</span>'; }).join("") + '</div>' +
+      (d && st[3] === "done" ? '<div class="fin"><i>✓</i><div><b>v' + d.v + ' is live in every ' + S.short + ' portfolio</b><small>' + esc(d.head) + ' · ' + d.affected.toLocaleString() + ' rebalanced, ' + d.small.toLocaleString() + ' within $5 · ' + ago(d.at) + '</small></div><button class="btn" data-a="newchange" data-p="' + pid + '">Start a new change</button></div>' : "") +
+      STEPS.map(function (x, i) { var k = pid + i, open = st[i] === "now" || (st[i] === "done" && T.expand[k]);
+        return '<section class="stp ' + st[i] + '" id="step' + (i + 1) + '"><header><span class="n">' + (st[i] === "done" ? "✓" : i + 1) + '</span><div><h2>' + x[0] + '</h2><p>' + x[1] + '</p></div><div class="rs">' + stepRight(pid, i, st[i]) +
+          (st[i] === "done" ? ' <button class="tog" data-tog="' + k + '">' + (open ? "Hide" : "Show") + '</button>' : "") + '</div></header>' + (open ? '<div class="bd">' + body[i](pid, st[i], I) + '</div>' : "") + '</section>'; }).join("") +
+      '<details class="card"><summary>Model history</summary>' + historyHtml(pid) + '</details>';
+    if ($("builder")) { renderBuilder(pid); paintEdit(pid); }
+    if ($("fan")) renderFan(pid, I, "fan");
+  }
+  function historyHtml(pid) {
+    var H = (C.history[pid] || []).slice().reverse();
+    return '<table class="t" style="margin-top:10px"><thead><tr><th>Version</th><th>Change</th><th>Rationale</th><th>Approved by</th><th>Live</th></tr></thead><tbody>' +
+      H.map(function (h) { return '<tr><td><b>v' + h.v + '</b></td><td>' + esc(h.head) + '</td><td class="small sub">' + esc(h.why) + '</td><td class="small">' + esc(h.by) + '</td><td class="small">' + ago(h.at) + '</td></tr>'; }).join("") +
+      '<tr><td><b>v1</b></td><td>Launched on SPROUT</td><td class="small sub">Initial model.</td><td class="small">Investment committee</td><td class="small">Sep 2026</td></tr></tbody></table>';
+  }
+
+  // Step 1: weights on the left, before/after on the right, and below it what the change means for every portfolio.
+  function step1(pid, st) {
+    var ed = editable(pid), s = C.status[pid];
+    return (ed ? "" : '<div class="note warn row"><span>The model is locked while the change goes through sign-off and publishing.</span>' + (s === "review" || s === "approved" ? '<button class="btn ghost sm" data-a="withdraw" data-p="' + pid + '">Withdraw and edit</button>' : "") + '</div>') +
+      '<div class="g2"><div class="panel" id="builder"></div><div class="panel" id="compare"></div></div><div class="panel" id="impact"></div>' +
+      (ed ? '<div class="acts"><span class="faint" id="s1hint"></span><button class="btn" data-a="tostep2" data-p="' + pid + '" id="s1next">Next: check and approve →</button></div>' : "");
+  }
+  function renderBuilder(pid) {
+    var d = draft(pid), cur = current(pid), ed = editable(pid), keys = Object.keys(Object.assign({}, cur, d.w)).sort(function (a, b) { return (cur[b] || 0) - (cur[a] || 0) || (d.w[b] || 0) - (d.w[a] || 0); });
+    var avail = Object.keys(NAMES).filter(function (t) { return !(t in d.w) && t !== "USDT" && t !== "GLD" && (!T.assets || T.assets[t]); }).sort(function (a, b) { return NAMES[a].localeCompare(NAMES[b]); });
+    $("builder").innerHTML = '<div class="row"><h3>Schroders core weights</h3>' + (ed ? '<div style="display:flex;gap:8px"><button class="btn ghost sm" data-a="loadprop" data-p="' + pid + '">Load the team\'s proposal</button><button class="btn ghost sm" data-a="resetw" data-p="' + pid + '">Reset</button></div>' : "") + '</div>' +
+      '<div>' + keys.map(function (t) { var v = d.w[t] || 0, was = cur[t] || 0, cls = !was && v ? "new" : was && !v ? "out" : "";
+        return '<div class="wrow ' + cls + '">' + mark(t) + '<div class="nm"><b>' + (NAMES[t] || t) + '</b><small>' + t + (was !== v ? ' · was ' + was + '%' : "") + '</small></div>' + deltaHtml(t, pid) +
+          '<input type="range" min="0" max="30" step="0.5" value="' + v + '" data-w="' + t + '" aria-label="Weight for ' + (NAMES[t] || t) + '" ' + (ed ? "" : "disabled") + '>' +
+          '<input class="wnum" type="number" min="0" max="30" step="0.5" value="' + v + '" data-wn="' + t + '" aria-label="' + (NAMES[t] || t) + ' weight, percent" ' + (ed ? "" : "disabled") + '>' +
+          (ed ? '<button class="x" data-rm="' + t + '" title="Remove ' + (NAMES[t] || t) + '" aria-label="Remove ' + (NAMES[t] || t) + '">✕</button>' : '<span></span>') + '</div>'; }).join("") + '</div>' +
+      (ed ? '<div class="addrow"><select id="addsel" aria-label="Add a company"><option value="">Add a company…</option>' + avail.map(function (t) { return '<option value="' + t + '">' + NAMES[t] + ' (' + t + ')</option>'; }).join("") + '</select><button class="btn sm" data-a="add" data-p="' + pid + '">Add</button></div>' : "") +
+      '<div class="total" id="wtotal"></div>';
+  }
+  function deltaHtml(t, pid) { var x = (draft(pid).w[t] || 0) - (current(pid)[t] || 0); return '<span class="dlt ' + (Math.abs(x) < 0.25 ? "z" : x > 0 ? "p" : "m") + '" data-dl="' + t + '">' + (Math.abs(x) < 0.25 ? "–" : (x > 0 ? "+" : "−") + Math.abs(x).toFixed(1)) + '</span>'; }
+  // Everything that depends on the weights, redrawn without touching the sliders (re-rendering mid-drag would drop the drag).
+  function paintEdit(pid) {
+    var rl = rules(pid), ok = Math.abs(rl.tot - 100) < 0.01, ed = editable(pid), sm = summary(pid);
+    var tb = $("wtotal"); if (tb) { tb.className = "total " + (ok ? "ok" : "bad"); tb.innerHTML = '<span>Total <b>' + rl.tot.toFixed(1) + '%</b>' + (ok ? " · ready" : " · must add up to 100%") + '</span>' + (ed && !ok ? '<button class="btn sm" data-a="norm" data-p="' + pid + '">Scale to 100%</button>' : ""); }
+    document.querySelectorAll("[data-dl]").forEach(function (el) { el.outerHTML = deltaHtml(el.dataset.dl, pid); });
+    if ($("compare")) $("compare").innerHTML = compareHtml(pid);
+    if ($("impact")) $("impact").innerHTML = impactHtml(pid);
+    var nx = $("s1next"), hint = $("s1hint");
+    if (nx) { var why = !sm.changed ? "Move a weight, add a company or load the team's proposal." : !rl.ok ? "Fix: " + rl.list.filter(function (x, i) { return i < 4 && !x[1]; }).map(function (x) { return x[0].toLowerCase(); }).join(", ") + "." : "";
+      nx.disabled = !!why; hint.textContent = why || "Looks good. Next, check it with Glider and send it for sign-off."; }
+  }
+  function compareHtml(pid) {
+    var d = draft(pid), cur = current(pid), sm = summary(pid), rl = rules(pid), ed = editable(pid), keys = Object.keys(Object.assign({}, cur, d.w)).sort(), col = {};
+    keys.forEach(function (t, i) { col[t] = t === "USDT" ? "#26A17B" : t === "GLD" ? "#C99A33" : PAL[i % PAL.length]; });
+    var bar = function (w) { var ks = Object.keys(w).filter(function (t) { return w[t] > 0; }).sort(function (a, b) { return w[b] - w[a]; }); return '<div class="bar">' + ks.map(function (t) { return '<span style="flex:' + w[t] + ';background:' + col[t] + '" title="' + (NAMES[t] || t) + ' ' + w[t] + '%">' + (w[t] >= 7 ? t : "") + '</span>'; }).join("") + '</div>'; };
+    var chips = keys.map(function (t) { return [t, (d.w[t] || 0) - (cur[t] || 0)]; }).filter(function (x) { return Math.abs(x[1]) >= 0.25; }).sort(function (a, b) { return b[1] - a[1]; });
+    return '<div style="display:grid;gap:2px"><span class="kick">The decision</span><div class="headline">' + esc(sm.head) + '</div></div>' +
+      '<div class="sbar"><div class="lab"><span>Live model · v' + version(pid) + '</span></div>' + bar(cur) + '</div><div class="sbar"><div class="lab"><span><b style="color:var(--ink)">Proposed</b></span><span>' + keys.filter(function (t) { return d.w[t] > 0; }).length + ' holdings</span></div>' + bar(d.w) + '</div>' +
+      '<div class="chips">' + (chips.length ? chips.map(function (x) { return '<span class="' + (x[1] > 0 ? "p" : "m") + '">' + (x[1] > 0 ? "+" : "−") + Math.abs(x[1]).toFixed(1) + '% ' + (NAMES[x[0]] || x[0]) + '</span>'; }).join("") : '<span class="faint small">No changes yet</span>') + '</div>' +
+      '<label class="small sub" for="why">Why the team is making this change (investors read this)</label><textarea id="why" placeholder="In plain English" ' + (ed ? "" : "disabled") + '>' + esc(d.why || "") + '</textarea>' +
+      '<div class="rules">' + rl.list.slice(0, 4).map(function (r) { return '<div class="' + (r[1] ? "ok" : "no") + '"><i>' + (r[1] ? "✓" : "!") + '</i>' + r[0] + '</div>'; }).join("") + '</div>' +
+      (C.review[pid] && C.review[pid].note ? '<div class="note warn"><b>Sent back by the risk officer:</b> ' + esc(C.review[pid].note) + '</div>' : "");
+  }
+  // One model → five risk levels → personal versions → every portfolio, with the trades the change would cause.
+  function levelRows(pid) {
+    var from = current(pid), to = round100(draft(pid).w), list = fleet(pid);
+    return [1, 2, 3, 4, 5].map(function (lv) { var c = { risk: lv, themes: [], cash: 0, exclude: [] }, a = personalW(from, c), b = personalW(to, c), ch = [], L = LEVELS[lv];
+      Object.keys(Object.assign({}, a, b)).forEach(function (t) { var x = (b[t] || 0) - (a[t] || 0); if (Math.abs(x) >= 0.05) ch.push([t, x]); });
+      ch.sort(function (x, y) { return Math.abs(y[1]) - Math.abs(x[1]); });
+      return { lv: lv, n: list.filter(function (g) { return g.c.risk === lv; }).length, core: 100 - L.cash - L.gold, cash: L.cash, gold: L.gold, ch: ch }; });
+  }
+  function impactHtml(pid) {
+    var I = impact(pid), sm = summary(pid), N = I.list.length, kinds = { core: 0, theme: 0, two: 0, priv: 0 }, nv = Object.keys(I.vars).length;
+    I.list.forEach(function (g) { kinds[kind(g.c)]++; });
+    var choice = [["core", "var(--core)", "Model as is", "Just the Schroders core, cash and gold for their risk level"], ["theme", "var(--theme)", "Added a theme", "A slice in a theme they believe in, such as AI & chips"], ["two", "var(--two)", "Added two themes", "Two theme slices"], ["priv", "var(--priv)", "Left out a company, or extra cash", "e.g. no Amazon, or 5% more cash"]];
+    var lev = function (x) { return x.ch.length ? x.ch.slice(0, 3).map(function (c) { return '<span class="' + (c[1] > 0 ? "up" : "down") + '">' + (NAMES[c[0]] || c[0]) + ' ' + (c[1] > 0 ? "+" : "−") + Math.abs(c[1]).toFixed(1) + '%</span>'; }).join(" · ") : '<span class="faint">No change</span>'; };
+    return '<div style="display:grid;gap:2px"><span class="kick">What happens to every portfolio</span><h3>' + (sm.changed ? '"' + esc(sm.head) + '" across ' + N.toLocaleString() + ' portfolios' : "How this model reaches " + N.toLocaleString() + " portfolios") + '</h3></div>' +
+      (sm.changed ? '<div class="kpis flat">' + [["Will trade", I.affected.toLocaleString(), "of " + N.toLocaleString() + " portfolios"], ["Left alone", I.small.toLocaleString(), "their change would be under $5"], ["Trades", I.trades.toLocaleString(), "placed in investors' own wallets"], ["Trading fees", usd(I.fees), "0.30% of what's bought, paid by each portfolio"]]
+        .map(function (k) { return '<div class="kpi"><span>' + k[0] + '</span><b>' + k[1] + '</b><small>' + k[2] + '</small></div>'; }).join("") + '</div>' : "") +
+      '<div style="display:grid;gap:6px" id="lvls"><b class="small">1 · Scaled to each risk level</b><p class="faint small" style="margin:0">Every portfolio holds the Schroders core plus cash, and gold at the cautious levels. The change only moves the core, so a cautious portfolio moves a little and an adventurous one moves more.</p><div>' +
+        levelRows(pid).map(function (x) { return '<div class="lvr"><div><b>Level ' + x.lv + ' · ' + LEVELS[x.lv].n + '</b><small>' + x.n.toLocaleString() + ' portfolios</small></div>' +
+          '<div><div class="mix"><span style="flex:' + x.core + ';background:var(--core)"></span>' + (x.gold ? '<span style="flex:' + x.gold + ';background:#C99A33"></span>' : "") + '<span style="flex:' + x.cash + ';background:#26A17B"></span></div><div class="mixl">Schroders core ' + x.core + '%' + (x.gold ? ' · gold ' + x.gold + '%' : "") + ' · cash ' + x.cash + '%</div></div>' +
+          '<div class="small">' + (sm.changed ? '<span class="faint">This change: </span>' : "") + lev(x) + '</div></div>'; }).join("") + '</div></div>' +
+      '<div style="display:grid;gap:8px" id="pers"><b class="small">2 · Investors\' own choices are kept</b><p class="faint small" style="margin:0">On top of their risk level, some investors chose to add a theme, leave out a company or keep extra cash. The change only touches the Schroders core, so those choices stay exactly as they are.</p>' +
+        '<div class="mix" style="height:14px">' + choice.map(function (c) { return kinds[c[0]] ? '<span style="flex:' + kinds[c[0]] + ';background:' + c[1] + '"></span>' : ""; }).join("") + '</div>' +
+        '<div class="chc">' + choice.map(function (c) { return '<div><i style="background:' + c[1] + '"></i><span><b>' + kinds[c[0]].toLocaleString() + '</b> ' + c[2] + '<small>' + c[3] + '</small></span></div>'; }).join("") + '</div>' +
+        '<div class="note small">Each different mix of risk level and choices is one <b>personal version</b> of the model: <b>' + nv + '</b> for ' + STRATS[pid].short + '. Publishing updates all ' + nv + ' on Glider in one go, so nobody has to be handled one by one.</div></div>' +
+      (sm.changed && I.ex.length ? '<div style="display:grid;gap:6px" id="exs"><b class="small">3 · One decision, different trades</b><p class="faint small" style="margin:0">Three real portfolios. Each trades only what it needs to reach its own new target.</p><div class="ex">' + I.ex.map(function (e) { var g = e.g; return '<div class="e' + (g.live ? " lv" : "") + '">' + (g.live ? '<span class="tag">Live demo · ' + esc(g.who) + '</span>' : '<span class="faint small">' + esc(g.inv) + '</span>') + '<b>' + esc(g.name) + ' · ' + usd(g.amt) + '</b><span class="faint small">Level ' + g.c.risk + ' · ' + esc(addons(g.c)) + '</span><span>' + (e.my.length ? e.my.sort(function (a, b) { return a[1] - b[1]; }).slice(0, 4).map(function (x) { return '<span class="' + (x[1] < 0 ? "down" : "up") + '">' + (x[1] < 0 ? "Sell " : "Buy ") + (NAMES[x[0]] || x[0]) + " " + usd(Math.abs(x[1]), 2) + '</span>'; }).join("<br>") : "No trades: the change is under $5") + '</span></div>'; }).join("") + '</div></div>' : "");
+  }
+
+  // Step 2: checks, a live Glider dry run, then the risk officer's sign-off.
+  function step2(pid, st) {
+    var s = C.status[pid], ck = C.checked[pid], lv = ck && ck.lv, bad = checks(pid).filter(function (c) { return c[2] === false; }), rv = C.review[pid] || {}, d = draft(pid);
+    if (st === "done") return '<div class="g2"><div class="panel"><h3>Pre-trade checks</h3><p class="faint small" style="margin:0">Run automatically every time the model changes.</p>' + checksHtml(pid) + '</div><div class="panel" id="signoff"><h3>Signed off</h3><div class="signer"><i>MC</i><div><b>M. Chen · Risk officer</b><small>Approved this change. Within mandate and suitable at every level.</small></div></div></div></div>';
+    var glider = '<div class="panel" id="gpanel"><h3>Live check with Glider</h3><p class="faint small" style="margin:0">SPROUT sends the new model to Glider\'s production API at each risk level. Glider confirms every holding is available and the weights are valid. Nothing is created and nothing trades.</p>' +
+      '<div class="lvls">' + [1, 2, 3, 4, 5].map(function (l, i) { var r = lv ? lv[i] : ck ? true : null; return '<span class="' + (r === true ? "ok" : r === false ? "no" : "") + '">' + (r === true ? "✓ " : r === false ? "✕ " : "") + 'Level ' + l + '</span>'; }).join("") + '</div>' +
+      (s === "review" ? "" : '<button class="btn ' + (ck ? "ghost" : "") + ' sm" data-a="check" data-p="' + pid + '" ' + (T.checking ? "disabled" : "") + '>' + (T.checking ? "Checking with Glider…" : ck ? "Check again" : "Check with Glider") + '</button>') + '</div>';
+    var signoff = s === "review" ?
+      '<div class="panel" id="signoff" style="border-color:var(--amber)"><h3>Independent risk approval</h3><p class="small sub" style="margin:0">No change goes live on one person\'s say-so. The portfolio manager proposes; Investment Risk reviews and approves. Here, you approve on their behalf.</p>' +
+        '<div class="signer"><i>MC</i><div><b>M. Chen · Risk officer</b><small>Reviewing "' + esc(summary(pid).head) + '"</small></div></div><p class="small" style="margin:0">“' + esc(d.why || STRATS[pid].why) + '”</p>' +
+        '<div class="row"><button class="btn red sm" data-a="reject" data-p="' + pid + '">Send back</button><button class="btn green" data-a="approve" data-p="' + pid + '">Approve as risk officer</button></div></div>'
+      : '<div class="panel" id="signoff"><h3>Submit for sign-off</h3><p class="small sub" style="margin:0">' + (bad.length ? "Fix the failed checks first." : ck ? "Glider accepted it. Send it to the risk officer." : "Run the Glider dry run first.") + '</p><button class="btn" data-a="submit" data-p="' + pid + '" ' + (ck && !bad.length ? "" : "disabled") + '>Submit to risk officer</button></div>';
+    return '<div class="g2"><div class="panel"><h3>Pre-trade checks</h3><p class="faint small" style="margin:0">Run automatically every time the model changes.</p>' + checksHtml(pid) + '</div><div style="display:grid;gap:14px;align-content:start">' + glider + signoff + '</div></div>';
+  }
+  // Step 3: publish every personal version to Glider and tell investors why.
+  function step3(pid, st, I) {
+    var nv = Object.keys(I.vars).length, p = T.pub && T.pub.pid === pid ? T.pub : null, d = T.done[pid];
+    if (st === "done") return '<dl class="kv"><dt>Personal versions updated on Glider</dt><dd>' + nv + '</dd><dt>Investors told why, in the app</dt><dd>' + I.list.length.toLocaleString() + '</dd><dt>Approved by</dt><dd>M. Chen · Risk officer</dd></dl>';
+    return '<div class="g2"><div class="panel"><h3>What publishing does</h3><dl class="kv"><dt>New model version</dt><dd>v' + (version(pid) + 1) + ' · ' + esc(summary(pid).head) + '</dd><dt>Personal versions to update on Glider</dt><dd>' + nv + '</dd><dt>Investors notified, with your rationale</dt><dd>' + I.list.length.toLocaleString() + '</dd><dt>Trades now</dt><dd>None, until the rebalance</dd></dl></div>' +
+      '<div class="panel"><h3>' + (p ? "Publishing…" : "Ready") + '</h3>' + (p ? '<p class="small sub" id="pubtxt" style="margin:0">Updating personal versions on Glider… ' + p.n + ' of ' + nv + '</p><div class="prog"><span id="pubbar" style="width:' + (p.n / nv * 100) + '%"></span></div>'
+        : '<p class="small sub" style="margin:0">One click updates all ' + nv + ' versions. Each investor\'s app shows the decision and why, before anything trades.</p><button class="btn" data-a="publish" data-p="' + pid + '">Publish v' + (version(pid) + 1) + ' to ' + nv + ' versions</button>') + '</div></div>';
+  }
+  // Step 4: Glider rebalances every wallet. The squares are the real fleet, one per portfolio.
+  function step4(pid, st, I) {
+    var r = T.run && T.run.pid === pid && T.run.model ? T.run : null, d = T.done[pid], N = I.list.length;
+    var stats = r ? [r.reb, r.skip, r.k] : d && st === "done" ? [d.affected, d.small, N] : [0, 0, 0];
+    return '<div class="panel fan" id="fan"></div>' +
+      '<div class="row"><div class="runst" id="runst"><span><b>' + stats[0].toLocaleString() + '</b>rebalanced</span><span><b>' + stats[1].toLocaleString() + '</b>within $5, no trade</span><span><b>0</b>failed</span><span><b>' + stats[2].toLocaleString() + ' / ' + N.toLocaleString() + '</b>checked</span></div>' +
+      (st === "now" && !r ? '<button class="btn green" data-a="run" data-p="' + pid + '">Rebalance ' + N.toLocaleString() + ' portfolios now</button>' : "") + '</div>' +
+      '<div class="prog g"><span id="runbar" style="width:' + (stats[2] / N * 100) + '%"></span></div>' +
+      (st === "now" && !r ? '<p class="faint small" style="margin:0">Runs automatically at 14:00 UTC inside US market hours. In this demo it runs now. Each wallet trades its own shares; Glider never holds investor money.</p>' : "") +
+      '<details' + (r ? " open" : "") + '><summary>Execution log</summary><div class="exec" id="exec">' + (T.exec || []).map(function (l) { return '<div class="' + l[0] + '">' + esc(l[1]) + '</div>'; }).join("") + '</div></details>';
+  }
+  function renderFan(pid, I, el) {
+    var list = I.list, W = 760, x0 = 380, cell = 8, cols = Math.floor((W - x0 - 6) / cell), gap = 14, bands = [], y = 24, tot = I.aum || 1;
+    [1, 2, 3, 4, 5].forEach(function (lv) { var idx = []; list.forEach(function (g, i) { if (g.c.risk === lv) idx.push(i); }); var rows = Math.max(1, Math.ceil(idx.length / cols)), h = Math.max(30, rows * cell); bands.push({ lv: lv, idx: idx, y: y, h: h, aum: idx.reduce(function (s, i) { return s + list[i].amt; }, 0) }); y += h + gap; });
+    var H = y + 4, mid = H / 2, s = C.status[pid], flowing = !!(T.run && T.run.pid === pid), COL = { core: "var(--core)", theme: "var(--theme)", two: "var(--two)", priv: "var(--priv)" };
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="One Schroders model fanning out to every personal portfolio">';
+    bands.forEach(function (b) { var by = b.y + b.h / 2, sw = Math.max(2, b.aum / tot * 40);
+      svg += '<path class="lnk' + (flowing ? " flow" : "") + '" stroke-width="' + sw.toFixed(1) + '" d="M150 ' + mid + ' C 200 ' + mid + ', 190 ' + by + ', 240 ' + by + '"/><path class="lnk' + (flowing ? " flow" : "") + '" stroke-width="' + Math.max(1.5, sw / 2).toFixed(1) + '" d="M340 ' + by + ' L ' + (x0 - 4) + ' ' + by + '"/>';
+      svg += '<rect x="240" y="' + (by - 15) + '" width="100" height="30" rx="4" fill="var(--hover)"/><text x="250" y="' + (by - 2) + '" font-size="11" font-weight="700" fill="var(--ink)">Level ' + b.lv + '</text><text x="250" y="' + (by + 10) + '" font-size="9.5" fill="var(--sub)">' + b.idx.length.toLocaleString() + ' · ' + big(b.aum) + '</text>';
+      b.idx.forEach(function (gi, j) { var g = list[gi], cx = x0 + (j % cols) * cell, cy = b.y + Math.floor(j / cols) * cell, st = (T.sq[pid] || {})[gi] || "";
+        svg += '<rect class="q ' + st + (g.live ? " live" : "") + '" id="q' + gi + '" x="' + cx + '" y="' + cy + '" width="6" height="6" rx="1.2" fill="' + COL[kind(g.c)] + '"><title>' + esc(g.inv) + " · " + esc(g.name) + " · Level " + g.c.risk + " · " + esc(addons(g.c)) + " · " + usd(g.amt) + '</title></rect>'; }); });
+    svg += '<rect x="6" y="' + (mid - 46) + '" width="144" height="92" rx="8" fill="#001e41"/><text x="18" y="' + (mid - 24) + '" font-size="10" fill="#9fb6d1" font-weight="700" letter-spacing=".08em">SCHRODERS MODEL</text><text x="18" y="' + (mid - 4) + '" font-size="15" fill="#fff" font-weight="700">' + esc(STRATS[pid].short) + '</text><text x="18" y="' + (mid + 14) + '" font-size="10.5" fill="#cfe3f7">' + (s === "published" ? "v" + version(pid) + " → v" + (version(pid) + 1) : "v" + version(pid) + " live") + '</text><text x="18" y="' + (mid + 32) + '" font-size="10" fill="#9fb6d1">' + Object.keys(I.vars).length + ' personal versions</text>';
+    $(el).innerHTML = '<div class="row"><div style="display:grid;gap:2px"><span class="kick">One model → five risk levels → ' + list.length.toLocaleString() + ' portfolios</span><h3>Every square is one investor\'s portfolio</h3></div><span class="faint small">Hover a square for details</span></div>' + svg + '</svg>' +
+      '<div class="lgd"><span><i style="background:var(--core)"></i>Model as is</span><span><i style="background:var(--theme)"></i>Added a theme</span><span><i style="background:var(--two)"></i>Added two themes</span><span><i style="background:var(--priv)"></i>Left out a company, or extra cash</span><span><i style="background:var(--done)"></i>Rebalanced</span><span><i style="background:var(--small)"></i>Under $5, no trade</span>' + (list.some(function (g) { return g.live; }) ? '<span><i style="background:#fff;border:2px solid #ff4f8b"></i>Live demo investor</span>' : "") + '</div>';
+  }
+
+  // ---------- Investors and activity (records) ----------
+  function pgInvestors() {
+    var f = T.inv, all = Object.keys(STRATS).reduce(function (a, p) { return a.concat(fleet(p)); }, []).filter(function (g) { return (!f.pid || g.pid === f.pid) && (!f.lv || g.c.risk === +f.lv) && (!f.kind || kind(g.c) === f.kind) && (!f.q || (g.inv + " " + g.name).toLowerCase().indexOf(f.q.toLowerCase()) >= 0); })
+      .sort(function (a, b) { return (b.live ? 1 : 0) - (a.live ? 1 : 0) || b.amt - a.amt; }), per = 25, pages = Math.max(1, Math.ceil(all.length / per)), pg = Math.min(f.page, pages - 1), rows = all.slice(pg * per, pg * per + per);
+    T.invRows = rows;
+    $("page").innerHTML = '<div class="ph"><h1>Investors</h1><p>Every opted-in portfolio. Each sits in the investor\'s own wallet: Schroders sees it but can\'t withdraw from it.</p></div>' +
+      '<div class="card"><div class="filters"><input id="fq" placeholder="Search investor or goal" value="' + esc(f.q) + '">' +
+      '<select id="fp"><option value="">All strategies</option>' + Object.keys(STRATS).map(function (p) { return '<option value="' + p + '" ' + (f.pid === p ? "selected" : "") + '>' + STRATS[p].short + '</option>'; }).join("") + '</select>' +
+      '<select id="fl"><option value="">All risk levels</option>' + [1, 2, 3, 4, 5].map(function (l) { return '<option value="' + l + '" ' + (f.lv == l ? "selected" : "") + '>Level ' + l + '</option>'; }).join("") + '</select>' +
+      '<select id="fk"><option value="">All investor choices</option>' + [["core", "Model as is"], ["theme", "Added a theme"], ["two", "Added two themes"], ["priv", "Left out a company, or extra cash"]].map(function (k) { return '<option value="' + k[0] + '" ' + (f.kind === k[0] ? "selected" : "") + '>' + k[1] + '</option>'; }).join("") + '</select>' +
+      '<span class="faint small" style="margin-left:auto">' + all.length.toLocaleString() + ' portfolios · ' + big(all.reduce(function (s, g) { return s + g.amt; }, 0)) + '</span></div>' +
+      '<table class="t"><thead><tr><th>Investor</th><th>Goal</th><th>Strategy</th><th>Level</th><th>Investor\'s choices</th><th class="r">Invested</th><th>Today</th></tr></thead><tbody>' +
+      rows.map(function (g, i) { var st = gstats(g); return '<tr class="click' + (g.live ? " me" : "") + '" data-inv="' + i + '"><td><b>' + esc(g.inv) + '</b><br><span class="faint small">' + esc(g.wallet) + '</span></td><td>' + esc(g.name) + '</td><td>' + STRATS[g.pid].short + '</td><td>' + g.c.risk + '</td><td class="small">' + esc(addons(g.c)) + '</td><td class="r">' + usd(g.amt) + '</td><td>' + (st.trades ? '<span class="pill review"><i></i>' + st.trades + ' trades due</span>' : '<span class="pill live"><i></i>On target</span>') + '</td></tr>'; }).join("") + '</tbody></table>' +
+      '<div class="pager"><button class="btn ghost sm" data-a="pg-" ' + (pg ? "" : "disabled") + '>Previous</button><span>Page ' + (pg + 1) + ' of ' + pages + '</span><button class="btn ghost sm" data-a="pg+" ' + (pg < pages - 1 ? "" : "disabled") + '>Next</button></div></div>';
+  }
+  function drawerHtml(g) {
+    var w = round100(personalW(current(g.pid), g.c)), ks = Object.keys(w).sort(function (a, b) { return w[b] - w[a]; }), st = gstats(g);
+    return '<div class="row"><span class="kick">' + (g.live ? "Live demo investor" : "Investor portfolio") + '</span><button class="btn ghost sm" data-a="close">Close</button></div><h2 style="font-size:1.3rem">' + esc(g.inv) + ' · ' + esc(g.name) + '</h2>' +
+      '<dl class="kv"><dt>Strategy</dt><dd>' + STRATS[g.pid].name + '</dd><dt>Risk level</dt><dd>' + g.c.risk + ' · ' + LEVELS[g.c.risk].n + '</dd><dt>Investor\'s choices</dt><dd>' + esc(addons(g.c)) + '</dd><dt>Invested</dt><dd>' + usd(g.amt, 2) + '</dd><dt>Today</dt><dd>' + (st.trades ? st.trades + " trades due at 14:00" : "Within tolerance") + '</dd><dt>Wallet</dt><dd>' + esc(g.wallet) + '</dd><dt>Schroders can withdraw</dt><dd>No</dd></dl>' +
+      '<h3 style="font-size:.95rem">Personal target weights</h3><table class="t"><tbody>' + ks.map(function (t) { return '<tr><td>' + mark(t) + ' ' + (NAMES[t] || t) + '</td><td class="r"><b>' + w[t].toFixed(2) + '%</b></td><td class="r small faint">' + usd(w[t] / 100 * g.amt, 2) + '</td></tr>'; }).join("") + '</tbody></table>';
+  }
+  function logHtml(list) { return list.length ? '<div class="log">' + list.map(function (l) { return '<div><span class="faint small">' + ago(l.at) + '</span><span class="tagx ' + (l.who === "Glider" ? "g" : l.who === "SPROUT" ? "i" : l.who === "Risk" ? "r" : "s") + '">' + (l.who === "Risk" ? "Risk officer" : l.who) + '</span><span>' + esc(l.what) + (l.call ? '<br><code>' + esc(l.call) + '</code>' : "") + '</span></div>'; }).join("") + '</div>' : '<div class="empty">Nothing yet.</div>'; }
+  function pgActivity() {
+    $("page").innerHTML = '<div class="ph"><div class="row"><h1>Activity</h1><button class="btn ghost sm" data-a="export">Export CSV</button></div><p>Every decision and rebalance, who made it, and the Glider call behind it.</p></div>' +
+      '<div class="card"><h2>Rebalance runs</h2><table class="t"><thead><tr><th>When</th><th>Run</th><th>Strategy</th><th class="r">Rebalanced</th><th class="r">Trades</th><th class="r">Within $5</th><th class="r">Failed</th></tr></thead><tbody>' +
+      C.runs.slice().sort(function (a, b) { return b.at - a.at; }).map(function (r) { return '<tr><td class="small">' + ago(r.at) + '</td><td>' + esc(r.label) + '</td><td>' + esc(r.strat) + '</td><td class="r">' + r.n.toLocaleString() + '</td><td class="r">' + r.trades.toLocaleString() + '</td><td class="r">' + r.small.toLocaleString() + '</td><td class="r">' + r.failed + '</td></tr>'; }).join("") + '</tbody></table></div>' +
+      '<div class="card" id="actlog"><h2>Log</h2>' + logHtml(C.log) + '</div>';
+  }
+  function renderLayer() {
+    var h = "";
+    if (T.drawer) h += '<div class="ov" data-a="close"></div><aside class="drawer" role="dialog" aria-modal="true">' + drawerHtml(T.drawer) + '</aside>';
+    if (T.toast) h += '<div class="toast" role="status">' + T.toast + '</div>';
+    $("layer").innerHTML = h;
+  }
+  function toast(msg) { T.toast = msg; renderLayer(); clearTimeout(toast.t); toast.t = setTimeout(function () { T.toast = null; renderLayer(); }, 4200); }
+
+  // ---------- Actions ----------
+  function invalidate(pid) { delete C.checked[pid]; }
+  function setW(pid, t, v) { var d = draft(pid); v = Math.max(0, Math.min(30, Math.round(v * 2) / 2)); if (v > 0) d.w[t] = v; else delete d.w[t]; invalidate(pid); if (!summary(pid).changed) delete C.status[pid]; else C.status[pid] = "draft"; save(); }
+  function check(pid) {
+    T.checking = true; render(); var w = round100(draft(pid).w), id = T.assets || {};
+    return Promise.all([1, 2, 3, 4, 5].map(function (lv) { var out = round100(personalW(w, { risk: lv, themes: [], cash: 0, exclude: [] }));
+      return fetch("/api/glider-validate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: STRATS[pid].short + " proposed L" + lv, frequency: "daily", slippage_bps: 100, price_impact_bps: 100, threshold_usd: "5.00", allocation: Object.keys(out).map(function (t) { return { caip_id: id[t], weight: out[t].toFixed(2), symbol: t }; }) }) })
+        .then(function (r) { return r.json(); }).then(function (j) { return !!(j.glider && j.glider.success); }).catch(function () { return false; }); }))
+      .then(function (res) { var n = res.filter(Boolean).length; T.checking = false; if (n === res.length) C.checked[pid] = { at: Date.now(), lv: res }; else { delete C.checked[pid]; T.lastFail = { pid: pid, lv: res }; }
+        log("Glider", STRATS[pid].short + ": dry run of the proposed model at levels 1–5, " + n + "/" + res.length + " accepted", "POST /v2/strategies/validate × " + res.length); save(); toast(n === res.length ? "Glider accepted the model at every risk level" : "Glider rejected " + (res.length - n) + " risk level(s)"); render(); });
+  }
+  function publish(pid) {
+    // One publish at a time: a second press (the page's button and the tour's Next) waits for the first instead of re-running it.
+    if (T.pub) return T.pubP || Promise.resolve();
+    if (C.status[pid] !== "approved") return Promise.resolve();
+    var S = STRATS[pid], I = impact(pid), nv = Object.keys(I.vars).length, sm = summary(pid), d = draft(pid), why = (d.why || "").trim() || S.why, model = round100(d.w), step = Math.max(1, Math.ceil(nv / 14));
+    T.pub = { pid: pid, n: 0 }; render();
+    var go = function () {
+      if (T.pub.n < nv) { T.pub.n = Math.min(nv, T.pub.n + step); var b = $("pubbar"), tx = $("pubtxt"); if (b) b.style.width = (T.pub.n / nv * 100) + "%"; if (tx) tx.textContent = "Updating personal versions on Glider… " + T.pub.n + " of " + nv; return wait(80).then(go); }
+      log("Glider", S.short + ": republished " + nv + " personal versions", "Glider API · publish new strategy version × " + nv);
+      var A = app();
+      if (A && A.auth && Object.keys(A.holdings || {}).some(function (g) { return g.split("~")[0] === pid; })) {
+        A.models = A.models || {}; A.decisions = A.decisions || {}; A.names = A.names || {}; A.models[pid] = model; A.decisions[pid] = { t: sm.head, w: why, d: new Date().toLocaleDateString(undefined, { month: "short", year: "numeric" }) };
+        Object.keys(model).forEach(function (t) { if (NAMES[t]) A.names[t] = NAMES[t]; });
+        // The app tracks one pending decision per strategy (v1 → v2). A later publish re-arms it, so every
+        // decision reaches the investor as a decision (banner, preview, receipt), not as routine drift.
+        var gs = Object.keys(A.holdings).filter(function (g) { return g.split("~")[0] === pid; });
+        A.versions[pid] = 2; gs.forEach(function (g) { A.holdings[g].appliedV = 1; });
+        A.feed.push({ kind: "update", title: "Schroders' team updated " + S.short + ": " + sm.head, detail: why, at: Date.now(), pid: gs[0], dec: true });
+        localStorage.setItem(APPKEY, JSON.stringify(A));
+      }
+      log("SPROUT", S.short + ": told " + I.list.length.toLocaleString() + " investors why, in the app");
+      C.status[pid] = "published"; d.why = why; T.sq[pid] = {}; I.list.forEach(function (g, i) { T.sq[pid][i] = "pend"; });
+      T.pub = null; save(); toast("Published. Every portfolio now has its new personal target."); render(); scrollToStep(4);
+    };
+    return (T.pubP = wait(300).then(go).then(function () { T.pubP = null; }));
+  }
+  function paintRun(pid, N) { var r = T.run, b = $("runbar"), s = $("runst"); if (b) b.style.width = (r.k / N * 100) + "%"; if (s) s.innerHTML = '<span><b>' + r.reb.toLocaleString() + '</b>rebalanced</span><span><b>' + r.skip.toLocaleString() + '</b>within $5, no trade</span><span><b>0</b>failed</span><span><b>' + r.k.toLocaleString() + ' / ' + N.toLocaleString() + '</b>checked</span>'; }
+  function runRebal(pid) {
+    if (T.run) return T.runP || Promise.resolve(); // already running: wait for it rather than start a second run
+    var I = impact(pid), N = I.list.length, order = I.list.map(function (g, i) { return i; }), chunk = Math.ceil(N / 45);
+    for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = order[i]; order[i] = order[j]; order[j] = tmp; }
+    T.run = { pid: pid, k: 0, reb: 0, skip: 0, model: true, b: 0, slip: 0 }; T.sq[pid] = T.sq[pid] || {}; T.exec = []; render();
+    execLine("dim", simClock(0) + "  run " + Math.random().toString(16).slice(2, 10) + " started · " + STRATS[pid].short + " model change · " + N.toLocaleString() + " portfolios");
+    var go = function () {
+      if (T.run.k >= N) {
+        var S = STRATS[pid], sm = summary(pid), d = draft(pid);
+        C.history[pid] = (C.history[pid] || []).concat([{ v: version(pid) + 1, head: sm.head, why: d.why || S.why, by: "M. Chen · Risk officer", at: Date.now() }]);
+        C.live[pid] = round100(d.w); delete C.drafts[pid]; delete C.status[pid]; delete C.checked[pid]; delete C.review[pid];
+        T.done[pid] = { v: version(pid), head: sm.head, affected: I.affected, small: I.small, trades: I.trades, at: Date.now() };
+        C.runs.unshift({ at: Date.now(), label: "Model change: " + sm.head, strat: S.short, n: I.affected, trades: I.trades, small: I.small, failed: 0 }); execLine("ok", simClock(T.run.b + 1) + "  completed · " + I.affected.toLocaleString() + " traded · " + I.small.toLocaleString() + " within tolerance · 0 failed"); DRIFT = {};
+        log("Glider", S.short + ": rebalance, " + I.affected.toLocaleString() + " portfolios traded, " + I.small.toLocaleString() + " under $5, 0 failed", I.trades.toLocaleString() + " trades in investors' own wallets");
+        log("Schroders", S.short + ": reconciled, every portfolio follows v" + version(pid));
+        T.run = null; save(); toast(S.short + " v" + version(pid) + " is live in every portfolio"); render(); window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); return;
+      }
+      var end = Math.min(N, T.run.k + chunk), bw = 0;
+      for (var x = T.run.k; x < end; x++) { var gi = order[x], st = I.res[gi] ? "done" : "small"; T.sq[pid][gi] = st; var el = document.getElementById("q" + gi); if (el) el.setAttribute("class", "q " + st + (I.list[gi].live ? " live" : "")); if (st === "done") { T.run.reb++; bw++; } else T.run.skip++; }
+      T.run.b++; var sl = 3 + Math.random() * 9; execLine("", simClock(T.run.b) + "  batch " + String(T.run.b).padStart(2, "0") + " · " + (bw ? bw + " wallet" + (bw === 1 ? "" : "s") + " · " + bw * 2 + " swaps · avg slippage " + sl.toFixed(1) + " bps" : "checked, no trades needed"));
+      T.run.k = end; paintRun(pid, N); return wait(70).then(go);
+    };
+    return (T.runP = wait(400).then(go).then(function () { T.runP = null; }));
+  }
+  function runDrift(pid) {
+    var list = fleet(pid), dr = drift(pid), N = list.length, chunk = Math.ceil(N / 40);
+    T.run = { pid: pid, k: 0, reb: 0, skip: 0 }; render();
+    var go = function () {
+      if (T.run.k >= N) {
+        C.ran = C.ran || {}; C.ran[pid] = Date.now(); DRIFT = {};
+        C.runs.unshift({ at: Date.now(), label: "Daily rebalance", strat: STRATS[pid].short, n: dr.due, trades: dr.trades, small: N - dr.due, failed: 0 });
+        log("Glider", STRATS[pid].short + ": daily rebalance, " + dr.due.toLocaleString() + " portfolios traded, " + dr.trades.toLocaleString() + " trades, 0 failed", "Daily run in investors' own wallets");
+        T.run = null; save(); toast(STRATS[pid].short + ": today's rebalance complete"); render(); return;
+      }
+      T.run.k = Math.min(N, T.run.k + chunk); var b = document.querySelector("#dp-" + pid + " span"), l = $("dl-" + pid);
+      if (b) { b.style.width = (T.run.k / N * 100) + "%"; b.style.background = ""; } if (l) l.textContent = "Checking " + T.run.k.toLocaleString() + " of " + N.toLocaleString() + "…";
+      return wait(60).then(go);
+    };
+    return wait(300).then(go);
+  }
+  function scrollToStep(n) { var el = $("step" + n); if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }
+
+
+  // ---------- Guided tour: the admin journey, one real change from idea to every wallet ----------
+  // Each stop opens its page, sets up the state it needs (by doing the real step), rings the part of the page that
+  // matters and explains it. Next and Back move between stops; arrow keys too; Esc ends it. Same pattern as SCALE.
+  function submit(pid) { C.status[pid] = "review"; C.review[pid] = { at: Date.now() }; log("Schroders", STRATS[pid].short + ": " + STRATS[pid].pm + " submitted for risk sign-off: " + summary(pid).head); save(); }
+  function approve(pid) { C.status[pid] = "approved"; C.review[pid] = Object.assign(C.review[pid] || {}, { by: "M. Chen · Risk officer", note: "" }); log("Risk", STRATS[pid].short + ": approved " + summary(pid).head + ". Within mandate and suitable at every level."); save(); }
+  var TP = "quality";
+  var differs = function (a, b) { return Object.keys(Object.assign({}, a, b)).some(function (t) { return (a[t] || 0) !== (b[t] || 0); }); };
+  // The strategy the tour follows: one already mid-change, else one whose team proposal isn't live yet, else Quality 7.
+  function tourPid() { var ps = Object.keys(STRATS); return ps.filter(busy)[0] || ps.filter(function (p) { return differs(current(p), STRATS[p].prop); })[0] || "quality"; }
+  function ensureDraft() {
+    var p = TP, s = C.status[p]; if (s && s !== "draft") return;
+    if (summary(p).changed && rules(p).ok) return;
+    if (differs(current(p), STRATS[p].prop)) { draft(p).w = copy(STRATS[p].prop); draft(p).why = STRATS[p].why; }
+    else { var w = copy(current(p)), ks = Object.keys(w).filter(function (t) { return t !== "USDT" && t !== "GLD"; }).sort(function (a, b) { return w[b] - w[a]; }), hi = ks[0], lo = ks[ks.length - 1];
+      w[hi] -= 2; w[lo] += 2; draft(p).w = w; draft(p).why = "The team trims " + NAMES[hi] + " after a strong run and adds to " + NAMES[lo] + ", where it sees better value."; }
+    invalidate(p); C.status[p] = "draft"; delete T.done[p]; log("Schroders", STRATS[p].short + ": loaded the team's proposal (" + summary(p).head + ")"); save();
+  }
+  function ensureChecked() { ensureDraft(); if (C.status[TP] === "draft" && !C.checked[TP]) return check(TP); }
+  function ensureReview() { return Promise.resolve(ensureChecked()).then(function () { if (C.status[TP] === "draft") { if (!C.checked[TP]) throw new Error("Glider did not accept the model, so it can't go for sign-off yet."); submit(TP); } }); }
+  function ensureApproved() { return ensureReview().then(function () { if (C.status[TP] === "review") approve(TP); }); }
+  function startRun() { return ensureApproved().then(function () { if (C.status[TP] === "approved") return publish(TP); }).then(function () { if (C.status[TP] === "published" && !T.run) runRebal(TP); }); }
+  function ensureDone() { return T.runP || (C.status[TP] === "published" ? runRebal(TP) : Promise.resolve()); }
+  var S_ = function () { return STRATS[TP]; }, N_ = function () { return fleet(TP).length.toLocaleString(); }, ALL = function () { return Object.keys(STRATS).reduce(function (s, p) { return s + fleet(p).length; }, 0).toLocaleString(); }, V_ = function () { return Object.keys(impact(TP).vars).length; };
+  var HEAD = function () { var d = T.done[TP]; return esc(d && !C.status[TP] ? d.head : summary(TP).head); };
+  var PH = ["Overview", "Change", "Approve", "Publish", "Rebalance", "Every day"];
+  var TOUR = [
+    { ph: "Overview", page: "overview", sel: "#ovk", title: "Your book at a glance", text: function () { return "Three Schroders models, followed by " + ALL() + " portfolios. Each portfolio sits in the investor's own wallet. Schroders decides what it holds; Glider places the trades."; } },
+    { ph: "Overview", page: "overview", sel: function () { return "#sc-" + TP; }, title: function () { return "One model, " + N_() + " portfolios"; }, text: function () { return "Each card is one Schroders model. We'll take one change to " + S_().short + " from the team's idea all the way into every investor's wallet."; } },
+    { ph: "Change", page: "strategy", open: 0, prep: ensureDraft, sel: "#builder", title: "1 · Change the model", text: function () { var prop = !differs(round100(draft(TP).w), round100(STRATS[TP].prop)); return "The portfolio manager sets the weights of the Schroders core. We've loaded " + (prop ? "the team's proposal" : "a change") + ": <b>" + HEAD() + "</b>. Try dragging a slider."; } },
+    { ph: "Change", page: "strategy", open: 0, sel: "#compare", title: "The decision, and why", text: "Before and after, side by side. The note underneath is what every investor reads in their app before anything trades." },
+    { ph: "Change", page: "strategy", open: 0, sel: "#lvls", title: "Scaled to each risk level", text: "The change only moves the Schroders core. Cautious portfolios hold less of it, so they move less; adventurous ones move more. Cash and gold stay put." },
+    { ph: "Change", page: "strategy", open: 0, sel: "#pers", title: "Investors' own choices are kept", text: function () { return "Some investors added a theme, left out a company or kept extra cash. The change leaves those choices alone. Each mix is a personal version, " + V_() + " in all, and SPROUT updates every one at once."; } },
+    { ph: "Change", page: "strategy", open: 0, sel: ["#exs", "#pers"], title: "One decision, different trades", text: "Three real portfolios. Same decision, but each one buys and sells only what it needs to reach its own new target. A change under $5 is left alone, so small portfolios don't pay for tiny trades." },
+    { ph: "Approve", page: "strategy", prep: ensureChecked, sel: ["#gpanel", "#step2"], title: "2 · Checked, live", text: "Pre-trade checks run automatically. SPROUT has also asked Glider's production API to validate the new model at all five risk levels. Nothing is created and nothing trades." },
+    { ph: "Approve", page: "strategy", prep: ensureReview, sel: ["#signoff", "#step2"], title: "Independent risk approval", text: "No change goes live on one person's say-so. The portfolio manager has submitted it, and Investment Risk now reviews it. Press Next to approve on their behalf, or click Approve yourself." },
+    { ph: "Publish", page: "strategy", prep: ensureApproved, sel: "#step3", title: "3 · Publish once", text: function () { return "Approved. Publishing updates all " + V_() + " personal versions on Glider in one go, and tells " + N_() + " investors what changed and why. Press Next to publish."; } },
+    { ph: "Rebalance", page: "strategy", prep: startRun, sel: "#fan", title: "4 · Every wallet rebalanced", text: "Glider now trades each portfolio to its new target, inside the investor's own wallet. Each square is one portfolio: green is rebalanced, grey means the change was under $5, so it was left alone." },
+    { ph: "Rebalance", page: "strategy", prep: ensureDone, sel: ".fin", title: "Live everywhere", text: function () { return "<b>" + HEAD() + "</b> is now live in every " + S_().short + " portfolio. No fund to restructure, and no one else holds the money. Investors see the decision and their own trades in the app."; }, link: ["/app", "See it in Maya's app ↗"] },
+    { ph: "Every day", page: "overview", sel: "#daily", title: "And every day after", text: function () { return "Prices move, so portfolios drift. Every day at 14:00 UTC, Glider checks all " + ALL() + " and trades only those $5 or more off target."; } },
+    { ph: "Every day", page: "activity", sel: "#actlog", title: "The audit trail", text: "Every decision, sign-off and Glider call, with who did it and when. One click exports it for compliance." }
+  ];
+  var val = function (x) { return typeof x === "function" ? x() : x; };
+  function tourCoach(working) {
+    var el = $("coach"), i = T.tour;
+    if (i == null) { el.hidden = true; document.body.classList.remove("touring"); return; }
+    var t = TOUR[i], last = i === TOUR.length - 1, k = PH.indexOf(t.ph);
+    el.hidden = false; document.body.classList.add("touring");
+    el.innerHTML = '<div class="cohead"><span class="coeye">Admin tour · ' + (i + 1) + ' of ' + TOUR.length + '</span><button class="cox" data-tour="end" aria-label="Close the tour" title="Close the tour (Esc)">×</button></div>' +
+      '<div class="cophase">' + PH.map(function (ph, j) { return '<span class="' + (j === k ? "on" : j < k ? "done" : "") + '">' + ph + '</span>'; }).join("") + '</div>' +
+      '<b>' + val(t.title) + '</b><p>' + (T.tourErr ? '<span class="coerr">' + esc(T.tourErr) + '</span>' : val(t.text)) + '</p>' + (t.link ? '<a class="colink" href="' + t.link[0] + '" target="_blank" rel="noopener">' + t.link[1] + '</a>' : "") +
+      '<div class="cofoot"><button class="coend" data-tour="end">End tour</button><span class="codots">' + TOUR.map(function (_, j) { return '<i class="' + (j === i ? "on" : j < i ? "done" : "") + '"></i>'; }).join("") + '</span>' +
+      (i ? '<button class="btn sm" data-tour="back"' + (working ? " disabled" : "") + '>Back</button>' : "") +
+      '<button class="btn sm primary" data-tour="' + (last ? "end" : "next") + '"' + (working ? " disabled" : "") + '>' + (working ? "Working…" : last ? "Finish tour" : "Next →") + '</button></div>';
+  }
+  // Rings the stop's part of the page; waits for it while the page is still drawing.
+  function tourMark(scroll) {
+    if (T.tour == null) return;
+    var t = TOUR[T.tour], sels = [].concat(val(t.sel)), n = 0;
+    (function find() {
+      if (T.tour == null || TOUR[T.tour] !== t) return;
+      var target = null; sels.some(function (s) { return (target = document.querySelector(s)); });
+      if (!target) { if (n++ < 40) setTimeout(find, 100); return; }
+      document.querySelectorAll(".tour-on").forEach(function (x) { if (x !== target) x.classList.remove("tour-on"); });
+      target.classList.add("tour-on"); if (scroll) target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); // top of the screen, clear of the coach card
+    })();
+  }
+  function tourGo(i) {
+    if (T.tourBusy) return;
+    if (i < 0) return;
+    if (i >= TOUR.length) return tourEnd();
+    if (T.tour == null) TP = tourPid();
+    // Only moving forward does the real step; Back just revisits, so it never re-runs a publish or a rebalance.
+    var fwd = T.tour == null || i > T.tour;
+    T.tour = i; T.tourErr = null; T.drawer = null; var t = TOUR[i];
+    if (t.open != null) T.expand[TP + t.open] = true;
+    T.tourBusy = true; tourCoach(true);
+    return Promise.resolve().then(function () { return fwd && t.prep && t.prep(); }).catch(function (er) { T.tourErr = er && er.message ? er.message : "That step didn't complete."; }).then(function () {
+      T.tourBusy = false; if (T.tour !== i) return;
+      var want = "#/" + (t.page === "strategy" ? "strategy/" + TP : t.page);
+      if (location.hash !== want) location.hash = want; else render();
+      tourCoach(); tourMark(true);
+    });
+  }
+  function tourNext() { if (T.tour != null) tourGo(T.tour + 1); }
+  function tourEnd() {
+    if (T.tour == null) return;
+    var done = T.tour === TOUR.length - 1;
+    T.tour = null; T.tourBusy = false; T.tourErr = null; document.querySelectorAll(".tour-on").forEach(function (x) { x.classList.remove("tour-on"); }); tourCoach();
+    // Drop ?tour=1 so a reload doesn't start the tour again.
+    toast(done ? "Tour complete. Take it again any time from the top bar." : "Tour closed. Restart it any time from Take the tour.");
+    if (/[?&]tour=1/.test(location.search)) history.replaceState(null, "", location.pathname + location.search.replace(/([?&])tour=1(&|$)/, function (m, a, b) { return b ? a : ""; }) + location.hash);
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    var tb = t.closest("[data-tour]"); if (tb) { var k = tb.dataset.tour; return k === "start" ? tourGo(0) : k === "next" ? tourNext() : k === "back" ? tourGo(T.tour - 1) : tourEnd(); }
+    var tg = t.closest("[data-tog]"); if (tg) { T.expand[tg.dataset.tog] = !T.expand[tg.dataset.tog]; return render(); }
+    var iv = t.closest("[data-inv]"); if (iv && T.invRows) { T.drawer = T.invRows[+iv.dataset.inv]; return renderLayer(); }
+    var rm = t.closest("[data-rm]"); if (rm) { setW(route().id, rm.dataset.rm, 0); return render(); }
+    var b = t.closest("[data-a]"); if (!b || b.disabled) return;
+    var a = b.dataset.a, pid = b.dataset.p || route().id;
+    if (a === "close") { T.drawer = null; return renderLayer(); }
+    if (T.run && ["run", "rundrift", "publish"].indexOf(a) >= 0) return toast("A rebalance is already running");
+    if (a === "loadprop") { draft(pid).w = copy(STRATS[pid].prop); if (!draft(pid).why) draft(pid).why = STRATS[pid].why; invalidate(pid); C.status[pid] = "draft"; log("Schroders", STRATS[pid].short + ": loaded the team's proposal (" + summary(pid).head + ")"); save(); return render(); }
+    if (a === "resetw") { delete C.drafts[pid]; delete C.status[pid]; invalidate(pid); save(); return render(); }
+    if (a === "add") { var sel = $("addsel"); if (sel && sel.value) { setW(pid, sel.value, 2); render(); } return; }
+    if (a === "norm") { var w = draft(pid).w, tot = Object.values(w).reduce(function (x, y) { return x + y; }, 0); if (!tot) return; Object.keys(w).forEach(function (k) { w[k] = Math.round(w[k] / tot * 100 * 2) / 2; }); var diff = Math.round((100 - Object.values(w).reduce(function (x, y) { return x + y; }, 0)) * 2) / 2, top = Object.keys(w).sort(function (x, y) { return w[y] - w[x]; })[0]; w[top] += diff; invalidate(pid); save(); return render(); }
+    if (a === "tostep2") return scrollToStep(2);
+    if (a === "check") return check(pid);
+    if (a === "submit") { submit(pid); toast("Sent to the risk officer"); render(); return scrollToStep(2); }
+    if (a === "approve") { approve(pid); toast("Approved. Ready to publish."); render(); return scrollToStep(3); }
+    if (a === "reject") { C.status[pid] = "draft"; invalidate(pid); C.review[pid] = { note: "Please review sizing of the new position against the mandate before resubmitting." }; log("Risk", STRATS[pid].short + ": sent back for changes"); save(); toast("Sent back to the portfolio manager"); render(); return scrollToStep(1); }
+    if (a === "withdraw") { C.status[pid] = "draft"; invalidate(pid); delete C.review[pid]; log("Schroders", STRATS[pid].short + ": change withdrawn for editing"); save(); return render(); }
+    if (a === "publish") return publish(pid);
+    if (a === "run") return runRebal(pid);
+    if (a === "rundrift") return runDrift(pid);
+    if (a === "newchange") { delete T.done[pid]; T.sq[pid] = {}; return render(); }
+    if (a === "pg-" || a === "pg+") { T.inv.page = Math.max(0, T.inv.page + (a === "pg+" ? 1 : -1)); return render(); }
+    if (a === "export") { var csv = "time,actor,action,glider_call\n" + C.log.map(function (l) { return [new Date(l.at).toISOString(), l.who, '"' + l.what.replace(/"/g, '""') + '"', '"' + (l.call || "") + '"'].join(","); }).join("\n"); var u = URL.createObjectURL(new Blob([csv], { type: "text/csv" })), ln = document.createElement("a"); ln.href = u; ln.download = "sprout-activity.csv"; ln.click(); setTimeout(function () { URL.revokeObjectURL(u); }, 1000); }
+  });
+  document.addEventListener("input", function (e) {
+    var t = e.target, pid = route().id;
+    if (t.dataset.w) { setW(pid, t.dataset.w, +t.value); var n = document.querySelector('[data-wn="' + t.dataset.w + '"]'); if (n) n.value = t.value; paintEdit(pid); }
+    if (t.id === "why") { draft(pid).why = t.value; save(); }
+    if (t.id === "fq") { T.inv.q = t.value; T.inv.page = 0; clearTimeout(T.qt); T.qt = setTimeout(function () { render(); var f = $("fq"); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); } }, 250); }
+  });
+  document.addEventListener("change", function (e) {
+    var t = e.target, pid = route().id;
+    if (t.dataset.w) render();
+    if (t.dataset.wn) { setW(pid, t.dataset.wn, +t.value); render(); }
+    if (t.id === "fp" || t.id === "fl" || t.id === "fk") { T.inv[{ fp: "pid", fl: "lv", fk: "kind" }[t.id]] = t.value; T.inv.page = 0; render(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && T.drawer) { T.drawer = null; return renderLayer(); }
+    if (T.tour == null || /input|select|textarea/i.test(e.target.tagName)) return;
+    if (e.key === "Escape") tourEnd(); else if (e.key === "ArrowRight") tourNext(); else if (e.key === "ArrowLeft") tourGo(T.tour - 1);
+  });
+  window.addEventListener("hashchange", function () { T.drawer = null; var go = function () { render(); window.scrollTo(0, 0); }; if (document.startViewTransition && !reduce && !T.run && T.tour == null) { var vt = document.startViewTransition(go); vt.ready.catch(function () {}); vt.finished.catch(function () {}); vt.updateCallbackDone.catch(function () {}); } else go(); });
+  window.addEventListener("storage", function (e) { if (e.key === APPKEY && !T.run) render(); });
+
+  fetch("/api/assets").then(function (r) { return r.json(); }).then(function (l) { T.assets = {}; l.forEach(function (a) { if (a.chain_id === 56 && a.usable) T.assets[a.symbol] = a.caip_id; }); if (!T.run) render(); }).catch(function () {});
+  fetch("/api/validation").then(function (r) { return r.json(); }).then(function (v) { if (v.total) T.valid = v; }).catch(function () {});
+  fetch("/api/glider/live").then(function (r) { return r.json(); }).then(function (d) { T.gl = d; $("gl").innerHTML = '<i style="background:' + (d.connected ? "var(--green)" : "var(--red)") + '"></i>Glider · ' + (d.connected ? "connected" : "unavailable"); }).catch(function () { $("gl").innerHTML = '<i style="background:var(--red)"></i>Glider · unavailable'; });
+  loadPx(); setInterval(loadPx, 60000); tick(); setInterval(tick, 1000);
+  render();
+  if (/[?&]tour=1/.test(location.search)) setTimeout(function () { tourGo(0); }, 400);
+})();
+</script>
+<script src="/nav.js" defer></script>
+</body>
+</html>

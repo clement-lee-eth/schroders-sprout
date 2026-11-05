@@ -1,0 +1,1696 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Schroders SPROUT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap">
+<style>
+/* Layout: a scrolling story. Hero network (one model → Glider → thousands of wallets), then personal portfolios, one live wallet,
+   distribution, and the unlock. Navy = Schroders designs. Green = Glider executes / on target. Amber = off target. */
+:root {
+  --bg: #f5f7f5; --card: #ffffff; --ink: #0c1712; --sub: #5c6a63; --faint: #8b9891; --line: #e7ece8; --hover: #f0f4f1;
+  --navy: #1f2f6b; --navy-soft: #e9ecf7; --blue: #4f6fd6; --green: #12824f; --green-soft: #e3f4ea; --amber: #c08317; --amber-soft: #f8f0dd; --red: #b2382c;
+  --stage: #0d1813; --stage-ink: #e8efeb; --stage-sub: #8fa197; --stage-line: #22322a;
+  --f: "Geist", "Helvetica Neue", Arial, sans-serif; --m: "Geist Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b110e; --card: #111a15; --ink: #e8efeb; --sub: #9aa9a1; --faint: #6d7b74; --line: #1f2b25; --hover: #16211b;
+    --navy: #a3b4f2; --navy-soft: #1b2445; --blue: #7f9bef; --green: #5fd49b; --green-soft: #133222; --amber: #e5b25b; --amber-soft: #312715; --red: #f08b7f;
+    --stage: #070d0a; --stage-line: #1b2821; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b110e; --card: #111a15; --ink: #e8efeb; --sub: #9aa9a1; --faint: #6d7b74; --line: #1f2b25; --hover: #16211b;
+  --navy: #a3b4f2; --navy-soft: #1b2445; --blue: #7f9bef; --green: #5fd49b; --green-soft: #133222; --amber: #e5b25b; --amber-soft: #312715; --red: #f08b7f;
+  --stage: #070d0a; --stage-line: #1b2821; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top, 0px) 20px env(safe-area-inset-bottom, 0px); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: clamp(2rem, 4.6vw, 3.3rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; text-wrap: balance; }
+h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; text-wrap: balance; }
+h3 { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.sub { color: var(--sub); } .faint { color: var(--faint); } .num { font-family: var(--m); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 16px 72px; display: grid; gap: 64px; }
+.eyebrow { font-size: 0.78rem; font-weight: 500; color: var(--green); letter-spacing: 0.02em; }
+.sec { display: grid; gap: 20px; }
+.sec > header { display: grid; gap: 8px; max-width: 70ch; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; font-weight: 500; padding: 3px 9px; border-radius: 999px; white-space: nowrap; justify-self: start; }
+.badge.navy { background: var(--navy-soft); color: var(--navy); } .badge.green { background: var(--green-soft); color: var(--green); } .badge.amber { background: var(--amber-soft); color: var(--amber); }
+.badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.btn { appearance: none; border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 500; cursor: pointer; background: var(--ink); color: var(--card); }
+.btn.navy { background: var(--navy); color: #fff; } .btn.green { background: var(--green); color: #fff; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn.dark { background: rgba(255,255,255,0.08); border: 1px solid var(--stage-line); color: var(--stage-ink); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.up { color: var(--green); } .down { color: var(--red); }
+
+/* Nav */
+nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.logo { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+.logo i { width: 16px; height: 16px; border-radius: 50% 50% 50% 3px; background: var(--green); transform: rotate(-45deg); display: inline-block; }
+.links { display: flex; gap: 4px; flex-wrap: wrap; }
+.links a { color: var(--sub); text-decoration: none; padding: 6px 10px; border-radius: 9px; font-size: 0.86rem; }
+.links a:hover { background: var(--card); color: var(--ink); }
+.live { display: inline-flex; align-items: center; gap: 6px; color: var(--sub); font-size: 0.8rem; }
+.live i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: p 2s infinite; }
+@keyframes p { 50% { opacity: 0.25; } }
+
+/* Hero */
+.hero { display: grid; gap: 22px; }
+.hero .lede { font-size: 1.12rem; color: var(--sub); max-width: 62ch; }
+.sc-why { display: grid; gap: 14px; } .sc-why h3 { font-size: 1.15rem; }
+.stage { background: var(--stage); border-radius: 24px; padding: 18px; display: grid; gap: 14px; color: var(--stage-ink); position: relative; overflow: hidden; }
+.stage-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.counters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--stage-line); border-radius: 14px; overflow: hidden; }
+.counters div { background: var(--stage); padding: 12px 14px; display: grid; gap: 2px; }
+.counters span { font-size: 0.74rem; color: var(--stage-sub); }
+.counters b { font-family: var(--m); font-size: 1.25rem; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+@media (max-width: 760px) { .counters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.canvasbox { position: relative; }
+canvas { width: 100%; height: 460px; display: block; cursor: crosshair; }
+@media (max-width: 760px) { canvas { height: 520px; } }
+.tip { position: absolute; pointer-events: none; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 0.8rem; width: 230px; box-shadow: 0 12px 32px rgba(0,0,0,0.25); display: grid; gap: 6px; z-index: 2; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.status { font-size: 0.84rem; color: var(--stage-sub); }
+.status b { color: var(--stage-ink); font-weight: 500; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.76rem; color: var(--stage-sub); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* Personal mix bar */
+.mixbar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: var(--hover); }
+.mixbar span { height: 100%; }
+.mixkey { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.76rem; color: var(--sub); }
+.mixkey span { display: inline-flex; align-items: center; gap: 5px; }
+.mixkey i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+/* Personas */
+.personas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 1000px) { .personas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .personas { grid-template-columns: minmax(0, 1fr); } }
+.persona { gap: 12px; }
+.who { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; color: #fff; flex: none; }
+.who b { display: block; font-weight: 600; } .who span { font-size: 0.78rem; color: var(--sub); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.fact { font-size: 0.74rem; padding: 3px 8px; border-radius: 8px; background: var(--hover); color: var(--sub); }
+.pval { font-family: var(--m); font-size: 1.3rem; font-weight: 500; letter-spacing: -0.02em; }
+.same { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 14px 18px; border-radius: 16px; background: var(--navy-soft); color: var(--navy); }
+.same b { font-weight: 600; }
+
+/* Live wallet */
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 940px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.tw { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+table { width: 100%; border-collapse: collapse; min-width: 520px; }
+th { text-align: left; font-weight: 400; font-size: 0.76rem; color: var(--sub); padding: 0 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+th.r, td.r { text-align: right; }
+.asset { display: flex; align-items: center; gap: 10px; }
+.tk { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-family: var(--m); font-size: 0.58rem; background: var(--hover); border: 1px solid var(--line); flex: none; }
+.asset b { font-weight: 500; display: block; white-space: nowrap; } .asset span { font-family: var(--m); font-size: 0.7rem; color: var(--faint); }
+.alloc { display: grid; gap: 4px; min-width: 140px; }
+.alloc .bar { height: 6px; border-radius: 6px; background: var(--hover); position: relative; }
+.alloc .bar span { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--green); transition: width 600ms ease; }
+.alloc .bar span.off { background: var(--amber); }
+.alloc .bar em { position: absolute; top: -4px; bottom: -4px; width: 2px; border-radius: 2px; background: var(--navy); }
+.alloc small { display: flex; justify-content: space-between; font-family: var(--m); font-size: 0.7rem; color: var(--sub); }
+.alloc small b { color: var(--navy); font-weight: 500; }
+.d { font-family: var(--m); font-size: 0.72rem; }
+.big { font-size: 2.2rem; font-weight: 500; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kv { display: grid; gap: 8px; margin: 0; }
+.kv div { display: flex; justify-content: space-between; gap: 12px; font-size: 0.86rem; }
+.kv dt { color: var(--sub); } .kv dd { margin: 0; font-family: var(--m); }
+.meter { height: 6px; border-radius: 6px; background: var(--hover); overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--amber); transition: width 500ms ease; }
+
+/* Distribution */
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 940px) { .grid3 { grid-template-columns: minmax(0, 1fr); } }
+.hbars { display: grid; gap: 10px; }
+.hb { display: grid; gap: 4px; }
+.hb .row { display: flex; justify-content: space-between; font-size: 0.86rem; }
+.hb .track { height: 8px; border-radius: 8px; background: var(--hover); overflow: hidden; }
+.hb .track span { display: block; height: 100%; border-radius: 8px; background: var(--navy); transition: width 600ms ease; }
+.tiles { display: grid; gap: 12px; }
+.tile { display: grid; gap: 2px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.tile:last-child { border-bottom: 0; padding-bottom: 0; }
+.tile span { font-size: 0.78rem; color: var(--sub); } .tile b { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
+.tile small { color: var(--faint); font-size: 0.76rem; }
+
+/* Unlock */
+.cmp { border: 1px solid var(--line); border-radius: 18px; background: var(--card); overflow: hidden; }
+.cmp div { display: grid; grid-template-columns: 1.1fr 1fr 1.3fr; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); align-items: baseline; }
+.cmp div:last-child { border-bottom: 0; }
+.cmp .hd { font-size: 0.78rem; color: var(--sub); padding-block: 10px; background: var(--hover); }
+.cmp .old { color: var(--faint); } .cmp .new { font-weight: 500; }
+@media (max-width: 620px) { .cmp div { grid-template-columns: 1fr 1fr; } .cmp div > :first-child { grid-column: 1 / -1; font-weight: 500; } .cmp .hd > :first-child { display: none; } }
+footer { color: var(--faint); font-size: 0.76rem; line-height: 1.6; max-width: 110ch; }
+
+/* Bitwise-style hero */
+.bw { background: var(--stage); color: var(--stage-ink); border-radius: 28px; padding: clamp(28px, 6vw, 72px) clamp(20px, 5vw, 64px); display: grid; gap: 22px; position: relative; overflow: hidden; }
+.bw::before { content: ""; position: absolute; inset: auto -10% -40% 30%; height: 80%; background: radial-gradient(closest-side, rgba(79,111,214,0.35), transparent), radial-gradient(closest-side at 70% 40%, rgba(18,130,79,0.35), transparent); filter: blur(10px); pointer-events: none; }
+.bw > * { position: relative; }
+.bw .kicker { font-size: 0.78rem; letter-spacing: 0.14em; color: var(--stage-sub); }
+.bw h1 { font-size: clamp(2.3rem, 6vw, 4.6rem); max-width: 16ch; }
+.bw h1 em, .serif { font-family: "Newsreader", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+.bw p { color: var(--stage-sub); font-size: 1.08rem; max-width: 60ch; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--stage-sub); font-size: 0.86rem; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--stage-line); background: rgba(255,255,255,0.06); color: var(--stage-ink); font-weight: 500; }
+.pill i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+.ctas a { text-decoration: none; }
+.btn.light { background: var(--stage-ink); color: var(--stage); }
+.steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .steps3 { grid-template-columns: minmax(0, 1fr); } }
+.step { display: grid; gap: 8px; align-content: start; }
+.step .n { font-family: var(--m); font-size: 0.78rem; color: var(--faint); }
+.step h3 { font-size: 1.15rem; }
+.models { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; }
+@media (max-width: 940px) { .models { grid-template-columns: minmax(0, 1fr); } }
+.model { display: grid; gap: 12px; align-content: start; }
+.model.soon { opacity: 0.8; }
+.model h3 { font-size: 1.2rem; }
+.hold { display: flex; flex-wrap: wrap; gap: 6px; }
+.hold span { font-family: var(--m); font-size: 0.74rem; padding: 4px 8px; border-radius: 8px; background: var(--hover); }
+.hold span b { color: var(--navy); font-weight: 500; }
+.mfacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.mfacts div { display: grid; gap: 0; } .mfacts span { font-size: 0.74rem; color: var(--sub); } .mfacts b { font-weight: 500; }
+.link { color: var(--green); font-weight: 500; text-decoration: none; justify-self: start; }
+/* FAQ: corporate two-column layout. Topics on the left, one numbered list on the right. */
+.fq { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 56px; align-items: start; }
+.fq-side { display: grid; gap: 28px; position: sticky; top: 96px; }
+.fq-side > header { display: grid; gap: 14px; }
+.fq-tabs { display: grid; border-top: 1px solid var(--line); }
+.fq-tab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 14px 16px; border: 0; border-bottom: 1px solid var(--line); background: none; font: inherit; font-size: .95rem; color: var(--sub); text-align: left; cursor: pointer; position: relative; transition: color .15s; }
+.fq-tab::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 2px; background: transparent; transition: background .15s; }
+.fq-tab small { font-size: .74rem; font-variant-numeric: tabular-nums; color: var(--faint); min-width: 22px; text-align: right; }
+.fq-tab:hover { color: var(--ink); }
+.fq-tab[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+.fq-tab[aria-selected="true"]::before { background: var(--navy); }
+.fq-tab:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.fq-help { display: grid; gap: 6px; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--navy); font-size: .9rem; }
+.fq-help p { color: var(--sub); line-height: 1.5; }
+.fq-help a { color: var(--navy); font-weight: 600; text-decoration: none; justify-self: start; }
+.fq-help a:hover { text-decoration: underline; }
+.fq-ph { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+.fq-ph h3 { font-size: 1.3rem; font-weight: 600; letter-spacing: -.02em; }
+.fq-all { border: 0; background: none; font: inherit; font-size: .85rem; font-weight: 600; color: var(--navy); cursor: pointer; padding: 4px 0; }
+.fq-all:hover { text-decoration: underline; }
+.fq-item { border-bottom: 1px solid var(--line); }
+.fq-item summary { display: grid; grid-template-columns: 44px minmax(0, 1fr) 28px; align-items: center; gap: 8px; padding: 22px 0; cursor: pointer; list-style: none; }
+.fq-item summary::-webkit-details-marker { display: none; }
+.fq-n { font-family: var(--m); font-size: .78rem; color: var(--faint); }
+.fq-q { font-size: 1.08rem; font-weight: 500; line-height: 1.4; color: var(--ink); }
+.fq-item summary:hover .fq-q { color: var(--navy); }
+.fq-item summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.fq-ic { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); position: relative; transition: transform .2s, background .2s, border-color .2s; }
+.fq-ic::before { content: ""; position: absolute; left: 50%; top: 45%; width: 7px; height: 7px; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: translate(-50%, -50%) rotate(45deg); }
+.fq-item[open] .fq-ic { transform: rotate(180deg); background: var(--navy); border-color: var(--navy); }
+.fq-item[open] .fq-ic::before { border-color: var(--card); }
+.fq-a { padding: 0 44px 24px 52px; }
+.fq-a p { color: var(--sub); line-height: 1.65; max-width: 68ch; }
+@media (max-width: 900px) {
+  .fq { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .fq-side { display: contents; }
+  .fq-side > header { order: 1; } .fq-tabs { order: 2; } .fq-main { order: 3; }
+  .fq-tabs { display: flex; gap: 8px; overflow-x: auto; border: 0; padding-bottom: 4px; scrollbar-width: none; }
+  .fq-tab { flex: none; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: .88rem; }
+  .fq-tab::before { display: none; }
+  .fq-tab[aria-selected="true"] { background: var(--navy); border-color: var(--navy); color: var(--card); }
+  .fq-tab[aria-selected="true"] small { color: inherit; opacity: .7; }
+  .fq-help { order: 4; }
+  .fq-item summary { grid-template-columns: 34px minmax(0, 1fr) 28px; padding: 18px 0; }
+  .fq-q { font-size: 1rem; }
+  .fq-a { padding: 0 0 20px 42px; }
+}
+
+/* What you receive */
+.recv { display: grid; gap: 18px; }
+.ctrl { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; }
+.ctrl .grp { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ctrl .lab { font-size: 0.78rem; color: var(--sub); margin-right: 2px; }
+.opt { appearance: none; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 0.84rem; }
+.opt[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.flowbox { overflow-x: auto; }
+.flowbox svg { width: 100%; min-width: 760px; height: auto; display: block; }
+.flowbox text { font-family: var(--f); }
+.receipt { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 900px) { .receipt { grid-template-columns: minmax(0, 1fr); } }
+.tok { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.tok:last-child { border-bottom: 0; }
+.tok .ic { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--m); font-size: 0.56rem; color: #fff; }
+.tok b { font-weight: 500; } .tok .meta { font-family: var(--m); font-size: 0.7rem; color: var(--faint); overflow-wrap: anywhere; }
+.tok .r { text-align: right; font-family: var(--m); font-size: 0.84rem; } .tok .r small { display: block; color: var(--faint); font-size: 0.72rem; }
+.yes, .no { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.88rem; }
+.yes li::before { content: "✓  "; color: var(--green); font-weight: 600; }
+.no li::before { content: "✕  "; color: var(--red); font-weight: 600; }
+.no li { color: var(--sub); }
+.todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.88rem; }
+.todo li::before { content: "○  "; color: var(--amber); font-weight: 600; }
+.walletcard { border-radius: 16px; padding: 16px; background: var(--stage); color: var(--stage-ink); display: grid; gap: 10px; }
+.walletcard .row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.84rem; }
+.walletcard span { color: var(--stage-sub); } .walletcard b { font-weight: 500; font-family: var(--m); font-size: 0.8rem; }
+.issuers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .issuers { grid-template-columns: minmax(0, 1fr); } }
+.iss { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.issh { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .issh b { font-weight: 600; } .issh .faint { font-size: .78rem; }
+.dotc { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.iss .hold { justify-content: space-between; }
+.thesis { display: grid; gap: 18px; }
+.thesis .big { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 500; letter-spacing: -0.025em; line-height: 1.2; max-width: 30ch; text-wrap: balance; }
+.thesis .big b { color: var(--navy); font-weight: 600; }
+.pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .pillars { grid-template-columns: minmax(0, 1fr); } }
+.pillar { display: grid; gap: 6px; align-content: start; padding: 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.pillar span { font-size: .76rem; color: var(--green); font-weight: 500; } .pillar b { font-weight: 600; font-size: 1rem; } .pillar p { color: var(--sub); font-size: .86rem; }
+.livebar { background: var(--stage); color: var(--stage-ink); border-radius: 20px; padding: 18px 20px; display: grid; gap: 14px; }
+.livebar .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.livebar .top b { font-weight: 600; } .livebar .top span { color: var(--stage-sub); font-size: .8rem; }
+.livedot { width: 8px; height: 8px; border-radius: 50%; background: #5fd49b; display: inline-block; margin-right: 8px; animation: p 2s infinite; }
+.lgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--stage-line); border-radius: 14px; overflow: hidden; }
+@media (max-width: 760px) { .lgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lgrid div { background: var(--stage); padding: 12px 14px; display: grid; gap: 2px; }
+.lgrid span { color: var(--stage-sub); font-size: .74rem; } .lgrid b { font-family: var(--m); font-size: 1.2rem; font-weight: 500; }
+.lgrid small { color: var(--stage-sub); font-size: .72rem; }
+.lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 18px; background: var(--card); overflow: hidden; }
+@media (max-width: 900px) { .lanes { grid-template-columns: minmax(0, 1fr); } }
+.lane { padding: 18px; display: grid; gap: 12px; align-content: start; position: relative; }
+.lane + .lane { border-left: 1px solid var(--line); }
+@media (max-width: 900px) { .lane + .lane { border-left: 0; border-top: 1px solid var(--line); } }
+.lane dl { margin: 0; display: grid; gap: 10px; }
+.lane dt { font-size: .72rem; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; }
+.lane dd { margin: 0; font-size: .88rem; }
+.routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .routes { grid-template-columns: minmax(0, 1fr); } }
+.route { display: grid; gap: 6px; align-content: start; }
+.route .n { font-family: var(--m); font-size: .74rem; color: var(--faint); }
+.note2 { font-size: .8rem; color: var(--faint); }
+
+/* ===== SPROUT design pass: modern, calm, high-contrast. Tokens first, then components. ===== */
+:root { --bg: #f5f8f6; --line: #e3eae5; --shadow: 0 1px 2px rgba(10,30,20,.04), 0 10px 30px -12px rgba(10,30,20,.10); --glow-g: rgba(95,212,155,.14); --glow-b: rgba(79,111,214,.09); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shadow: 0 1px 0 rgba(255,255,255,.03); --glow-g: rgba(95,212,155,.08); --glow-b: rgba(127,155,239,.07); } }
+:root[data-theme="dark"] { --shadow: 0 1px 0 rgba(255,255,255,.03); --glow-g: rgba(95,212,155,.08); --glow-b: rgba(127,155,239,.07); }
+body { font-size: 15px; background: radial-gradient(1100px 620px at 92% -8%, var(--glow-g), transparent 62%), radial-gradient(900px 520px at -12% 4%, var(--glow-b), transparent 60%), var(--bg); background-repeat: no-repeat; }
+.wrap { max-width: 1180px; gap: 88px; padding-block: 0 80px; }
+
+/* Nav: sticky glass */
+nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; margin-inline: -20px; padding: 14px 20px; flex-wrap: nowrap;
+  background: color-mix(in srgb, var(--bg) 76%, transparent); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+.logo { font-size: 1.15rem; }
+.links { flex-wrap: nowrap; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; box-shadow: var(--shadow); }
+.links a { border-radius: 999px; padding: 6px 12px; white-space: nowrap; font-size: .84rem; }
+.links a:hover { background: var(--hover); }
+/* section links stay visible down to tablet width (see sim.css) */
+.live { white-space: nowrap; }
+
+/* Type + section rhythm */
+h2 { font-size: clamp(1.9rem, 3.6vw, 2.75rem); letter-spacing: -0.038em; line-height: 1.04; }
+h3 { letter-spacing: -0.015em; }
+.sec { gap: 32px; }
+.sec > header { gap: 14px; max-width: 720px; }
+.sec > header .sub, .sec > header p { font-size: 1.05rem; line-height: 1.6; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; justify-self: start; font-size: .76rem; font-weight: 500; letter-spacing: .01em; padding: 5px 11px 5px 10px; border-radius: 999px; background: var(--green-soft); color: var(--green); }
+.eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Surfaces */
+.card { border-radius: 22px; padding: 24px; box-shadow: var(--shadow); border-color: var(--line); }
+.card.model, .card.step, .card.route, .persona { transition: transform 200ms ease, box-shadow 200ms ease; }
+.card.model:hover, .card.step:hover, .card.route:hover, .persona:hover { transform: translateY(-2px); }
+.btn { border-radius: 999px; padding: 12px 20px; font-size: .92rem; transition: transform 150ms ease, opacity 150ms ease; }
+.btn:not(:disabled):hover { transform: translateY(-1px); }
+.badge { padding: 4px 10px; font-size: .72rem; }
+.stage { border-radius: 30px; padding: 24px; box-shadow: 0 30px 60px -30px rgba(5,20,12,.45); }
+.counters { border-radius: 16px; }
+.livebar { border-radius: 24px; padding: 22px 24px; box-shadow: 0 30px 60px -32px rgba(5,20,12,.45); }
+.pillar { border-radius: 20px; padding: 20px; box-shadow: var(--shadow); }
+.lanes, .cmp { border-radius: 22px; box-shadow: var(--shadow); }
+.same { border-radius: 20px; }
+
+/* Hero: two columns with a live wallet card */
+.bw { border-radius: 34px; grid-template-columns: minmax(0, 1.25fr) minmax(0, .85fr); align-items: center; column-gap: 48px; padding: clamp(32px, 6vw, 76px) clamp(22px, 5vw, 64px); margin-top: 8px; }
+.bw .bwtext { display: grid; gap: 22px; }
+.bw::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(180deg, transparent, #000 40%, transparent); -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%, transparent); pointer-events: none; }
+@media (max-width: 980px) { .bw { grid-template-columns: minmax(0, 1fr); row-gap: 32px; } }
+.bw::before, .bw::after { z-index: 0; } .bw > * { z-index: 1; }
+.bwcard { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 24px; padding: 20px; display: grid; gap: 14px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 40px 80px -40px rgba(0,0,0,.6); }
+.bwcard .t { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .82rem; color: var(--stage-sub); }
+.bwcard .on { display: inline-flex; align-items: center; gap: 6px; color: #5fd49b; font-weight: 500; }
+.bwcard .on i { width: 6px; height: 6px; border-radius: 50%; background: #5fd49b; animation: p 2s infinite; }
+.bwcard .v { font-size: 2.4rem; font-weight: 500; letter-spacing: -.04em; color: var(--stage-ink); font-variant-numeric: tabular-nums; line-height: 1; }
+.bwcard .s { font-size: .8rem; color: var(--stage-sub); }
+.bwcard .mix { display: flex; height: 8px; border-radius: 8px; overflow: hidden; gap: 2px; }
+.bwcard .mix span { height: 100%; border-radius: 2px; }
+.bwcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.bwcard li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid rgba(255,255,255,.06); font-size: .84rem; color: var(--stage-ink); }
+.bwcard li .ic { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-family: var(--m); font-size: .55rem; background: rgba(255,255,255,.08); }
+.bwcard li small { display: block; color: var(--stage-sub); font-family: var(--m); font-size: .7rem; }
+.bwcard li .r { text-align: right; font-family: var(--m); font-size: .8rem; }
+.bwcard .f { display: flex; justify-content: space-between; gap: 10px; font-size: .76rem; color: var(--stage-sub); border-top: 1px solid rgba(255,255,255,.06); padding-top: 12px; }
+
+/* Steps: numbered badges */
+.steps3 > .card.step .n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--card); font-size: .74rem; }
+.steps3 > .card.step { gap: 12px; }
+
+/* Unlock: highlight the SPROUT column */
+.cmp div { padding: 16px 22px; }
+.cmp div > :nth-child(3) { color: var(--ink); }
+.cmp div:not(.hd) > :nth-child(3) { padding: 3px 10px; margin: -3px -10px; border-radius: 10px; background: var(--green-soft); }
+.cmp .hd > :nth-child(3) { color: var(--green); font-weight: 600; }
+
+section[id] { scroll-margin-top: 84px; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Footer */
+footer { border-top: 1px solid var(--line); padding-top: 24px; font-size: .74rem; }
+
+.pbg { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; color: var(--faint); font-weight: 400; }
+.pbg b { font-weight: 700; color: var(--sub); }
+.pbg i { width: 10px; height: 10px; border-radius: 50% 50% 50% 2px; background: #5fd49b; transform: rotate(-45deg); display: inline-block; }
+.engines { display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); gap: 0; align-items: stretch; }
+.engines > .engine-link { align-self: center; }
+@media (max-width: 860px) { .engines { grid-template-columns: minmax(0, 1fr); gap: 12px; } .engine-link { transform: rotate(90deg); height: 60px; } }
+.engine { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 12px; box-shadow: var(--shadow); align-content: start; }
+.engine.s { border-top: 3px solid var(--navy); } .engine.g { border-top: 3px solid var(--green); }
+.engine ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: e; }
+.engine li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 2px 12px; counter-increment: e; }
+.engine li::before { content: counter(e); grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 600; background: var(--hover); }
+.engine.s li::before { background: var(--navy-soft); color: var(--navy); } .engine.g li::before { background: var(--green-soft); color: var(--green); }
+.engine li span { color: var(--sub); font-size: .88rem; }
+.engine-link { display: grid; justify-items: center; gap: 6px; font-size: .74rem; color: var(--sub); font-weight: 600; }
+.engine-link i { width: 80%; height: 2px; background: linear-gradient(90deg, var(--navy), var(--green)); position: relative; }
+.engine-link i::after { content: ""; position: absolute; right: -2px; top: -4px; border-left: 8px solid var(--green); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Tokenised equity utility explorer */
+.ustrip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.ustrip > div { background: var(--card); padding: 16px 18px; display: grid; gap: 4px; }
+.ustrip b { font-family: var(--h); font-size: 1.6rem; letter-spacing: -0.02em; color: var(--navy); }
+.ustrip span { color: var(--sub); font-size: .84rem; }
+@media (max-width: 760px) { .ustrip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ux { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .ux { grid-template-columns: minmax(0, 1fr); } .utabs { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; } }
+.utabs { display: grid; gap: 6px; }
+.utabs button { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 11px 14px; border-radius: 6px; cursor: pointer; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 10px; align-items: center; position: relative; overflow: hidden; }
+.utabs button small { grid-column: 2; color: var(--sub); font-size: .76rem; }
+.utabs button em { font-style: normal; font-family: var(--h); font-weight: 600; color: var(--faint); font-size: .8rem; grid-row: span 2; }
+.utabs button[aria-selected="true"] { border-color: var(--navy); background: var(--navy); color: #fff; }
+.utabs button[aria-selected="true"] small, .utabs button[aria-selected="true"] em { color: #a9c8e8; }
+.utabs button .tm { position: absolute; left: 0; bottom: 0; height: 2px; background: #5aaee0; width: 0; }
+.utabs button[aria-selected="true"] .tm.run { animation: utm 7s linear forwards; }
+@keyframes utm { to { width: 100%; } }
+.ustage { background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 26px; display: grid; gap: 20px; min-height: 420px; align-content: start; }
+.ustage .uhead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+.ustage h3 { font-size: 1.45rem; margin: 0; letter-spacing: -0.02em; }
+.ustage .umet { text-align: right; }
+.ustage .umet b { display: block; font-family: var(--h); font-size: 2.4rem; line-height: 1; letter-spacing: -0.03em; color: var(--accent); }
+.ustage .umet span { font-size: .78rem; color: var(--sub); }
+.uvs { display: grid; grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); align-items: stretch; }
+@media (max-width: 640px) { .uvs { grid-template-columns: minmax(0, 1fr); gap: 8px; } .uvs .arr { transform: rotate(90deg); } .ustage .uhead { grid-template-columns: minmax(0, 1fr); } .ustage .umet { text-align: left; } }
+.uvs > div { border-radius: 6px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.uvs .old { background: var(--hover); color: var(--sub); }
+.uvs .new { background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.uvs label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+.uvs .old label { color: var(--faint); } .uvs .new label { color: var(--accent); }
+.uvs p { margin: 0; font-size: .95rem; line-height: 1.5; }
+.uvs .arr { display: grid; place-items: center; color: var(--accent); font-size: 1.2rem; }
+.uviz { min-height: 64px; }
+.uuse { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+@media (max-width: 640px) { .uuse { grid-template-columns: minmax(0, 1fr); } }
+.uuse div { display: grid; gap: 4px; } .uuse span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--faint); }
+.uuse p { margin: 0; font-size: .92rem; line-height: 1.5; color: var(--ink); }
+.uuse .sch span { color: var(--navy); }
+.ustage .ucav { font-size: .76rem; color: var(--faint); margin: 0; }
+.ustage.swap > *:not(.uhead) { animation: uin 380ms ease both; }
+@keyframes uin { from { opacity: 0; transform: translateY(6px); } }
+/* mini visuals */
+.fr { display: flex; gap: 2px; height: 34px; align-items: stretch; }
+.fr i { flex: 1; background: var(--line); border-radius: 2px; }
+.fr i.on { background: var(--accent); }
+.clock { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 6px 10px; font-size: .74rem; color: var(--sub); align-items: center; }
+.clock .bar { height: 12px; background: var(--hover); border-radius: 2px; position: relative; overflow: hidden; }
+.clock .bar i { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 2px; }
+.clock .bar i.g { background: var(--navy); opacity: .35; }
+.chain { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .8rem; }
+.chain span { padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--card); }
+.chain span.me { background: var(--navy); color: #fff; border-color: var(--navy); }
+.chain span.x { text-decoration: line-through; color: var(--faint); }
+.chain em { font-style: normal; color: var(--faint); }
+.rules { display: flex; flex-wrap: wrap; gap: 6px; }
+.rules code { font-family: ui-monospace, Menlo, monospace; font-size: .76rem; background: var(--navy); color: #cfe3f7; padding: 5px 9px; border-radius: 4px; }
+
+/* Active management ripple: one decision, every personal portfolio */
+.ripple { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 940px) { .ripple { grid-template-columns: minmax(0, 1fr); } }
+.rdec { background: var(--navy); color: #fff; border-radius: 8px; padding: 22px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.rdec .who { display: flex; gap: 10px; align-items: center; font-size: .8rem; color: #a9c8e8; }
+.rdec .who span { color: #a9c8e8 !important; } .rdec .who i { width: 30px; height: 30px; border-radius: 4px; background: #0074b7; display: grid; place-items: center; font-style: normal; font-weight: 700; color: #fff; }
+.rdec h3 { color: #fff; font-size: 1.3rem; letter-spacing: -.02em; margin: 0; }
+.rdec p { margin: 0; color: #cfe0f2; font-size: .9rem; line-height: 1.5; }
+.rdec .vtag { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #5aaee0; font-weight: 600; }
+.rdec .btn { width: 100%; }
+.rdec .rsteps { display: grid; gap: 6px; font-size: .8rem; color: #a9c8e8; margin: 0; padding: 0; list-style: none; }
+.rdec .rsteps li { display: flex; gap: 8px; align-items: center; } .rdec .rsteps li b { color: #fff; font-weight: 600; }
+.rdec .rsteps li i { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #3c5f86; display: grid; place-items: center; font-style: normal; font-size: .62rem; }
+.rdec .rsteps li.done i { background: #5aaee0; border-color: #5aaee0; color: #001e41; }
+.rinv { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .rinv { grid-template-columns: minmax(0, 1fr); } }
+.rcard { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 10px; align-content: start; transition: border-color 300ms ease, box-shadow 300ms ease; }
+.rcard.due { border-color: var(--amber); } .rcard.done { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.rcard .rh { display: flex; gap: 10px; align-items: center; } .rcard .rav { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: .9rem; flex: none; }
+.rcard .rh .rav { color: #fff; font-size: .9rem; } .rcard .rh b { display: block; font-size: .92rem; } .rcard .rh span { font-size: .76rem; color: var(--sub); }
+.rcard .chips { display: flex; flex-wrap: wrap; gap: 4px; } .rcard .chips span { font-size: .7rem; padding: 2px 7px; border-radius: 3px; background: var(--hover); color: var(--sub); }
+.rchg { display: grid; gap: 6px; font-size: .82rem; }
+.rchg > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; align-items: center; padding: 8px 10px; border-radius: 6px; background: var(--hover); }
+.rchg > div > span:first-child { grid-column: 1 / -1; font-weight: 600; }
+.rchg .w { font-variant-numeric: tabular-nums; color: var(--sub); } .rchg .w b { color: var(--ink); }
+.rchg .amt { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+.rchg .amt.s { color: var(--red); } .rchg .amt.b { color: var(--green); }
+.rcard .rs { font-size: .76rem; font-weight: 600; display: flex; align-items: center; gap: 6px; } .rcard .rs i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.rcard .rs.idle { color: var(--faint); } .rcard .rs.due { color: var(--amber); } .rcard .rs.done { color: var(--green); }
+.rcard .same { font-size: .74rem; color: var(--faint); background: none; padding: 0; border: 0; }
+.rfoot { grid-column: 1 / -1; font-size: .8rem; color: var(--sub); }
+/* Where the shares come from */
+.source { display: grid; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+.src-h { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; } .src-h span { font-size: .84rem; color: var(--sub); }
+.src { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: s; }
+@media (max-width: 860px) { .src { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media (max-width: 520px) { .src { grid-template-columns: minmax(0, 1fr); } }
+.src li { display: grid; gap: 4px; padding: 12px; border-radius: 6px; background: var(--hover); position: relative; }
+.src li i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-size: .72rem; font-weight: 600; }
+.src li b { font-size: .88rem; } .src li span { font-size: .8rem; color: var(--sub); line-height: 1.45; }
+/* Range */
+.models.m3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } @media (max-width: 940px) { .models.m3 { grid-template-columns: minmax(0, 1fr); } }
+.mtop { display: flex; justify-content: space-between; gap: 8px; align-items: center; } .mtop .faint { font-size: .76rem; }
+.isstrip { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; padding: 14px 16px; border-radius: 8px; background: var(--navy-soft); font-size: .88rem; }
+
+/* Two views of one page: investor site (/) and internal briefing (/brief) */
+[data-view="site"] [data-aud="brief"], [data-view="brief"] [data-aud="site"] { display: none !important; }
+.briefbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; padding: 12px 18px; border-radius: 8px; background: var(--amber-soft); color: var(--ink); font-size: .86rem; }
+.briefbar b { color: var(--amber); text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; margin-right: 8px; }
+nav .alt { font-size: .82rem; color: var(--sub); text-decoration: none; white-space: nowrap; } nav .alt:hover { color: var(--accent); }
+@media (max-width: 640px) { nav .alt, nav .live, nav .logo .pbg { display: none !important; } }
+/* Scroll reveal (content visible by default; JS opts in) */
+.rv { opacity: 0; transform: translateY(18px); transition: opacity 600ms ease, transform 600ms cubic-bezier(.2,.7,.2,1); }
+.rv.in { opacity: 1; transform: none; }
+/* How it works (investor) */
+.hiw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } @media (max-width: 900px) { .hiw { grid-template-columns: minmax(0, 1fr); } }
+.hstep { gap: 10px !important; }
+.hstep .n { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-family: var(--h); font-weight: 700; }
+.hstep h3 { font-size: 1.15rem; } .hstep p { margin: 0; }
+.mock { margin-top: 6px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); padding: 14px; display: grid; gap: 8px; min-height: 156px; align-content: center; }
+.mk-meter { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #0a7d4f, #0074b7, #a86a0b); margin-top: 6px; }
+.mk-meter i { position: absolute; top: -5px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid #001e41; left: 50%; transform: translateX(-50%); animation: mkm 5s ease-in-out infinite; }
+@keyframes mkm { 0%, 100% { left: 30%; } 50% { left: 52%; } }
+.mk-row { display: flex; justify-content: space-between; font-size: .72rem; color: var(--faint); }
+.mk-q { font-size: .82rem; font-weight: 600; } .mk-a { display: grid; gap: 5px; } .mk-a span { font-size: .78rem; padding: 6px 10px; border-radius: 4px; background: var(--card); border: 1px solid var(--line); } .mk-a span.on { border-color: var(--accent); background: var(--accent-soft); }
+.mk-chips { display: flex; flex-wrap: wrap; gap: 6px; } .mk-chips span { font-size: .76rem; padding: 5px 10px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); }
+.mk-chips span.on { border-color: var(--accent); background: var(--accent-soft); animation: mkp 3s ease-in-out infinite; } .mk-chips span.x { text-decoration: line-through; border-color: var(--red); background: var(--red-soft); }
+@keyframes mkp { 50% { box-shadow: 0 0 0 4px var(--accent-soft); } }
+.mk-bars { display: flex; height: 14px; border-radius: 3px; overflow: hidden; gap: 1px; } .mk-bars span { display: block; }
+.mk-ev { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; align-items: center; font-size: .78rem; padding: 7px 9px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); opacity: 0; animation: mke 9s ease infinite; }
+.mk-ev i { width: 24px; height: 24px; border-radius: 4px; display: grid; place-items: center; font-style: normal; font-weight: 700; color: #fff; font-size: .7rem; } .mk-ev small { display: block; color: var(--faint); font-size: .7rem; }
+.mk-ev:nth-child(2) { animation-delay: 1.2s; } .mk-ev:nth-child(3) { animation-delay: 2.4s; }
+@keyframes mke { 0% { opacity: 0; transform: translateY(6px); } 8%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mk-ev { animation: none; opacity: 1; } .mk-meter i, .mk-chips span.on { animation: none; } }
+/* Hero card live activity line */
+.htick { display: flex; gap: 10px; align-items: center; font-size: .8rem; color: #dbe7f5; padding: 10px 12px; border-radius: 6px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); min-height: 40px; }
+.htick i { width: 22px; height: 22px; border-radius: 4px; flex: none; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: .68rem; background: #0074b7; color: #fff; transition: background 300ms ease; }
+.htick span { transition: opacity 300ms ease; } .htick small { color: #8fa6c2; margin-left: auto; white-space: nowrap; font-size: .72rem; }
+/* Closing call to action */
+.cta { background: #001e41; color: #fff; border-radius: 8px; padding: clamp(28px, 5vw, 56px); display: grid; gap: 16px; justify-items: start; position: relative; overflow: hidden; }
+.cta::before { content: ""; position: absolute; inset: -40% -10% auto auto; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(0,116,183,.5), transparent); pointer-events: none; }
+.cta h2 { color: #fff; font-size: clamp(1.8rem, 4vw, 2.8rem); max-width: 18ch; position: relative; margin: 0; } .cta p { color: #cfe0f2; max-width: 56ch; margin: 0; position: relative; }
+.cta .ctas { display: flex; gap: 10px; flex-wrap: wrap; position: relative; }
+/* Footer */
+.ft { display: grid; gap: 24px; border-top: 1px solid var(--line); padding-top: 32px; font-size: .8rem; color: var(--sub); max-width: none !important; }
+.ftop { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+.ftop p { margin: 8px 0 0; max-width: 36ch; }
+.fcols { display: flex; gap: 48px; flex-wrap: wrap; } .fcols div { display: grid; gap: 8px; align-content: start; } .fcols b { color: var(--ink); font-size: .8rem; }
+.fcols a { color: var(--sub); text-decoration: none; } .fcols a:hover { color: var(--accent); }
+.risk { padding: 16px 18px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); line-height: 1.6; font-size: .76rem; } .risk b { color: var(--ink); }
+#foot { font-size: .72rem; color: var(--faint); line-height: 1.6; margin: 0; }
+
+/* Company marks (brand-colour monograms, not trademarked logos) */
+.mk { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-family: var(--h); font-weight: 700; font-size: .66rem; letter-spacing: -.02em; flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.mk.xs { width: 18px; height: 18px; font-size: .5rem; margin-right: 6px; vertical-align: -4px; }
+.mk.lg { width: 34px; height: 34px; font-size: .74rem; }
+.hold span { font-family: var(--f) !important; display: inline-flex; align-items: center; }
+.hold span b { margin-left: 5px; }
+.tok .mk { width: 30px; height: 30px; }
+.rchg .mk.xs { margin-right: 6px; }
+/* Logo strip */
+.logos { display: grid; gap: 14px; margin-top: -48px; }
+.logos-h { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.logos-h b { font-family: var(--h); font-size: 1.15rem; color: var(--navy); } .logos-h > span { font-size: .84rem; color: var(--sub); }
+.marq .co .lvq { font-variant-numeric: tabular-nums; font-weight: 600; font-size: .84rem; } .marq .co .lv-c { margin-left: -4px; }
+.logos-h .lv-status { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; margin-left: auto; }
+.marq { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.marq .track { display: flex; gap: 10px; width: max-content; animation: marq 70s linear infinite; }
+.marq.rev .track { animation-direction: reverse; animation-duration: 80s; }
+.marq:hover .track { animation-play-state: paused; }
+.marq .co { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); white-space: nowrap; font-size: .86rem; color: var(--ink); }
+.marq .co small { color: var(--faint); font-size: .74rem; }
+@keyframes marq { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marq .track { animation: none; flex-wrap: wrap; width: auto; } }
+.recv .opt[aria-pressed="true"] { color: var(--navy) !important; font-weight: 600; }
+
+/* Real company logos, loaded from public logo services; the brand-colour monogram underneath shows if an image fails */
+.mk, .lg { position: relative; overflow: hidden; }
+.mk img, .lg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; border-radius: inherit; }
+.mk img.fb, .lg img.fb { object-fit: contain; padding: 14%; }
+.mk:has(img), .lg:has(img) { box-shadow: 0 0 0 1px rgba(0,30,65,.08); }
+
+/* Why SPROUT (investor site) */
+.whyg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } @media (max-width: 900px) { .whyg { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media (max-width: 560px) { .whyg { grid-template-columns: minmax(0, 1fr); } }
+.whyg .card { gap: 8px; } .whyg h3 { font-size: 1.05rem; } .whyg p { margin: 0; }
+.wi { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--navy); color: #fff; font-family: var(--h); font-weight: 700; font-size: .9rem; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; } @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.links a.on { background: var(--navy-soft); color: var(--navy); font-weight: 600; }
+@media (max-width: 1300px) { .links a { padding: 6px 8px !important; font-size: .8rem !important; } nav .alt { display: none; } }
+/* tighter "Why SPROUT": icon list, not cards */
+.whyg { gap: 26px 32px !important; } .whyg .card { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; grid-template-columns: 40px minmax(0, 1fr); column-gap: 14px; row-gap: 4px !important; align-items: start; }
+.whyg .card .wi { grid-row: span 2; } .whyg .card h3 { align-self: center; }
+/* What you get: the flow already lists every holding, so the investor site shows the summary only */
+[data-view="site"] .receipt { grid-template-columns: minmax(0, 1fr) !important; }
+[data-view="site"] .receipt > div:last-child { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px !important; } @media (max-width: 860px) { [data-view="site"] .receipt > div:last-child { grid-template-columns: minmax(0, 1fr); } }
+
+/* Direct: the chain between Schroders and the investor */
+.chainv { display: grid; gap: 18px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; box-shadow: var(--shadow); }
+.seg2 { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; } .seg2 button { border: 0; background: var(--card); padding: 9px 16px; font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; color: var(--sub); } .seg2 button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+/* Direct: one dark panel; a single continuous track from Schroders to you, with the middlemen as gates on it */
+.chainv { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+.flowp { position: relative; display: grid; gap: 24px; padding: 26px 28px 24px; border-radius: 18px; overflow: hidden; color: #cfe0f2;
+  background: radial-gradient(90% 120% at 0% 0%, #0d4682 0%, #00264f 45%, #00132b 100%); box-shadow: 0 30px 60px -30px rgba(0,30,65,.55); }
+.flowp::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 32px 32px; -webkit-mask-image: radial-gradient(80% 70% at 50% 35%, #000, transparent); mask-image: radial-gradient(80% 70% at 50% 35%, #000, transparent); }
+.flowp::after { content: ""; position: absolute; width: 520px; height: 520px; right: -180px; top: -260px; border-radius: 50%; background: radial-gradient(closest-side, rgba(95,212,155,.0), transparent); transition: background 700ms ease; pointer-events: none; }
+.flowp[data-s="sprout"]::after { background: radial-gradient(closest-side, rgba(95,212,155,.18), transparent); }
+.fl-top { position: relative; justify-content: space-between; gap: 12px; flex-wrap: wrap; z-index: 1; }
+.flowp .tryit { background: rgba(255,255,255,.1); color: #fff; } .flowp .tryit::before { background: #5fd49b; }
+.flowp .seg2 { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); border-radius: 999px; padding: 3px; backdrop-filter: blur(8px); }
+.flowp .seg2 button { background: transparent; color: #a9c1dc; border-radius: 999px; padding: 7px 16px; transition: background 250ms ease, color 250ms ease; }
+.flowp .seg2 button[aria-pressed="true"] { background: #fff; color: #001e41; } .flowp .seg2 button i { background: rgba(255,255,255,.12); } .flowp .seg2 button[aria-pressed="true"] i { background: rgba(0,30,65,.1); }
+.flowp .replay { color: #9fc4ee; } #chaincount { color: #9fb7d3 !important; }
+.fl-track { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 176px; z-index: 1; }
+.fl-line { position: absolute; left: 48px; right: 48px; top: 50%; height: 2px; transform: translateY(-1px); background: repeating-linear-gradient(90deg, rgba(255,255,255,.26) 0 6px, transparent 6px 12px); transition: background 600ms ease, height 600ms ease; z-index: 0; }
+.flowp[data-s="sprout"] .fl-line { height: 3px; background: linear-gradient(90deg, #4f8de0, #5fd49b); box-shadow: 0 0 18px rgba(95,212,155,.35); }
+.fl-line i { position: absolute; top: 50%; left: 0; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #e5b25b; box-shadow: 0 0 12px 2px rgba(229,178,91,.7); animation: flow 6s linear infinite; }
+.fl-line i:nth-child(2) { animation-delay: -1.5s; } .fl-line i:nth-child(3) { animation-delay: -3s; } .fl-line i:nth-child(4) { animation-delay: -4.5s; }
+.flowp[data-s="sprout"] .fl-line i { background: #fff; box-shadow: 0 0 14px 3px rgba(95,212,155,.8); animation-duration: 1.8s; }
+@keyframes flow { 0% { left: 0; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: calc(100% - 7px); opacity: 0; } }
+.fl-end { flex: none; display: grid; justify-items: center; gap: 8px; width: 96px; text-align: center; z-index: 1; }
+.fl-end .av { width: 64px; height: 64px; border-radius: 50% !important; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; color: #fff; background: linear-gradient(145deg, #2a73c4, #003c7a); box-shadow: 0 0 0 6px rgba(127,155,239,.14), 0 12px 30px rgba(0,0,0,.4); }
+.fl-end.you .av { background: linear-gradient(145deg, #2fbf7d, #0a7d4f); box-shadow: 0 0 0 6px rgba(95,212,155,.16), 0 12px 30px rgba(0,0,0,.4); font-size: .95rem; }
+.flowp[data-s="sprout"] .fl-end .av { animation: halo 2.4s ease-in-out infinite; } @keyframes halo { 50% { box-shadow: 0 0 0 12px rgba(95,212,155,.08), 0 12px 30px rgba(0,0,0,.4); } }
+.fl-end b { color: #fff; font-size: .95rem; } .fl-end small { font-size: .74rem; color: #9fb7d3; line-height: 1.35; }
+.fl-node { flex: 0 1 auto; min-width: 0; width: 176px; display: grid; gap: 5px; justify-items: start; padding: 12px; border-radius: 14px; z-index: 1; font-size: .72rem; line-height: 1.35; color: #9fb7d3;
+  background: rgba(10,28,56,.72); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(8px); box-shadow: 0 10px 24px rgba(0,0,0,.25); overflow: hidden;
+  transition: width 620ms cubic-bezier(.2,.7,.2,1) var(--d, 0ms), padding 620ms ease var(--d, 0ms), opacity 420ms ease var(--d, 0ms), transform 620ms cubic-bezier(.2,.7,.2,1) var(--d, 0ms), border-width 620ms ease var(--d, 0ms), margin 620ms ease var(--d, 0ms); }
+.fl-node .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: .74rem; color: #ffb4ab; background: rgba(240,139,127,.16); }
+.fl-node b { color: #fff; font-size: .8rem; line-height: 1.25; }
+.fl-node em { font-style: normal; font-size: .66rem; font-weight: 700; color: #ffb4ab; background: rgba(240,139,127,.14); border-radius: 8px; padding: 2px 8px; white-space: normal; line-height: 1.3; }
+.fl-node.rail { width: 170px; border-color: rgba(95,212,155,.55); background: rgba(8,48,40,.78); box-shadow: 0 0 0 4px rgba(95,212,155,.08), 0 14px 30px rgba(0,0,0,.3); } .fl-node.rail .ic { color: #04150c; background: #5fd49b; } .fl-node.rail em { color: #5fd49b; background: rgba(95,212,155,.14); }
+.fl-node.gone { width: 0; padding-left: 0; padding-right: 0; border-width: 0; opacity: 0; transform: translateY(-34px) scale(.86); margin: 0 -7px; }
+.fl-node.rail.gone { transform: scale(.7); }
+.fl-direct { position: absolute; left: 50%; top: -2px; transform: translate(-50%, 6px); opacity: 0; z-index: 2; white-space: nowrap; font-size: .74rem; font-weight: 700; letter-spacing: .02em; color: #04150c; background: #5fd49b; padding: 5px 12px; border-radius: 999px; box-shadow: 0 6px 18px rgba(95,212,155,.35); transition: opacity 420ms ease 500ms, transform 420ms cubic-bezier(.2,.7,.2,1) 500ms; pointer-events: none; }
+.fl-direct em { font-style: normal; margin: 0 2px; } .flowp[data-s="sprout"] .fl-direct { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 860px) { .fl-direct { position: static; transform: none; justify-self: start; margin: 0 0 4px 76px; display: none; } .flowp[data-s="sprout"] .fl-direct { display: inline-block; transform: none; } } .flowp[data-s="sprout"] .fl-node.rail { margin: 0 auto; }
+.fl-note { margin: 0; position: relative; font-size: .88rem; color: #cfe0f2; max-width: 72ch; z-index: 1; }
+.fl-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.fl-stats > div { display: grid; gap: 2px; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); }
+.fl-stats span { font-size: .68rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 700; color: #8fa9c7; }
+.fl-stats b { font-size: 1.6rem; color: #fff; letter-spacing: -.02em; transition: color 300ms ease; } .flowp[data-s="sprout"] .fl-stats b { color: #5fd49b; }
+.fl-stats small { font-size: .74rem; color: #8fa9c7; } .fl-stats b.flip { animation: flip 460ms cubic-bezier(.2,.7,.2,1); }
+@keyframes flip { 0% { transform: translateY(10px); opacity: 0; filter: blur(4px); } 100% { transform: none; opacity: 1; filter: none; } }
+.flowp .chaintab { position: relative; z-index: 1; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,.09); }
+.flowp .chaintab .cr { padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,.07); color: #cfe0f2; }
+.flowp .chaintab .cr:last-child { border-bottom: 0; } .flowp .chaintab .cr.h { background: rgba(255,255,255,.04); color: #8fa9c7; }
+.flowp .chaintab .cr span:first-child { color: #9fb7d3; } .flowp .chaintab .old { color: #b9c9dc; } .flowp .chaintab .new { color: #fff; }
+.flowp[data-s="today"] .chaintab .new { color: #6f88a6; } .flowp .chaintab .old::before { color: #ff8a80; } .flowp .chaintab .new::before { color: #5fd49b; }
+@media (max-width: 860px) {
+  .flowp { padding: 22px 18px; }
+  .fl-track { flex-direction: column; align-items: stretch; gap: 10px; min-height: 0; padding-left: 0; }
+  .fl-line { left: 31px; right: auto; top: 32px; bottom: 32px; width: 2px; height: auto; transform: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.26) 0 6px, transparent 6px 12px); }
+  .flowp[data-s="sprout"] .fl-line { width: 3px; height: auto; background: linear-gradient(180deg, #4f8de0, #5fd49b); }
+  .fl-line i { left: 50%; margin-left: -3.5px; margin-top: 0; animation-name: flowv; } @keyframes flowv { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 7px); opacity: 0; } }
+  .fl-end { width: auto; grid-template-columns: auto 1fr; justify-items: start; text-align: left; align-items: center; column-gap: 14px; } .fl-end .av { grid-row: span 2; }
+  .fl-node, .fl-node.rail { width: auto; margin-left: 76px; grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; } .fl-node > span:not(.ic) { display: none; } .fl-node em { grid-column: 2; justify-self: start; }
+  .fl-node.gone { width: auto; height: 0; padding-top: 0; padding-bottom: 0; margin: -5px 0 -5px 76px; transform: translateX(20px); }
+  .fl-stats { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .fl-line i { display: none; } .fl-node, .fl-stats b.flip { transition: none; animation: none; } }
+/* What you get: a simple builder */
+.rx { display: grid; gap: 22px; padding: 26px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 24px 50px -32px rgba(0,30,65,.35); }
+.rx-ctrl { display: flex; flex-wrap: wrap; gap: 14px 22px; }
+.rx-g { display: grid; gap: 6px; } .rx-g > span { font-size: .68rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 700; color: var(--faint); }
+.rx-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: var(--hover); }
+.rx-seg .opt { border: 0; background: transparent; border-radius: 999px; padding: 8px 14px; font: inherit; font-size: .86rem; font-weight: 600; color: var(--sub); cursor: pointer; transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease; }
+.rx-seg .opt[aria-pressed="true"] { background: var(--card); color: var(--navy); box-shadow: 0 1px 2px rgba(0,30,65,.12), 0 4px 12px rgba(0,30,65,.08); }
+.rx-sum { display: grid; gap: 10px; padding: 18px 20px; border-radius: 14px; background: linear-gradient(135deg, #f3f7fc, #eef4fb); border: 1px solid var(--line); }
+.rx-big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; } .rx-big b { font-size: 1.9rem; letter-spacing: -.03em; color: var(--navy); } .rx-big span { color: var(--sub); font-size: .95rem; }
+.rx-live { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: .74rem !important; font-weight: 600; color: var(--green) !important; } .rx-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: trypulse 1.6s ease-in-out infinite; }
+.rx-bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; gap: 3px; background: transparent; } .rx-bar span { transition: flex-grow 600ms cubic-bezier(.2,.7,.2,1); border-radius: 999px; }
+.rx-leg { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .84rem; color: var(--sub); } .rx-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; } .rx-leg b { color: var(--ink); font-weight: 600; margin-left: 4px; }
+.rx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.rx-t { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; padding: 12px 14px 12px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); overflow: hidden; transition: border-color 200ms ease, transform 200ms ease; }
+.rx-t:hover { border-color: var(--accent); transform: translateY(-1px); }
+.rx-t::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+.rx-t .mk { grid-row: span 2; } .rx-t b { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .rx-t .v { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); justify-self: end; grid-column: 3; grid-row: 1; }
+.rx-t small { font-size: .74rem; color: var(--sub); white-space: nowrap; } .rx-t .tg { grid-column: 3; justify-self: end; font-size: .66rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--hover); color: var(--sub); }
+.rx-t { grid-template-columns: auto minmax(0, 1fr) auto; } .rx-t.bump .v { animation: flip 420ms cubic-bezier(.2,.7,.2,1); }
+.rx-own { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.rx-own > div { display: grid; gap: 2px; padding: 14px; border-radius: 12px; background: var(--navy); color: #a9c1dc; font-size: .78rem; }
+.rx-own i { font-style: normal; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: rgba(255,255,255,.1); color: #fff; font-weight: 800; font-size: .8rem; margin-bottom: 6px; } .rx-own b { color: #fff; font-size: .88rem; }
+@media (max-width: 860px) { .rx { padding: 18px; } .rx-own { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rx-big b { font-size: 1.5rem; } .rx-live { margin-left: 0; } }
+@media (max-width: 480px) { .rx-own { grid-template-columns: minmax(0, 1fr); } }
+/* The Schroders range: a showcase */
+.rg { display: grid; gap: 22px; }
+.rg-core { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.rg-card { position: relative; display: grid; gap: 12px; align-content: start; padding: 24px; border-radius: 20px; color: #fff; overflow: hidden; min-height: 300px; box-shadow: 0 24px 48px -30px rgba(0,30,65,.6); transition: transform .25s ease, box-shadow .25s ease; text-decoration: none; }
+.rg-card:hover { transform: translateY(-4px); box-shadow: 0 30px 60px -30px rgba(0,30,65,.7); }
+.rg-card::after { content: ""; position: absolute; width: 260px; height: 260px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.18), transparent); pointer-events: none; }
+.rg-card.quality { background: linear-gradient(150deg, #0b3a6e, #001e41 70%); } .rg-card.income { background: linear-gradient(150deg, #0a5c74, #06304a 70%); } .rg-card.sustain { background: linear-gradient(150deg, #0d6b4f, #053a2d 70%); }
+.rg-card .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: rgba(255,255,255,.7); }
+.rg-card h3 { font-size: 1.45rem; letter-spacing: -.02em; line-height: 1.15; color: #fff; } .rg-card p { margin: 0; font-size: .92rem; color: rgba(255,255,255,.82); line-height: 1.45; }
+.rg-card .lg { display: flex; } .rg-card .lg .mk { margin-right: -8px; box-shadow: 0 0 0 2px rgba(255,255,255,.9); }
+.rg-card .meta { display: grid; gap: 4px; font-size: .78rem; color: rgba(255,255,255,.72); margin-top: auto; } .rg-card .meta b { color: #fff; font-weight: 600; }
+.rg-card .go { justify-self: start; font-weight: 700; font-size: .9rem; color: #fff; border-bottom: 1.5px solid rgba(255,255,255,.5); padding-bottom: 2px; }
+.rg-make { display: grid; gap: 12px; } .rg-mk-h { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; } .rg-mk-h b { font-size: 1.15rem; } .rg-mk-h span { color: var(--sub); font-size: .9rem; }
+.rg-mk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rg-tile { display: grid; gap: 6px; padding: 18px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); } .rg-tile b { font-size: .98rem; } .rg-tile span { font-size: .84rem; color: var(--sub); }
+.vis { height: 34px; display: flex; align-items: center; margin-bottom: 6px; }
+.vis-dial { gap: 6px; } .vis-dial i { width: 30px; height: 26px; border-radius: 7px; background: var(--hover); } .vis-dial i.on { background: var(--accent); }
+.vis-bar { gap: 3px; } .vis-bar i { height: 14px; border-radius: 999px; background: var(--navy); } .vis-bar i.th { background: #2aa36d; } .vis-bar i.c { background: #9aa7b6; }
+.vis-skip { gap: 8px; } .vis-skip span { font-size: .78rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--sub); } .vis-skip .x { text-decoration: line-through; color: #b0302a; border-color: rgba(176,48,42,.35); background: rgba(176,48,42,.05); }
+.rg-themes { display: grid; gap: 16px; padding: 26px; border-radius: 22px; color: #cfe0f2; background: radial-gradient(110% 130% at 0% 0%, #12446f, #001e41 55%, #00132b); }
+.rg-th-h { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; } .rg-th-h > div { display: grid; gap: 8px; max-width: 560px; }
+.rg-lock { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 1.6rem; letter-spacing: -.02em; line-height: 1.15; } .rg-lock b { color: #fff; font-weight: 700; } .rg-lock i { width: 1.5px; height: 1.3em; background: rgba(255,255,255,.3); } .rg-lock span { color: #7cc4f5; font-weight: 500; }
+.rg-th-sub { margin: 0; font-size: .95rem; line-height: 1.5; color: #b9cde4; }
+.rg-th-h .rg-soon { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 700; color: #001e41; background: #fff; border-radius: 999px; padding: 8px 15px; white-space: nowrap; box-shadow: 0 6px 18px -8px rgba(0,0,0,.5); }
+.rg-soon i { width: 8px; height: 8px; border-radius: 50%; background: #2fbf71; box-shadow: 0 0 0 0 rgba(47,191,113,.6); animation: rgpulse 1.8s ease-out infinite; } @keyframes rgpulse { 70% { box-shadow: 0 0 0 7px rgba(47,191,113,0); } 100% { box-shadow: 0 0 0 0 rgba(47,191,113,0); } }
+.rg-th-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rg-th { position: relative; overflow: hidden; display: grid; gap: 6px; padding: 18px 18px 16px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); transition: background .2s, transform .2s; }
+.rg-th::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--ac); opacity: .9; }
+.rg-th:hover { background: rgba(255,255,255,.09); transform: translateY(-2px); } .rg-th small { color: var(--ac); font-size: .76rem; font-weight: 600; } .rg-th b { color: #fff; font-size: 1.05rem; }
+.rg-th-f { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; } .rg-th .lg { display: flex; } .rg-th .lg .mk { margin-right: -6px; box-shadow: 0 0 0 2px #0b2f57; } .rg-n { font-size: .74rem; color: #9fb6d1; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .rg-soon i { animation: none; } }
+@media (max-width: 960px) { .rg-core, .rg-mk, .rg-th-grid { grid-template-columns: minmax(0, 1fr); } .rg-card { min-height: 0; } }
+.chainnote { margin: 0; font-size: .86rem; color: var(--sub); }
+.chaintab { display: grid; gap: 0; }
+.chaintab .cr { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .88rem; align-items: center; }
+.chaintab .cr.h { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--faint); }
+.chaintab .cr span:first-child { color: var(--sub); } .chaintab .old { color: var(--sub); transition: opacity 300ms ease; } .chaintab .new { font-weight: 600; color: var(--ink); transition: color 300ms ease; }
+.chainv[data-s="today"] .chaintab .new { color: var(--faint); font-weight: 400; } .chainv[data-s="sprout"] .chaintab .old { opacity: .55; }
+.chaintab .old::before { content: "✕"; color: var(--red); font-weight: 700; margin-right: 8px; } .chaintab .new::before { content: "✓"; color: var(--green); font-weight: 700; margin-right: 8px; }
+.chaintab .cr.h .old::before, .chaintab .cr.h .new::before { content: none; }
+@media (max-width: 640px) { .chaintab .cr { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .chaintab .cr span:first-child { grid-column: 1 / -1; font-weight: 600; color: var(--ink); } }
+
+/* One consistent pattern for every interactive demo */
+.tryrow { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.tryit { display: inline-flex; align-items: center; gap: 6px; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--accent); padding: 4px 10px 4px 8px; border-radius: 999px; white-space: nowrap; }
+.tryit::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: trypulse 1.6s ease-in-out infinite; }
+@keyframes trypulse { 50% { opacity: .3; } } @media (prefers-reduced-motion: reduce) { .tryit::before { animation: none; } }
+.stage .tryit { background: #5aaee0; color: #001e41; } .stage .tryit::before { background: #001e41; }
+.seg2 button i, .stepn { font-style: normal; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: .68rem; font-weight: 800; margin-right: 7px; background: rgba(0,30,65,.1); vertical-align: 1px; }
+.seg2 button[aria-pressed="true"] i, .btn .stepn { background: rgba(255,255,255,.22); }
+.replay { border: 0; background: none; font: inherit; font-size: .84rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 6px; }
+.herodemo { display: inline-block; justify-self: start; width: max-content; margin-top: 12px; font-size: .9rem; color: #cfe3f7; text-decoration: none; border-bottom: 1px solid rgba(207,227,247,.35); } .herodemo:hover { color: #fff; border-color: #fff; }
+
+/* Opt in → managed → onchain */
+.optin { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+@media (max-width: 860px) { .optin { grid-template-columns: minmax(0, 1fr); } }
+.optin > div { background: var(--card); padding: 18px 20px; display: grid; gap: 6px; align-content: start; position: relative; }
+.optin .on { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .8rem; background: var(--navy); color: #fff; }
+.optin > div:last-child .on { background: var(--green); } .optin b { font-size: 1.02rem; } .optin p { margin: 0; color: var(--sub); font-size: .9rem; line-height: 1.5; }
+
+.hero-soc { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; font-size: .86rem; color: #b9cde4; }
+.hero-soc a:not(.herodemo) { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #000; transition: transform 150ms ease; } .hero-soc a:not(.herodemo):hover { transform: translateY(-2px); }
+.hero-soc .hs-sep { opacity: .5; }
+</style>
+<link rel="stylesheet" href="/sim.css">
+<script>addEventListener("unhandledrejection", function (e) { var r = e.reason; if (r && r.name === "AbortError" && /transition/i.test(r.message || "")) e.preventDefault(); }); addEventListener("pagereveal", function (e) { var v = e.viewTransition; if (v) { v.ready.catch(function () {}); v.finished.catch(function () {}); } }); addEventListener("pageswap", function (e) { var v = e.viewTransition; if (v) { v.ready.catch(function () {}); v.finished.catch(function () {}); } });</script>
+
+<script>document.documentElement.dataset.view = location.pathname.indexOf("/brief") === 0 ? "brief" : "site"; if (document.documentElement.dataset.view === "brief") document.title = "SPROUT · Schroders briefing";</script>
+<script src="/live.js"></script>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="lk vt" href="/" aria-label="Schroders SPROUT, home"><img class="lk-wm" src="/brand/schroders-logo.svg" alt="Schroders" width="101" height="18"><i class="lk-sep" aria-hidden="true"></i><span class="lk-p">sprout</span><small class="lk-by">Powered by <em></em><b>Glider</b></small></a>
+    <div class="links" data-aud="site"><a href="#direct">Direct to you</a><a href="#scale">At scale</a><a href="#receive">Strategies</a></div><div class="links" data-aud="brief"><a href="#what">What it is</a><a href="#active">Active management</a><a href="#direct">Direct</a><a href="#scale">Scale</a><a href="#distribution">Distribution</a><a href="#build">Can we build it?</a><a href="/console">Manager console</a></div>
+    <a class="alt" href="/" data-aud="brief">Investor site</a>
+    <a class="btn green" href="/app" style="padding:8px 16px;font-size:.86rem;text-decoration:none;white-space:nowrap">Open the app →</a>
+    <span class="live" id="live"><i></i>Connecting to live prices…</span>
+  </nav>
+  <div class="briefbar" data-aud="brief"><span><b>Internal briefing</b>For Schroders leadership. Confidential pilot material: business case, distribution and build status.</span><a class="link" href="/">See the investor site →</a></div>
+
+  <section class="bw" aria-label="SPROUT">
+   <div class="bwtext">
+    <span class="kicker">SCHRODERS SPROUT · POWERED BY GLIDER</span>
+    <h1>Schroders portfolios, held in your own <em>wallet.</em></h1>
+    <p><b style="color:#fff;font-weight:600">Actively managed by our investment teams.</b> We adjust your portfolio as markets and our views change. You set it up once, and only you can move your money.</p>
+    <div class="pills"><span class="pill"><i style="background:#7f9bef"></i>Every decision explained</span><span class="pill"><i style="background:#5fd49b"></i>Rebalanced daily, onchain</span><span class="pill"><i style="background:#ffffff"></i>Every holding is yours</span><span class="pill" data-aud="brief"><i style="background:#e5b25b"></i>Shares tokenised by Ondo or Coinbase</span></div>
+    <div class="ctas"><a class="btn light" href="/app">Get started →</a><a class="btn dark" href="#scale">See how it works</a></div>
+    <a class="herodemo" href="/app?demo=1">Take the tour →</a>
+   </div>
+   <aside class="bwcard" aria-label="Example investor wallet, live prices">
+    <div class="t"><span>Maya · Retirement</span><span class="on"><i></i>Autopilot on</span></div>
+    <div><div class="v" id="hv">$1,000.00</div><div class="s" id="hs">Schroders Quality 7 · Balanced · live prices</div></div>
+    <div class="mix" aria-hidden="true"><span style="flex:75;background:#7f9bef"></span><span style="flex:18;background:#4f6fd6"></span><span style="flex:7;background:#5d6b63"></span></div>
+    <div class="s" style="display:flex;gap:14px;flex-wrap:wrap"><span>■ <span style="color:#7f9bef">Schroders core 75%</span></span><span>■ <span style="color:#8fa6ee">AI &amp; chips 18%</span></span><span>■ Cash 7%</span></div>
+    <ul id="hlist"><li><span class="ic">…</span><span>Loading live prices</span><span></span></li></ul>
+    <div class="htick" id="htick" aria-live="polite"><i>S</i><span>Schroders' team reviewed Quality 7 · no change needed</span><small>Today</small></div>
+    <div class="f"><span>Owned by Maya directly</span><span id="hnext">Next rebalance today</span></div>
+   </aside>
+  </section>
+
+
+  <section class="logos" aria-label="The companies in Schroders portfolios, with live prices">
+    <div class="logos-h"><b>The companies inside Schroders portfolios, live.</b><span>Chosen and weighted by Schroders' teams · start from $5</span></div>
+    <div class="marq" id="marq1"></div>
+    <div class="marq rev" id="marq2"></div>
+  </section>
+
+  <section class="sec thesis" id="what" data-aud="brief">
+    <span class="eyebrow">What SPROUT is</span>
+    <p class="big"><b>SPROUT is Schroders going direct:</b> our expertise and strategies, delivered straight to investors, run by Schroders and powered by Glider. No intermediaries in between.</p>
+    <div class="steps3">
+      <div class="card step"><span class="n">01</span><span class="badge navy"><i></i>Schroders · runs SPROUT</span><h3>Manages the portfolios</h3><p class="sub">Runs the app and the investor relationship. Schroders' teams choose the companies, set the weights and change them when the view changes.</p></div>
+      <div class="card step"><span class="n">02</span><span class="badge amber"><i></i>Ondo · Coinbase</span><h3>Supply the shares</h3><p class="sub">Issue tokens backed 1:1 by real US shares held with a custodian, under each issuer's terms. SPROUT works with either.</p></div>
+      <div class="card step"><span class="n">03</span><span class="badge green"><i></i>Glider · infrastructure</span><h3>Keeps every wallet on target</h3><p class="sub">Creates each investor's wallet and rebalances it daily to Schroders' weights, without ever holding the money.</p></div>
+    </div>
+    <div class="livebar" aria-live="polite">
+      <div class="top"><b><span class="livedot"></span>Already live on Glider today</b><span id="liveas">Connecting to Glider…</span></div>
+      <div class="lgrid" id="livegrid"><div><span>Loading live data from Glider's API…</span><b>…</b></div></div>
+      <span class="note2" style="color:var(--stage-sub)">Pulled live from Glider's production API through our own access. Bitwise is already running its model portfolio this way.</span>
+    </div>
+  </section>
+
+  <section class="sec" id="active" data-aud="brief">
+    <header><span class="eyebrow">Active management</span><h2>When Schroders changes its view, your portfolio follows.</h2>
+      <p class="sub">A Schroders team updates its strategy when the facts change. Each decision reaches your portfolio at the next daily rebalance, with the reason.</p></header>
+    <div class="optin">
+      <div><span class="on">1</span><b>You opt in, once</b><p>One signature from your wallet. Switch off anytime.</p></div>
+      <div><span class="on">2</span><b>Schroders manages it actively</b><p>A Schroders team decides what you own, and tells you why.</p></div>
+      <div><span class="on">3</span><b>Every rebalance happens onchain</b><p>Settled in your account and recorded publicly.</p></div>
+    </div>
+
+    <div class="tryrow"><span class="tryit">Try it</span><span class="faint" style="font-size:.86rem">Publish a Schroders decision, then run tonight's onchain rebalance. Watch three different investors' portfolios change.</span></div>
+    <div class="ripple" id="ripple" aria-live="polite"></div>
+    <div class="grid3" data-aud="brief">
+      <div class="card"><span class="badge navy"><i></i>Complements</span><h3>The same teams, a new audience</h3><p class="sub">Strategies come from Schroders' existing investment teams. SPROUT adds a direct, digital route to investors that fund platforms don't reach.</p></div>
+      <div class="card"><span class="badge navy"><i></i>Visible</span><h3>Management the investor can see</h3><p class="sub">A manager note, a conviction rating per holding, and a model history with the reason for every change, inside the app.</p></div>
+      <div class="card"><span class="badge navy"><i></i>Building blocks</span><h3>Schroders funds as components, next</h3><p class="sub">Today the models hold tokenised shares. Tokenised Schroders funds could become building blocks inside the same portfolios.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="direct">
+    <header><span class="eyebrow"><span data-aud="site">01 · </span>Direct to you</span><h2>Our expertise. Nothing in between.</h2>
+      <p class="sub">Today, your money passes through three firms. With SPROUT, we manage it and you hold it.<span data-aud="brief"> Onchain, Schroders' model is the instruction: Glider executes it inside each investor's wallet and tokenised shares settle in seconds.</span></p></header>
+    <div class="chainv">
+      <div class="flowp">
+      <div class="row fl-top"><div class="tryrow"><span class="tryit">Try it</span><div class="seg2" role="tablist" aria-label="Compare"><button data-ch="today" aria-pressed="true"><i>1</i>Today</button><button data-ch="sprout" aria-pressed="false"><i>2</i>With SPROUT</button></div><button class="replay" data-ch="replay" type="button">↺ Replay</button></div><span class="faint" id="chaincount" style="font-size:.86rem"></span></div>
+        <div class="fl-track" id="chainrow"></div>
+        <p class="fl-note" id="chainnote"></p>
+        <div class="fl-stats" id="chainstats"></div>
+        <div class="chaintab" id="chaintab"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero" id="scale">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow"><span data-aud="site">02 · </span>At scale</span>
+      <h2 style="font-size:clamp(1.9rem,4vw,3rem)">One Schroders decision. <span class="serif">Every</span> wallet rebalanced.</h2>
+      <p class="lede">When our view changes, every portfolio follows. Thousands of them, each still personal.</p>
+      <p class="note2" id="benchline" data-aud="brief">Illustrative network. Real benchmark: Bitwise Mag7X on Glider today.</p>
+    </div>
+    <div class="optin sc-steps">
+      <div><span class="on">1</span><b>We decide once</b><p>Our team updates the model. One change reaches every investor.</p></div>
+      <div><span class="on">2</span><b>Every wallet is checked daily</b><p>Each portfolio is compared with its own target. Only meaningful gaps are traded.</p></div>
+      <div><span class="on">3</span><b>Each wallet trades itself</b><p>Trades settle in seconds, in the investor's own account.</p></div>
+    </div>
+    <div class="stage">
+      <div class="counters" id="counters"></div>
+      <div class="canvasbox">
+        <canvas id="net" aria-label="Network showing one Schroders model flowing through Glider into thousands of investor wallets grouped by distribution partner"></canvas>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="stage-top">
+        <div class="controls">
+          <span class="tryit">Try it</span>
+          <button type="button" class="btn navy" id="publish"><i class="stepn">1</i>Publish a model update</button>
+          <button type="button" class="btn green" id="runall" disabled><i class="stepn">2</i>Run the daily rebalance</button>
+          <button type="button" class="btn dark" id="partner" data-aud="brief">Add a distribution partner</button>
+        </div>
+        <div class="legend"><span><i style="background:var(--green)"></i>On target</span><span><i style="background:var(--amber)"></i>Rebalance due</span><span>Each dot is one investor's wallet · hover to inspect</span></div>
+      </div>
+      <p class="status" id="status"></p>
+    </div>
+    <div class="sc-why">
+      <h3>Why it's efficient</h3>
+      <div class="cmp" role="table" aria-label="Rebalancing many portfolios, the usual way and with Glider">
+        <div class="hd" role="row"><span></span><span>The usual way</span><span>With Glider's API</span></div>
+        <div role="row"><span>When the model changes</span><span class="old">An order for every account</span><span class="new">One publish, every wallet follows</span></div>
+        <div role="row"><span>Checking for drift</span><span class="old">Batch jobs and operations reviews</span><span class="new">Automatic, every wallet, every day</span></div>
+        <div role="row"><span>Settlement</span><span class="old">T+1, through a pooled account</span><span class="new">Seconds, in each investor's own wallet</span></div>
+        <div role="row"><span>Cost to the investor</span><span class="old">Layers of annual fees, whether or not anything trades</span><span class="new">0.30% only on what trades. Schroders' 0.15% a year accrues daily, never upfront</span></div>
+        <div role="row"><span>Adding investors</span><span class="old">More accounts, more operations</span><span class="new">More wallets, the same daily run</span></div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="sec" id="how" data-aud="brief">
+    <header><span class="eyebrow">How it works</span><h2>Set it up once. Schroders handles the rest.</h2>
+      <p class="sub">Five questions, one goal, one approval. About two minutes.</p></header>
+    <div class="hiw">
+      <div class="card hstep"><span class="n">1</span><h3>Sign up, answer five questions</h3><p class="sub">Use your email or your own wallet. Five questions find your level.</p>
+        <div class="mock" aria-hidden="true"><span class="mk-q">If your portfolio fell 20% in a month, you would…</span><div class="mk-a"><span>Sell to stop further losses</span><span class="on">Hold and wait it out</span></div><div class="mk-meter"><i></i></div><div class="mk-row"><span>Cautious</span><span>Balanced</span><span>Adventurous</span></div></div></div>
+      <div class="card hstep"><span class="n">2</span><h3>Pick what you're saving for</h3><p class="sub">Retirement, a home, your children. We build the plan.</p>
+        <div class="mock" aria-hidden="true"><div class="mk-chips"><span class="on">Retirement</span><span>Home deposit</span><span>Education</span><span>Rainy day</span></div>
+          <div class="mk-bars"><span style="flex:75;background:#001e41"></span><span style="flex:18;background:#0074b7"></span><span style="flex:7;background:#9aa7b6"></span></div><div class="mk-row"><span>Picked by Schroders 75%</span><span>Your theme 18%</span><span>Cash 7%</span></div></div></div>
+      <div class="card hstep"><span class="n">3</span><h3>Schroders manages it. You own it.</h3><p class="sub">Approve once. Every change arrives with its reason.</p>
+        <div class="mock" aria-hidden="true"><div class="mk-ev"><i style="background:#001e41">S</i><span>Schroders: Amazon out, Broadcom in<small>Global Quality Equity team</small></span></div>
+          <div class="mk-ev"><i style="background:#0074b7">⟳</i><span>Your portfolio rebalanced<small>2 trades · settled in seconds</small></span></div>
+          <div class="mk-ev"><i style="background:#0a7d4f">✓</i><span>Back on target<small>Nothing for you to do</small></span></div></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="why" data-aud="brief">
+    <header><span class="eyebrow">Why SPROUT</span><h2>Professional management, without the usual trade-offs.</h2>
+      <p class="sub">No fund wrapper. No minimums. No waiting.</p></header>
+    <div class="whyg">
+      <div class="card"><span class="wi">$5</span><h3>Start small, own the leaders</h3><p class="sub">Own a slice of Microsoft, Nvidia or Coca-Cola from $5.</p></div>
+      <div class="card"><span class="wi">✓</span><h3>Yours, not pooled</h3><p class="sub">In an account only you control. Leave anytime, without selling.</p></div>
+      <div class="card"><span class="wi">◷</span><h3>See everything, anytime</h3><p class="sub">Every holding, trade and decision, live in the app.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="utility" data-aud="brief">
+    <header><span class="eyebrow">What tokenisation unlocks</span><h2>The same share, with new abilities.</h2>
+      <p class="sub">Each token tracks a real US share 1:1. What changes is what it can do: split into any size, settle in seconds, sit in your own wallet and follow rules written in code. That is what lets SPROUT do what a fund or a broker account can't.</p></header>
+    <div class="ustrip" id="ustrip">
+      <div><b id="us-n">151</b><span>US shares available as tokens today</span></div>
+      <div><b id="us-f">$5</b><span>is enough to own a slice of any of them</span></div>
+      <div><b>Seconds</b><span>to settle a trade, vs T+1 for a listed share</span></div>
+      <div><b>24/7</b><span>to move holdings between wallets</span></div>
+    </div>
+    <div class="ux">
+      <div class="utabs" role="tablist" aria-label="Abilities of a tokenised share" id="utabs"></div>
+      <div class="ustage" id="ustage" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </section>
+
+
+  <section class="sec" id="receive">
+    <header><span class="eyebrow"><span data-aud="site">03 · </span>The Schroders range</span><h2>A Schroders strategy for every goal.</h2>
+      <p class="sub">Growth, income or sustainability. Each run by a dedicated Schroders team, and made yours.</p></header>
+    <div class="rg">
+      <div class="rg-core" id="rg-core"></div>
+      <div class="rg-make">
+        <div class="rg-mk-h"><b>Make it yours</b><span>Your choices, our management.</span></div>
+        <div class="rg-mk">
+          <div class="rg-tile"><div class="vis vis-dial" aria-hidden="true"><i></i><i></i><i class="on"></i><i></i><i></i></div><b>Choose how steady</b><span>Five levels, from Steadier to More growth.</span></div>
+          <div class="rg-tile"><div class="vis vis-bar" aria-hidden="true"><i style="flex:75"></i><i class="th" style="flex:18"></i><i class="c" style="flex:7"></i></div><b>Add a theme slice</b><span>Up to 29% in an idea you believe in.</span></div>
+          <div class="rg-tile"><div class="vis vis-skip" aria-hidden="true"><span>Microsoft</span><span class="x">Nvidia</span><span>Apple</span></div><b>Leave out what you'd rather not own</b><span>Skip up to two companies.</span></div>
+        </div>
+      </div>
+      <div class="rg-themes">
+        <div class="rg-th-h"><div><span class="rg-lock"><b>Schroders</b><i></i><span>Thematic Portfolios</span></span><p class="rg-th-sub">Six focused portfolios on the ideas shaping the next decade, managed by our Thematic Equity team.</p></div><span class="rg-soon"><i></i>Coming soon</span></div>
+        <div class="rg-th-grid" id="rg-themes"></div>
+      </div>
+    </div>
+    <p class="faint" style="font-size:.76rem;margin:0" data-aud="brief">Shown: Ondo edition on BNB Chain. Each token is backed 1:1 by the underlying share; token rights differ from holding the share directly.</p>
+  </section>
+
+  <section class="sec" id="distribution" data-aud="brief">
+    <header><span class="eyebrow">Digital distribution</span><h2>Run by Schroders. Powered by Glider.</h2>
+      <p class="sub">Schroders runs SPROUT and designs the strategies. Glider is the infrastructure underneath: it creates each investor's wallet, executes and rebalances. Neither holds investor money. The same strategies can also reach investors through other apps built on Glider.</p></header>
+    <div class="lanes">
+      <div class="lane"><span class="badge navy"><i></i>Schroders · runs SPROUT</span><dl><dt>Does</dt><dd>Runs SPROUT: onboards investors, checks eligibility, manages the portfolios and publishes updates</dd><dt>Sees</dt><dd>Total reach, via Glider reporting (to be agreed)</dd><dt>Earns</dt><dd>A model fee under a licensing agreement with Glider, as Bitwise has</dd></dl></div>
+      <div class="lane"><span class="badge green"><i></i>Glider · infrastructure</span><dl><dt>Does</dt><dd>Creates wallets, executes trades, rebalances daily, routes fees. Invisible to the investor.</dd><dt>Sees</dt><dd>Every portfolio on its platform</dd><dt>Earns</dt><dd>Its share of the trading fee, taken automatically</dd></dl></div>
+      <div class="lane"><span class="badge amber"><i></i>Apps built on Glider</span><dl><dt>Does</dt><dd>Onboards users, checks eligibility, picks the right Schroders strategy from each user's answers</dd><dt>Sees</dt><dd>Its own investors only</dd><dt>Earns</dt><dd>The rest of the trading fee, under Glider's API terms</dd></dl></div>
+      <div class="lane"><span class="badge" style="background:var(--hover)"><i></i>Investor</span><dl><dt>Does</dt><dd>Answers five questions, signs once, funds. Then nothing.</dd><dt>Sees</dt><dd>Every holding and trade, onchain</dd><dt>Owns</dt><dd>The tokenised shares, in their own wallet</dd></dl></div>
+    </div>
+    <div class="routes" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div class="card route"><span class="n">Route 1</span><h3>SPROUT, run by Schroders</h3><p class="sub">Schroders' own direct-to-investor app, powered by Glider. Schroders owns the experience and the relationship.</p></div>
+      <div class="card route"><span class="n">Route 2</span><h3>Apps built on Glider</h3><p class="sub">Wallets, exchanges and neobanks that integrate Glider offer the same Schroders strategies to their users. One strategy, many front doors.</p></div>
+    </div>
+    <div style="display:grid;gap:10px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h3>What reach could look like</h3><span class="note2">Illustrative, matching the network above</span></div><div class="grid3" id="dist"></div></div>
+    <div style="display:grid;gap:10px"><h3>Why it changes the economics</h3>
+    <div class="cmp" role="table">
+      <div class="hd" role="row"><span></span><span>Fund today</span><span>Schroders on SPROUT</span></div>
+      <div role="row"><span>Launch a new strategy</span><span class="old">Months: fund setup, registration, listing</span><span class="new">Days: publish a model and it's live</span></div>
+      <div role="row"><span>Personalisation</span><span class="old">One product for everyone</span><span class="new">A personal portfolio per investor, same core</span></div>
+      <div role="row"><span>Reach</span><span class="old">Platform by platform, country by country</span><span class="new">Any app that integrates one API</span></div>
+      <div role="row"><span>Cost to serve one more investor</span><span class="old">Transfer agency, admin, reporting</span><span class="new">Close to zero: one more wallet on the same model</span></div>
+    </div></div>
+  </section>
+
+  <section class="sec" id="build" data-aud="brief">
+    <header><span class="eyebrow">Can we build it?</span><h2>Most of this is proven on Glider today.</h2>
+      <p class="sub">Checked against Glider's live API on 1 October 2026 using our own access. Validation is a dry run, so nothing was created.</p></header>
+    <div class="grid3">
+      <div class="card"><span class="badge green"><i></i>Proven on Glider</span><ul class="yes">
+        <li>Our API access is live with all 10 permissions</li>
+        <li>151 tokenised US shares available; 177 of 178 assets accepted</li>
+        <li>Schroders Quality 7, v1 and v2, accepted as strategies</li>
+        <li>Works with Ondo (BNB Chain) and Coinbase (Base): both editions accepted</li>
+        <li>All 30 personal portfolio variants accepted (3 risk levels × 5 theme options × 2 versions)</li>
+        <li>Daily automatic rebalancing, guardrails, positions and performance</li>
+        <li>Partners can offer a public strategy through the same API</li>
+        <li>Live connection: our page reads Glider's production data in real time</li></ul></div>
+      <div class="card"><span class="badge amber"><i></i>Needs Glider</span><ul class="todo">
+        <li>Switch on market-hours scheduling (off for our account)</li>
+        <li>Staging environment for testing without real money</li>
+        <li>How a 0.15% model fee is collected (the API only has a trading fee)</li>
+        <li>Limits on strategies per account at scale</li>
+        <li>Cross-partner reporting for Schroders, and the published fee split</li></ul></div>
+      <div class="card"><span class="badge navy"><i></i>Needs Schroders</span><ul class="todo">
+        <li>Compliance view: eligible markets and who may hold the tokens</li>
+        <li>A strategy-provider licence with Glider, as Bitwise has, and approval to use the Schroders name</li>
+        <li>A small test budget: $100–300 per pilot wallet</li>
+        <li>A regulatory view on Schroders running onboarding, eligibility and suitability for SPROUT investors</li></ul></div>
+    </div>
+    <div class="card"><h3>Pilot path</h3><div class="steps3">
+      <div class="step"><span class="n">Step 1 · no money</span><h3>Create the strategies</h3><p class="sub">Publish Quality 7 and its 15 personal variants as private strategies.</p></div>
+      <div class="step"><span class="n">Step 2 · no money</span><h3>Open test wallets</h3><p class="sub">Email sign-up via Privy, one signature to enrol, smart account created on BNB Chain.</p></div>
+      <div class="step"><span class="n">Step 3 · small test funds</span><h3>Watch a real rebalance</h3><p class="sub">Fund two wallets, publish v2, and see Glider rebalance them on the next daily run.</p></div>
+    </div></div>
+  </section>
+
+  <section class="sec fq" id="faq" data-aud="brief">
+    <div class="fq-side">
+      <header><span class="eyebrow">FAQs</span><h2>Frequently asked questions</h2>
+        <p class="sub">Clear answers on how SPROUT works, who looks after your investments, and what it costs.</p></header>
+      <div class="fq-tabs" role="tablist" aria-label="Question topics">
+          <button class="fq-tab" role="tab" id="fqt-start" aria-controls="fq-start" aria-selected="true" data-fq="start"><span>Getting started</span><small>4</small></button>
+          <button class="fq-tab" role="tab" id="fqt-money" aria-controls="fq-money" aria-selected="false" data-fq="money"><span>Your investments</span><small>5</small></button>
+          <button class="fq-tab" role="tab" id="fqt-manage" aria-controls="fq-manage" aria-selected="false" data-fq="manage"><span>Our investment approach</span><small>4</small></button>
+          <button class="fq-tab" role="tab" id="fqt-plan" aria-controls="fq-plan" aria-selected="false" data-fq="plan"><span>Planning for the long term</span><small>3</small></button>
+          <button class="fq-tab" role="tab" id="fqt-schroders" aria-controls="fq-schroders" aria-selected="false" data-fq="schroders" data-aud="brief"><span>For Schroders</span><small>5</small></button>
+      </div>
+      <div class="fq-help"><b>Need more help?</b><p>Read the important information on risks and eligibility before you invest.</p><a href="#important">Important information →</a></div>
+    </div>
+    <div class="fq-main">
+        <div class="fq-panel" role="tabpanel" id="fq-start" aria-labelledby="fqt-start">
+          <div class="fq-ph"><h3>Getting started</h3><button class="fq-all" type="button" data-fq-all>Expand all</button></div>
+          <details class="fq-item"><summary><span class="fq-n">01</span><span class="fq-q">How do I get started, and how long does it take?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>About two minutes. Sign up with your email (we send a one-time code, so there's no password or seed phrase) or connect a wallet you already use. Answer five questions, pick what you're saving for, and approve your plan once.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">02</span><span class="fq-q">What is the minimum investment?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>You can start from $5. Even small amounts hold every company in the portfolio at Schroders' weights, because each holding can be split into tiny fractions.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">03</span><span class="fq-q">Who is eligible to invest?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>SPROUT is in pilot in selected markets. In some, including the UK, EEA, Singapore and Hong Kong, it's open to professional or qualified investors only. We confirm eligibility when we verify your ID.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">04</span><span class="fq-q">Can I use an existing wallet?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Yes. Connect the wallet you use today, or we'll create one for you at sign-up. Either way, it's your wallet and only you can take money out.</p></div></details>
+        </div>
+        <div class="fq-panel" role="tabpanel" id="fq-money" aria-labelledby="fqt-money" hidden>
+          <div class="fq-ph"><h3>Your investments</h3><button class="fq-all" type="button" data-fq-all>Expand all</button></div>
+          <details class="fq-item"><summary><span class="fq-n">01</span><span class="fq-q">Who holds my investments?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>You do. Your investments sit in your own account, not pooled in a fund with anyone else's. Neither Schroders nor Glider holds them, and only you can withdraw. Each holding is backed one-for-one by the real share, held with a regulated custodian; see Important information below for how this differs from owning a share directly.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">02</span><span class="fq-q">What are the fees?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>During the pilot you pay a 0.30% trading fee on what's bought, taken automatically inside your portfolio. There's no account fee and no exit fee. Any ongoing management fee will be shown clearly before you invest.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">03</span><span class="fq-q">How do I withdraw?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Anytime, from the app. Sell to cash in your wallet, or move your holdings as they are to another wallet or provider without selling. Selling happens while US markets are open; moving holdings works around the clock.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">04</span><span class="fq-q">What are the risks?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Like any investment, your portfolio can fall as well as rise, and you may get back less than you put in. It isn't a bank deposit. There's also the risk that a provider in the chain, such as the share's issuer, runs into trouble, which is why every holding is backed by the real share with a regulated custodian.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">05</span><span class="fq-q">What happens if SPROUT or Glider ceases to operate?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Your investments stay in your own wallet either way. You could keep them, sell them, or move them to another provider. Nothing depends on SPROUT or Glider being there for you to own what you own.</p></div></details>
+        </div>
+        <div class="fq-panel" role="tabpanel" id="fq-manage" aria-labelledby="fqt-manage" hidden>
+          <div class="fq-ph"><h3>Our investment approach</h3><button class="fq-all" type="button" data-fq-all>Expand all</button></div>
+          <details class="fq-item"><summary><span class="fq-n">01</span><span class="fq-q">What is Schroders' role?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>A Schroders investment team chooses what you own, at what weights, and changes it when its view changes. You see every decision in the app, with the reason. Schroders never holds your money and can't withdraw it.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">02</span><span class="fq-q">How does rebalancing work?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Every day, Glider checks your portfolio against Schroders' targets and trades it back on track inside your own account. You approved this once, with one signature, and the permission can only rebalance, never withdraw.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">03</span><span class="fq-q">What happens when markets fall?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Nothing for you to do. Daily rebalancing quietly tops up what has fallen and trims what has risen, and your cash buffer softens the swings. You'll see what changed, and why, in the app.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">04</span><span class="fq-q">How is my portfolio tailored to me?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>It starts from Schroders' model, then follows your choices: your risk level, an optional theme, and any companies you'd rather leave out. When Schroders updates its model, your personal mix follows at the next daily run.</p></div></details>
+        </div>
+        <div class="fq-panel" role="tabpanel" id="fq-plan" aria-labelledby="fqt-plan" hidden>
+          <div class="fq-ph"><h3>Planning for the long term</h3><button class="fq-all" type="button" data-fq-all>Expand all</button></div>
+          <details class="fq-item"><summary><span class="fq-n">01</span><span class="fq-q">Can I save for more than one goal?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Yes. Each goal, such as retirement or a home deposit, gets its own portfolio and its own level, chosen for when you need the money.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">02</span><span class="fq-q">How does SPROUT get me ready for retirement?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>A retirement goal runs on autopilot. As your date gets closer it steps down to steadier levels on its own, so a late fall in markets can't derail it. You see your progress as a monthly income, and when you retire you can turn it into a monthly paycheck or keep it invested.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">03</span><span class="fq-q">What happens if I change jobs or providers?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Your portfolio comes with you. Because you hold the investments yourself, you can move them as they are, without selling and without paperwork. No cashing out, and no forgotten pots left behind.</p></div></details>
+        </div>
+        <div class="fq-panel" role="tabpanel" id="fq-schroders" aria-labelledby="fqt-schroders" data-aud="brief" hidden>
+          <div class="fq-ph"><h3>For Schroders</h3><button class="fq-all" type="button" data-fq-all>Expand all</button></div>
+          <details class="fq-item"><summary><span class="fq-n">01</span><span class="fq-q">Where do the tokenised shares come from?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>From the issuers, Ondo Global Markets or Coinbase. Each token is backed 1:1 by the underlying US share, held with a custodian under the issuer's terms. Glider buys tokens for the portfolio and, for Ondo, sells by redeeming them with the issuer, which needs an open US market session. Tokens can move between wallets at any time. Broker, custody and dividend arrangements follow each issuer's terms and are being confirmed with compliance.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">02</span><span class="fq-q">Which tokenised shares does it use?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Either issuer. Ondo offers over 140 US shares and ETFs on Glider today; Coinbase offers 8 US mega-caps on Base. Each strategy runs on one chain, so Schroders can publish an Ondo edition, a Coinbase edition, or both, and add issuers as their shelves grow.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">03</span><span class="fq-q">How do partners distribute it?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Any wallet, exchange or neobank that integrates Glider's API can offer Schroders models to its own users. Schroders reaches new investors without building a new fund for each market.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">04</span><span class="fq-q">What are the fees, and who earns them?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Glider takes a trading fee automatically inside each portfolio (0.30% of traded volume in Bitwise's ATPs) and keeps its share; the rest goes to the distributing app under Glider's API terms. A model fee for Schroders, like Bitwise's 0.15%, needs a licensing agreement with Glider. Network fees are covered by Glider.</p></div></details>
+          <details class="fq-item"><summary><span class="fq-n">05</span><span class="fq-q">Can Schroders see every investor across partners?</span><i class="fq-ic" aria-hidden="true"></i></summary><div class="fq-a"><p>Not through the standard API. Each partner sees its own investors. Schroders would see total reach through reporting agreed with Glider, which protects investor data at the partner.</p></div></details>
+        </div>
+    </div>
+  </section>
+
+  <section class="cta" data-aud="site">
+    <span class="eyebrow" style="background:rgba(255,255,255,.1)!important;color:#cfe0f2!important">Schroders SPROUT</span>
+    <h2>Schroders manages it. It stays yours.</h2>
+    <p>Set up in two minutes. Opt in once, and let our teams take it from there.</p>
+    <div class="ctas"><a class="btn light" href="/app">Get started →</a><a class="btn dark" href="#scale">See how it works</a></div>
+  </section>
+  <footer class="ft">
+    <div class="ftop"><div><a class="lk" href="/" aria-label="Schroders SPROUT, home"><img class="lk-wm" src="/brand/schroders-logo.svg" alt="Schroders" width="101" height="18"><i class="lk-sep" aria-hidden="true"></i><span class="lk-p">sprout</span><small class="lk-by">Powered by <em></em><b>Glider</b></small></a><p>Schroders active management, held in your own wallet. Powered by Glider.</p></div>
+      <div class="fcols"><div><b>SPROUT</b><a href="/app">Open the app</a><a href="/#direct">Direct to you</a><a href="/#scale">At scale</a><a href="/#receive">Strategies</a></div>
+        <div><b>Built with</b><span>Glider · portfolio infrastructure</span><span>Regulated custodians · the shares behind your holdings</span></div>
+        <div><b>Schroders</b><a href="/console">Manager console</a><a href="/app?demo=1" data-aud="brief">Presenter demo</a></div></div></div>
+    <div class="risk" id="important"><b>Important information.</b> Capital at risk. The value of investments and any income from them can fall as well as rise, and you may get back less than you invest. Past performance is not a guide to future returns. Tokenised shares are issued by Ondo Global Markets or Coinbase under their own terms. Each token is backed 1:1 by the underlying US share, but the rights attached to a token differ from holding the share directly. Available in selected markets only; in the UK, EEA, Switzerland, Hong Kong, Singapore, Malaysia and Brazil, available to professional or qualified investors only.</div>
+    <p id="foot"></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NAMES = { MSFT: "Microsoft", NVDA: "Nvidia", AAPL: "Apple", GOOGL: "Alphabet", TSM: "TSMC", AMZN: "Amazon", LLY: "Eli Lilly", AVGO: "Broadcom",
+    AMD: "AMD", MU: "Micron", ANET: "Arista", NVO: "Novo Nordisk", ISRG: "Intuitive Surgical", VRTX: "Vertex", REGN: "Regeneron",
+    CEG: "Constellation", GEV: "GE Vernova", ETN: "Eaton", VST: "Vistra", COST: "Costco", WMT: "Walmart", KO: "Coca-Cola", PEP: "PepsiCo",
+    MCD: "McDonald's", V: "Visa", ABBV: "AbbVie", MRK: "Merck", ABT: "Abbott", SO: "Southern Co.", GLD: "Gold", ASML: "ASML", PWR: "Quanta Services", ENPH: "Enphase",
+    AMAT: "Applied Materials", MRVL: "Marvell", VRT: "Vertiv", TLN: "Talen Energy", CCJ: "Cameco", UNH: "UnitedHealth", LMT: "Lockheed Martin", NOC: "Northrop Grumman", RTX: "RTX",
+    GD: "General Dynamics", GE: "GE Aerospace", RKLB: "Rocket Lab", ASTS: "AST SpaceMobile", PL: "Planet Labs", FCX: "Freeport-McMoRan", SCCO: "Southern Copper", NEM: "Newmont",
+    MP: "MP Materials", ALB: "Albemarle", UUUU: "Energy Fuels", USAR: "USA Rare Earth", MA: "Mastercard", AXP: "American Express", PYPL: "PayPal", COIN: "Coinbase", HOOD: "Robinhood", SOFI: "SoFi", XYZ: "Block" };
+  var SLEEVES = { "AI & chips": ["AVGO", "AMD", "MU", "ANET"], "Healthcare innovation": ["NVO", "ISRG", "VRTX", "REGN"], "Energy transition": ["CEG", "GEV", "ETN", "VST"], "Everyday brands": ["COST", "WMT", "KO", "PEP"] };
+  var MODEL = { 1: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AMZN: 12, LLY: 12 }, 2: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AVGO: 12, LLY: 12 } };
+  var THEMES = ["AI & chips", "Healthcare innovation", "Energy transition", "Everyday brands", null];
+  var RISK = [{ n: "Cautious", core: 75, sat: 10, cash: 15 }, { n: "Balanced", core: 75, sat: 18, cash: 7 }, { n: "Adventurous", core: 68, sat: 29, cash: 3 }];
+  var PLACES = ["Jakarta", "Bangkok", "Manila", "Dubai", "Lagos", "Mexico City", "Ho Chi Minh City", "Nairobi", "Kuala Lumpur", "Bogotá"];
+  var FIRST = ["Maya", "Diego", "Aisha", "Arjun", "Lina", "Tomás", "Nadia", "Kofi", "Mei", "Rafael", "Sara", "Omar", "Dewi", "Lucas", "Zara", "Andrés"];
+  var CHANNELS = [{ name: "SPROUT app", kind: "Schroders direct", n: 641 }, { name: "Partner wallet", kind: "Embedded wallet app", n: 360 }, { name: "Partner exchange", kind: "Crypto exchange", n: 240 }];
+  var NEW_PARTNER = { name: "Neobank partner", kind: "Digital bank app", n: 320 };
+  var GLIDER_FEE = 0.003, MGR_FEE = 0.0015, DEPOSIT = 10000;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (id) { return document.getElementById(id); };
+  // ---------- Company marks: brand-colour monograms (not trademarked logos) ----------
+  var MK = { MSFT: ["#0078D4", "#fff", "M"], NVDA: ["#76B900", "#fff", "N"], AAPL: ["#1d1d1f", "#fff", "A"], GOOGL: ["#4285F4", "#fff", "G"], TSM: ["#C8102E", "#fff", "T"],
+    AMZN: ["#FF9900", "#131921", "a"], LLY: ["#D52B1E", "#fff", "L"], AVGO: ["#CC092F", "#fff", "B"], ASML: ["#10069F", "#fff", "AS"], AMD: ["#111", "#fff", "AMD"],
+    PLTR: ["#101113", "#fff", "P"], CRWD: ["#E01F3D", "#fff", "C"], ISRG: ["#0A6DB7", "#fff", "IS"], CEG: ["#00A3E0", "#fff", "CE"], ANET: ["#1F3A68", "#fff", "A"],
+    ABT: ["#0070C0", "#fff", "Ab"], KO: ["#F40009", "#fff", "C"], PEP: ["#004B93", "#fff", "P"], MCD: ["#FFC72C", "#DA291C", "M"], WMT: ["#0071CE", "#FFC220", "W"],
+    COST: ["#E31837", "#fff", "C"], V: ["#1A1F71", "#F7B600", "V"], ABBV: ["#071D49", "#fff", "A"], MRK: ["#00857C", "#fff", "M"], SO: ["#0066B3", "#fff", "S"],
+    MU: ["#2B4C9B", "#fff", "Mu"], NVO: ["#001965", "#fff", "NN"], VRTX: ["#4A2A85", "#fff", "V"], REGN: ["#0E6EB8", "#fff", "R"], GEV: ["#005E60", "#fff", "GE"], ETN: ["#0067B1", "#fff", "E"], VST: ["#3D7A3D", "#fff", "Vi"],
+    META: ["#0866FF", "#fff", "M"], TSLA: ["#CC0000", "#fff", "T"], NFLX: ["#E50914", "#000", "N"], ORCL: ["#C74634", "#fff", "O"], IBM: ["#0F62FE", "#fff", "IBM"], CSCO: ["#049FD9", "#fff", "C"],
+    INTC: ["#0068B5", "#fff", "i"], QCOM: ["#3253DC", "#fff", "Q"], PANW: ["#FA582D", "#fff", "P"], SHOP: ["#5E8E3E", "#fff", "S"], UBER: ["#000", "#fff", "U"], MA: ["#EB001B", "#F79E1B", "M"],
+    AXP: ["#2E77BC", "#fff", "AX"], BAC: ["#012169", "#E31837", "B"], SCHW: ["#00A0DF", "#fff", "S"], PYPL: ["#003087", "#fff", "P"], SBUX: ["#00704A", "#fff", "S"], CMG: ["#A81612", "#fff", "C"],
+    HD: ["#F96302", "#fff", "HD"], NKE: ["#111", "#fff", "N"], DIS: ["#113CCF", "#fff", "D"], PFE: ["#0093D0", "#fff", "P"], UNH: ["#002677", "#fff", "U"], XOM: ["#ED1B2F", "#fff", "X"],
+    CVX: ["#0054A4", "#fff", "C"], BA: ["#0033A0", "#fff", "B"], LMT: ["#00205B", "#fff", "L"], GE: ["#3B73B9", "#fff", "GE"], RTX: ["#D6001C", "#fff", "R"], TM: ["#EB0A1E", "#fff", "T"],
+    ARM: ["#0091BD", "#fff", "A"], MRVL: ["#E31B23", "#fff", "M"], NET: ["#F38020", "#fff", "C"], SPCX: ["#000", "#fff", "X"], GLD: ["#C99A33", "#fff", "Au"], USDT: ["#26A17B", "#fff", "$"] };
+  var CO = { META: "Meta", TSLA: "Tesla", NFLX: "Netflix", ORCL: "Oracle", IBM: "IBM", CSCO: "Cisco", INTC: "Intel", QCOM: "Qualcomm", PANW: "Palo Alto Networks", SHOP: "Shopify", UBER: "Uber",
+    MA: "Mastercard", AXP: "American Express", BAC: "Bank of America", SCHW: "Charles Schwab", PYPL: "PayPal", SBUX: "Starbucks", CMG: "Chipotle", HD: "Home Depot", NKE: "Nike", DIS: "Disney",
+    PFE: "Pfizer", UNH: "UnitedHealth", XOM: "ExxonMobil", CVX: "Chevron", BA: "Boeing", LMT: "Lockheed Martin", GE: "GE Aerospace", RTX: "RTX", TM: "Toyota", ARM: "Arm", MRVL: "Marvell",
+    NET: "Cloudflare", GLD: "Gold", USDT: "Cash", ASML: "ASML", PLTR: "Palantir", CRWD: "CrowdStrike", ABBV: "AbbVie", ABT: "Abbott", MRK: "Merck", SO: "Southern Co.", V: "Visa", MCD: "McDonald's" };
+  function mark(t, cls) { var m = MK[t] || ["#3d5068", "#fff", t.slice(0, 2)]; return '<span class="mk ' + (cls || "") + '" style="background:' + m[0] + ';color:' + m[1] + '" aria-hidden="true">' + m[2] + (t === "USDT" || t === "GLD" ? "" : '<img src="https://assets.parqet.com/logos/symbol/' + t + '?format=png" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.f){this.remove()}else{this.dataset.f=1;this.className=\'fb\';this.src=\'https://financialmodelingprep.com/image-stock/' + t + '.png\'}">') + '</span>'; }
+  function coName(t) { return CO[t] || NAMES[t] || t; }
+  (function () {
+    document.querySelectorAll("[data-marks]").forEach(function (el) { el.innerHTML = el.dataset.marks.split(",").map(function (t) { return '<span>' + mark(t, "xs") + coName(t) + '</span>'; }).join(""); });
+    // Only companies Schroders actually holds: the three core models (before and after their latest decision) and the theme slices investors can add.
+    var row1 = ["MSFT", "NVDA", "AAPL", "GOOGL", "TSM", "AMZN", "AVGO", "ASML", "LLY", "NVO", "ISRG", "AMD", "MU", "ANET", "VRTX", "REGN"],
+      row2 = ["V", "COST", "KO", "PEP", "MCD", "WMT", "ABBV", "MRK", "ABT", "SO", "ETN", "PWR", "GEV", "ENPH", "CEG", "VST"];
+    var fill = function (id, list) { var el = $(id); if (!el) return; var h = list.map(function (t) { return '<span class="co" data-lv-flash="' + t + '">' + mark(t, "lg") + '<span>' + coName(t) + ' <small>' + t + '</small></span><b class="lvq" data-lv-p="' + t + '"></b><span class="lv-c" data-lv-c="' + t + '"></span></span>'; }).join(""); el.innerHTML = '<div class="track">' + h + h + '</div>'; };
+    fill("marq1", row1); fill("marq2", row2);
+    if (window.SproutLive) { SproutLive.watch(row1.concat(row2)); var lh = document.querySelector(".logos-h"); if (lh) lh.insertAdjacentHTML("beforeend", SproutLive.status()); }
+  })();
+
+  var usd = function (v, d) { d = d == null ? 2 : d; return (v < 0 ? "−$" : "$") + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var compact = function (v) { return v >= 995e3 ? "$" + (v / 1e6).toFixed(2) + "m" : v >= 1e3 ? "$" + (v / 1e3).toFixed(1) + "k" : "$" + v.toFixed(0); };
+  var sgn = function (v, d, u) { var s = Math.abs(v).toFixed(d); return (+s === 0 ? "" : v > 0 ? "+" : "−") + s + (u || "%"); };
+  var S = { px: {}, start: {}, units: {}, v: 1, asOf: 0, open: false, fundedOn: "", run: null, fees: 0, last: null };
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+
+  // ---------- Synthetic investors (illustrative) ----------
+  var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  var W = []; // wallets
+  function makeWallet(ch, born) {
+    var r = rnd(), risk = r < 0.3 ? 0 : r < 0.75 ? 1 : 2;
+    var theme = THEMES[Math.floor(rnd() * THEMES.length)];
+    var amt = Math.round(Math.exp(6.2 + rnd() * 2.9)); // roughly $500 to $9k, long tail
+    var avoid = rnd() < 0.22 ? "fossil fuels" : rnd() < 0.1 ? "weapons" : null;
+    var addr = "0x" + Math.floor(rnd() * 0xffff).toString(16).padStart(4, "0") + "…" + Math.floor(rnd() * 0xfff).toString(16).padStart(3, "0");
+    return { ch: ch, risk: risk, theme: theme, amt: amt, avoid: avoid, addr: addr, place: PLACES[Math.floor(rnd() * PLACES.length)],
+      name: FIRST[Math.floor(rnd() * FIRST.length)], off: -1, on: -1, born: born || 0, x: 0, y: 0 };
+  }
+  CHANNELS.forEach(function (c, ci) { for (var i = 0; i < c.n; i++) W.push(makeWallet(ci)); });
+  // Same pilot figures as the manager console: Quality 7 has 1,241 goals holding $1.00m.
+  (function () { var tot = W.reduce(function (s, w) { return s + w.amt; }, 0), k = 1e6 / tot; W.forEach(function (w) { w.amt = Math.max(20, Math.round(w.amt * k)); }); })();
+  function mixOf(w) {
+    var R = RISK[w.risk], core = R.core + (w.theme ? 0 : R.sat), sat = w.theme ? R.sat : 0;
+    return { core: core, sat: sat, cash: R.cash };
+  }
+
+  // ---------- Network canvas ----------
+  var cv = $("net"), ctx = cv.getContext("2d"), G = { w: 0, h: 0, s: 6, bands: [], dpr: 1 }, particles = [], hover = -1;
+  var phase = "idle", t0 = 0, rebalanced = 0, version = 1, runsToday = 174, ranNow = false;
+  function layout() {
+    var rect = cv.getBoundingClientRect(); G.dpr = window.devicePixelRatio || 1;
+    G.w = rect.width; G.h = rect.height; cv.width = G.w * G.dpr; cv.height = G.h * G.dpr; ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
+    var narrow = G.w < 700;
+    G.model = narrow ? { x: G.w * 0.5, y: 34 } : { x: G.w * 0.09, y: G.h * 0.5 };
+    G.glider = narrow ? { x: G.w * 0.5, y: 108 } : { x: G.w * 0.3, y: G.h * 0.5 };
+    var x0 = narrow ? 12 : G.w * 0.44, x1 = G.w - 10, y0 = narrow ? 160 : 14, y1 = G.h - 10, labelH = 18, gap = 10;
+    var chans = CHANNELS.length, areaW = x1 - x0, areaH = y1 - y0 - chans * (labelH + gap);
+    var s = Math.sqrt(areaW * areaH / W.length);
+    for (var k = 0; k < 40; k++) {
+      var cols = Math.max(1, Math.floor(areaW / s)), need = 0;
+      CHANNELS.forEach(function (c, ci) { need += Math.ceil(count(ci) / cols) * s; });
+      if (need <= areaH) break; s *= 0.97;
+    }
+    G.s = s; var cols2 = Math.max(1, Math.floor(areaW / s)), y = y0; G.bands = [];
+    CHANNELS.forEach(function (c, ci) {
+      var list = W.filter(function (w) { return w.ch === ci; }), rows = Math.ceil(list.length / cols2);
+      var band = { ci: ci, x: x0, y: y, label: c.name, top: y + labelH, h: rows * s };
+      list.forEach(function (w, i) { w.x = x0 + (i % cols2) * s + s / 2; w.y = band.top + Math.floor(i / cols2) * s + s / 2; });
+      band.cy = band.top + band.h / 2; G.bands.push(band); y = band.top + band.h + gap;
+    });
+  }
+  function count(ci) { var n = 0; for (var i = 0; i < W.length; i++) if (W[i].ch === ci) n++; return n; }
+  function bez(a, b, t, narrow) {
+    var cx1 = narrow ? a.x : (a.x + b.x) / 2, cy1 = narrow ? (a.y + b.y) / 2 : a.y, cx2 = narrow ? b.x : (a.x + b.x) / 2, cy2 = narrow ? (a.y + b.y) / 2 : b.y;
+    var u = 1 - t; return { x: u*u*u*a.x + 3*u*u*t*cx1 + 3*u*t*t*cx2 + t*t*t*b.x, y: u*u*u*a.y + 3*u*u*t*cy1 + 3*u*t*t*cy2 + t*t*t*b.y };
+  }
+  function curve(a, b, narrow) {
+    ctx.beginPath(); ctx.moveTo(a.x, a.y);
+    if (narrow) ctx.bezierCurveTo(a.x, (a.y + b.y) / 2, b.x, (a.y + b.y) / 2, b.x, b.y);
+    else ctx.bezierCurveTo((a.x + b.x) / 2, a.y, (a.x + b.x) / 2, b.y, b.x, b.y);
+    ctx.stroke();
+  }
+  function bandEntry(b, narrow) { return narrow ? { x: b.x + 40, y: b.y + 8 } : { x: b.x - 6, y: b.cy }; }
+  function spawn(kind) {
+    var b = G.bands[Math.floor(Math.random() * G.bands.length)];
+    particles.push({ seg: 0, t: 0, band: b, kind: kind || "flow", speed: kind === "wave" ? 0.022 : 0.006 + Math.random() * 0.006 });
+  }
+  function draw(now) {
+    var C = { sub: css("--stage-sub"), line: css("--stage-line"), ink: css("--stage-ink"), green: css("--green"), amber: css("--amber"), navy: css("--navy"), blue: css("--blue") };
+    var narrow = G.w < 700;
+    ctx.clearRect(0, 0, G.w, G.h);
+    // links
+    ctx.lineWidth = 1.2; ctx.strokeStyle = C.line;
+    curve(G.model, G.glider, narrow);
+    G.bands.forEach(function (b) { curve(G.glider, bandEntry(b, narrow), narrow); });
+    // particles
+    if (!reduce && Math.random() < (phase === "idle" ? 0.25 : 0.6)) spawn();
+    particles = particles.filter(function (p) {
+      p.t += p.speed * (p.kind === "wave" ? 1.6 : 1);
+      if (p.t >= 1) { if (p.seg === 0) { p.seg = 1; p.t = 0; } else return false; }
+      var pt = p.seg === 0 ? bez(G.model, G.glider, p.t, narrow) : bez(G.glider, bandEntry(p.band, narrow), p.t, narrow);
+      ctx.fillStyle = p.kind === "wave" ? C.amber : p.seg === 0 ? C.blue : C.green;
+      ctx.globalAlpha = p.kind === "wave" ? 1 : 0.7; ctx.beginPath(); ctx.arc(pt.x, pt.y, p.kind === "wave" ? 2.6 : 1.6, 0, 6.29); ctx.fill(); ctx.globalAlpha = 1;
+      return true;
+    });
+    // nodes
+    node(G.model.x, G.model.y, "Schroders", "Quality 7 · v" + version, C.blue, C.ink, narrow);
+    node(G.glider.x, G.glider.y, "Glider", "Rebalancing engine", C.green, C.ink, narrow);
+    // band labels
+    ctx.font = "500 11px Geist, sans-serif"; ctx.fillStyle = C.sub; ctx.textBaseline = "alphabetic";
+    G.bands.forEach(function (b) { ctx.fillText(b.label.toUpperCase() + "  ·  " + count(b.ci).toLocaleString() + " wallets", b.x, b.top - 5); });
+    // wallets
+    var r = Math.max(1.3, G.s * 0.32), done = 0;
+    for (var i = 0; i < W.length; i++) {
+      var w = W[i], col = C.green, a = [0.45, 0.7, 1][w.risk], scale = 1;
+      if (w.born && now < w.born + 900) { var k = Math.max(0, (now - w.born) / 900); a *= k; scale = 0.4 + 0.6 * k; }
+      var isOff = w.off >= 0 && now >= w.off && (w.on < 0 || now < w.on);
+      if (isOff) { col = C.amber; a = 0.95; }
+      if (w.on >= 0 && now >= w.on) { done++; if (now < w.on + 500) { col = C.ink; a = 1; scale = 1.5; } }
+      ctx.globalAlpha = a; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(w.x, w.y, r * scale, 0, 6.29); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (hover >= 0) { var h = W[hover]; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(h.x, h.y, r + 3, 0, 6.29); ctx.stroke(); }
+    if (phase === "running") { rebalanced = done; if (done >= W.length) finishRun(); }
+    renderCounters();
+    requestAnimationFrame(draw);
+  }
+  function node(x, y, title, sub, col, ink, narrow) {
+    var w = narrow ? 170 : 150, h = 46;
+    ctx.fillStyle = col; ctx.globalAlpha = 0.16; roundRect(x - w / 2, y - h / 2, w, h, 12); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = col; ctx.lineWidth = 1.2; roundRect(x - w / 2, y - h / 2, w, h, 12); ctx.stroke();
+    ctx.fillStyle = ink; ctx.textAlign = "center"; ctx.font = "600 13px Geist, sans-serif"; ctx.fillText(title, x, y - 2);
+    ctx.fillStyle = col; ctx.font = "500 11px Geist Mono, monospace"; ctx.fillText(sub, x, y + 13); ctx.textAlign = "left";
+  }
+  function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  // ---------- Story actions ----------
+  function aum() { return W.reduce(function (s, w) { return s + w.amt; }, 0); }
+  function renderCounters() {
+    var dueCount = phase === "due" || phase === "running" ? W.length - rebalanced : 0;
+    $("counters").innerHTML =
+      '<div><span>Quality 7 portfolios</span><b>' + W.length.toLocaleString() + '</b></div>' +
+      '<div><span>Assets following the model</span><b>' + compact(aum()) + '</b></div>' +
+      '<div><span>Distribution partners</span><b>' + CHANNELS.length + '</b></div>' +
+      '<div><span>' + (dueCount ? 'Rebalance due' : ranNow ? 'Rebalanced just now' : 'Rebalanced at the last run') + '</span><b style="color:' + (dueCount ? 'var(--amber)' : 'var(--green)') + '">' + (dueCount ? dueCount.toLocaleString() : runsToday.toLocaleString()) + '</b></div>';
+  }
+  function status(html) { $("status").innerHTML = html; }
+  function publish() {
+    if (phase !== "idle") return;
+    var now = performance.now(); version = 2; phase = "due";
+    for (var i = 0; i < 40; i++) setTimeout(function () { spawn("wave"); }, i * 25);
+    W.forEach(function (w) { var frac = (w.x - G.bands[0].x) / Math.max(1, G.w - G.bands[0].x); w.off = now + (reduce ? 0 : 700 + frac * 900 + Math.random() * 200); w.on = -1; });
+    $("publish").disabled = true; $("runall").disabled = false; if ($("core6")) $("core6").textContent = "Broadcom";
+    S.v = 2; renderWallet(); renderPersonas(); renderReceive(); renderRipple(true);
+    status('<b>Step 1: Schroders decided once.</b> Amazon out, Broadcom in. SPROUT published it through Glider\'s API, and all ' + W.length.toLocaleString() + ' wallets now have a new personal target. Nothing trades until the daily run.');
+  }
+  function runAll() {
+    if (phase !== "due") return;
+    var now = performance.now(); phase = "running"; rebalanced = 0;
+    W.forEach(function (w) { w.on = now + (reduce ? 0 : 300 + Math.random() * 3200); });
+    $("runall").disabled = true;
+    status('<b>Step 2: Glider\'s daily run.</b> Checking every wallet against its own target and trading it back on track, inside the investor\'s own account…');
+  }
+  function finishRun() {
+    phase = "idle"; runsToday = W.length; ranNow = true;
+    var traded = aum() * 0.12, cost = traded * GLIDER_FEE;
+    status('<b>Step 3: ' + W.length.toLocaleString() + ' wallets rebalanced</b>, each in its own account, from one Schroders decision. Trading cost about ' + compact(cost) + ' in total (0.30% of roughly 12% turnover), paid within each portfolio. Schroders\' 0.15% annual fee isn\'t charged here; it accrues daily.');
+    $("publish").disabled = true;
+  }
+  function addPartner() {
+    if (CHANNELS.indexOf(NEW_PARTNER) >= 0) return;
+    CHANNELS.push(NEW_PARTNER); var now = performance.now(), ci = CHANNELS.length - 1;
+    for (var i = 0; i < NEW_PARTNER.n; i++) { var w = makeWallet(ci, now + (reduce ? 0 : Math.random() * 1400)); if (version === 2) { w.off = -1; w.on = -1; } W.push(w); }
+    layout(); $("partner").disabled = true; renderDist();
+    status('<b>Neobank partner onboarded.</b> ' + NEW_PARTNER.n + ' new investors get the same Schroders model through the partner\'s own app. No new fund, no new share class.');
+  }
+  $("publish").addEventListener("click", publish);
+  $("runall").addEventListener("click", runAll);
+  $("partner").addEventListener("click", addPartner);
+
+  // Tooltip + inspect
+  cv.addEventListener("mousemove", function (e) {
+    var rect = cv.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top, best = -1, bd = (G.s * 0.8) * (G.s * 0.8);
+    for (var i = 0; i < W.length; i++) { var dx = W[i].x - x, dy = W[i].y - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+    hover = best;
+    var tip = $("tip");
+    if (best < 0) { tip.hidden = true; return; }
+    var w = W[best], m = mixOf(w);
+    tip.innerHTML = '<div style="display:flex;justify-content:space-between;gap:8px"><b>' + w.name + ' · ' + w.place + '</b><span class="num faint">' + w.addr + '</span></div>' +
+      '<span class="sub">' + CHANNELS[w.ch].name + ' · ' + RISK[w.risk].n + (w.theme ? ' · ' + w.theme : '') + (w.avoid ? ' · no ' + w.avoid : '') + '</span>' +
+      mixbar(m) + '<span class="num">' + usd(w.amt, 0) + '</span>';
+    tip.hidden = false;
+    var tx = Math.min(x + 14, rect.width - 240), ty = y + 14 > rect.height - 120 ? y - 120 : y + 14;
+    tip.style.left = tx + "px"; tip.style.top = ty + "px";
+  });
+  cv.addEventListener("mouseleave", function () { hover = -1; $("tip").hidden = true; });
+
+  function mixbar(m) {
+    return '<div class="mixbar"><span style="width:' + m.core + '%;background:var(--navy)"></span>' + (m.sat ? '<span style="width:' + m.sat + '%;background:var(--blue)"></span>' : '') + '<span style="width:' + m.cash + '%;background:var(--faint)"></span></div>' +
+      '<div class="mixkey"><span><i style="background:var(--navy)"></i>Schroders core ' + m.core + '%</span>' + (m.sat ? '<span><i style="background:var(--blue)"></i>Theme ' + m.sat + '%</span>' : '') + '<span><i style="background:var(--faint)"></i>Cash ' + m.cash + '%</span></div>';
+  }
+
+  // ---------- Personas ----------
+  var PERSONAS = [
+    { name: "Maya", age: 27, place: "Jakarta", ch: "Partner wallet", risk: 2, theme: "AI & chips", avoid: null, amt: 1200, color: "#4f6fd6", note: "First investment. Funds from her wallet in USDT." },
+    { name: "Diego", age: 34, place: "Mexico City", ch: "Partner exchange", risk: 1, theme: "Energy transition", avoid: "fossil fuels", amt: 4800, color: "#12824f", note: "Moves part of his crypto into global shares." },
+    { name: "Aisha", age: 41, place: "Dubai", ch: "SPROUT app", risk: 0, theme: "Healthcare innovation", avoid: "weapons", amt: 15000, color: "#1f2f6b", note: "Wants steady growth and her values reflected." },
+    { name: "Kofi", age: 30, place: "Lagos", ch: "Neobank partner", risk: 1, theme: null, avoid: null, amt: 650, color: "#c08317", note: "Invests $100 a month from his banking app." }
+  ];
+  function renderQ7() {
+    var el = $("q7"); if (!el) return; var m = MODEL[S.v];
+    el.innerHTML = Object.keys(m).map(function (t) { return '<span>' + mark(t, "xs") + NAMES[t] + ' <b>' + m[t] + '%</b></span>'; }).join("");
+  }
+  function renderPersonas() {
+    renderQ7(); if (!$("personas")) return;
+    $("personas").innerHTML = PERSONAS.map(function (p) {
+      var m = mixOf(p), coreNames = Object.keys(MODEL[S.v]).map(function (t) { return NAMES[t]; });
+      return '<div class="card persona"><div class="who"><span class="avatar" style="background:' + p.color + '">' + p.name[0] + '</span><div><b>' + p.name + ', ' + p.age + '</b><span>' + p.place + ' · via ' + p.ch + '</span></div></div>' +
+        '<div class="pval">' + usd(p.amt, 0) + '</div>' +
+        '<div class="facts"><span class="fact">' + RISK[p.risk].n + '</span>' + (p.theme ? '<span class="fact">+ ' + p.theme + '</span>' : '<span class="fact">Core only</span>') + (p.avoid ? '<span class="fact">No ' + p.avoid + '</span>' : '') + '</div>' +
+        mixbar(m) + '<p class="sub" style="font-size:.84rem">' + p.note + '</p>' +
+        '<span class="faint" style="font-size:.74rem">Core: ' + coreNames.slice(0, 4).join(", ") + ' +' + (coreNames.length - 4) + ' more</span></div>';
+    }).join("");
+  }
+
+  // ---------- Live wallet (real prices) ----------
+  var price = function (t) { return (S.px[t] && S.px[t].price) || 0; };
+  function position() {
+    var tg = MODEL[S.v], syms = Array.from(new Set(Object.keys(tg).concat(Object.keys(S.units)))), total = 0;
+    var rows = syms.map(function (t) { var v = (S.units[t] || 0) * price(t); total += v; return { t: t, v: v, tw: tg[t] || 0 }; });
+    rows.forEach(function (r) { r.cw = total ? r.v / total * 100 : 0; r.d = r.cw - r.tw; });
+    rows.sort(function (a, b) { return b.tw - a.tw || b.cw - a.cw; });
+    return { rows: rows, total: total, drift: rows.reduce(function (s, r) { return s + Math.abs(r.d); }, 0) / 2 };
+  }
+  function plan() {
+    var p = position(), trades = p.rows.map(function (r) { return { t: r.t, d: p.total * r.tw / 100 - r.v }; }).filter(function (x) { return Math.abs(x.d) >= 5; }).sort(function (a, b) { return a.d - b.d; });
+    return { trades: trades, fee: trades.filter(function (x) { return x.d > 0; }).reduce(function (s, x) { return s + x.d; }, 0) * GLIDER_FEE };
+  }
+  function nextRun() { var n = new Date(); n.setUTCHours(14, 0, 0, 0); if (n <= new Date()) n.setUTCDate(n.getUTCDate() + 1); var ms = n - new Date(); return Math.floor(ms / 3.6e6) + "h " + Math.floor(ms % 3.6e6 / 6e4) + "m"; }
+  function renderWallet() {
+    if (!S.asOf || !$("walletview")) return;
+    var p = position(), chg = p.total - DEPOSIT, pl = plan(), run = S.run;
+    var steps = ["Daily run starts: check the wallet against the target", "Glider's agent signs with the investor's approved key", "Swaps on-chain (BNB Chain or Base): sells first, then buys", "Shares settle back in the investor's wallet"];
+    $("walletview").innerHTML =
+      '<div class="card"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline"><h3>Allocation</h3><span class="faint" style="font-size:.76rem">Bar = current · navy mark = Schroders target</span></div>' +
+      '<div class="tw"><table><thead><tr><th>Asset</th><th class="r">Live price</th><th>Current / target</th><th class="r">Drift</th><th class="r">Value</th></tr></thead><tbody>' +
+      p.rows.map(function (r) {
+        var q = S.px[r.t] || {}, day = q.prevClose ? (q.price / q.prevClose - 1) * 100 : 0, off = Math.abs(r.d) > 0.5;
+        return '<tr><td><div class="asset"><span class="tk">' + r.t.slice(0, 4) + '</span><div><b>' + NAMES[r.t] + '</b><span>' + r.t + 'on</span></div></div></td>' +
+          '<td class="r"><span class="num">' + usd(price(r.t)) + '</span><div class="d ' + (day >= 0 ? 'up' : 'down') + '">' + sgn(day, 2) + '</div></td>' +
+          '<td><div class="alloc"><div class="bar"><span class="' + (off ? 'off' : '') + '" style="width:' + Math.min(r.cw / 25 * 100, 100) + '%"></span>' + (r.tw ? '<em style="left:calc(' + Math.min(r.tw / 25 * 100, 100) + '% - 1px)"></em>' : '') + '</div><small><span>' + r.cw.toFixed(2) + '%</span><b>' + (r.tw ? r.tw + '%' : 'exit') + '</b></small></div></td>' +
+          '<td class="r d" style="color:' + (off ? (r.d > 0 ? 'var(--amber)' : 'var(--navy)') : 'var(--faint)') + '">' + sgn(r.d, 2, "pp") + '</td><td class="r num">' + usd(r.v) + '</td></tr>';
+      }).join("") + '</tbody></table></div></div>' +
+      '<div style="display:grid;gap:18px"><div class="card"><div style="display:flex;justify-content:space-between"><h3>Position</h3><span class="faint" style="font-size:.76rem">Mock funds</span></div>' +
+      '<div><div class="big">' + usd(p.total) + '</div><span class="num ' + (chg >= 0 ? 'up' : 'down') + '">' + sgn(chg, 2, "").replace(/^([+−])/, "$1$") + ' (' + sgn(chg / DEPOSIT * 100, 2) + ')</span> <span class="sub">since ' + S.fundedOn + '</span></div>' +
+      '<dl class="kv"><div><dt>Held in</dt><dd>Investor\'s wallet · 0x7a3…e91</dd></div><div><dt>Fees to date</dt><dd>' + usd(S.fees) + '</dd></div></dl></div>' +
+      '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Autopilot</h3><span class="badge green"><i></i>On · daily</span></div>' +
+      '<div style="display:grid;gap:6px"><div style="display:flex;justify-content:space-between"><span class="sub">Off target</span><b class="num">' + p.drift.toFixed(2) + '%</b></div><div class="meter"><span style="width:' + Math.min(p.drift / 4 * 100, 100) + '%"></span></div></div>' +
+      (run ? '<ol style="list-style:none;margin:0;padding:0;display:grid;gap:8px">' + steps.map(function (s, i) { var c = run.stage > i ? "var(--ink)" : run.stage === i ? "var(--ink)" : "var(--faint)"; return '<li style="color:' + c + ';font-size:.86rem">' + (run.stage > i ? '<span class="up">✓</span> ' : run.stage === i ? '<span style="color:var(--amber)">●</span> ' : '○ ') + s + '</li>'; }).join("") + '</ol>' :
+        '<dl class="kv"><div><dt>Next automatic run</dt><dd>in ' + nextRun() + '</dd></div><div><dt>Trades it will make</dt><dd>' + pl.trades.length + ' · fee ' + usd(pl.fee) + '</dd></div>' + (S.last ? '<div><dt>Last run</dt><dd>' + S.last.trades.length + ' swaps · ' + usd(S.last.fee) + '</dd></div>' : '') + '</dl>') +
+      '<button type="button" class="btn" id="walletrun"' + (run || p.drift < 0.05 ? ' disabled' : '') + '>Fast-forward to the daily run</button></div></div>';
+    var b = $("walletrun"); if (b) b.onclick = runWallet;
+  }
+  function runWallet() {
+    var pl = plan(), w = function (ms) { return new Promise(function (r) { setTimeout(r, reduce ? 0 : ms); }); };
+    S.run = { stage: 0 }; renderWallet();
+    w(700).then(function () { S.run.stage = 1; renderWallet(); return w(800); }).then(function () { S.run.stage = 2; renderWallet(); return w(1100); })
+      .then(function () { var total = position().total - pl.fee, tg = MODEL[S.v]; S.units = {}; Object.keys(tg).forEach(function (t) { S.units[t] = total * tg[t] / 100 / price(t); }); S.fees += pl.fee; S.run.stage = 4; renderWallet(); return w(500); })
+      .then(function () { S.last = pl; S.run = null; renderWallet(); });
+  }
+  function renderLive() { var s = Math.max(0, Math.round(Date.now() / 1000 - S.asOf)); $("live").innerHTML = '<i></i>Live · ' + (window.SproutLive && S.session ? SproutLive.label(S.session) : S.open ? "US market open" : "US market closed") + ' · ' + (s < 3 ? "just now" : s + "s ago"); $("live").title = window.SproutLive ? SproutLive.note(S.session) : ""; }
+  function load(first) {
+    return fetch("/api/prices?symbols=" + Object.keys(NAMES).join(",")).then(function (r) { return r.json(); }).then(function (j) {
+      S.open = false;
+      Object.keys(j.prices).forEach(function (t) { var p = j.prices[t]; if (!p.price) return; S.px[t] = p; S.open = S.open || p.marketOpen; if (p.session) S.session = p.session; if (first && p.closes && p.closes.length) S.start[t] = p.closes[0].c; });
+      S.asOf = j.asOf;
+      if (first) {
+        var cl = S.px.MSFT && S.px.MSFT.closes; S.fundedOn = cl && cl.length ? new Date(cl[0].t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "last month";
+        Object.keys(MODEL[1]).forEach(function (t) { S.units[t] = DEPOSIT * MODEL[1][t] / 100 / (S.start[t] || price(t)); });
+        $("foot").textContent = document.documentElement.dataset.view === "site" ? "SPROUT is in pilot. Example portfolios, investor numbers and team commentary are illustrative; share prices are live and may be delayed. Not investment advice." : "Demo. Wallets, investors, partners and distribution figures are illustrative. The example wallet uses mock funds and live quotes of the underlying US shares (Yahoo Finance, may be delayed), funded at closing prices on " + S.fundedOn + "; Ondo and Coinbase tokenised shares are designed to track them 1:1. Rebalancing is simulated; the asset universe and strategy rules are verified on Glider's live API. Glider platform figures and Bitwise Mag7X figures are live from Glider's API. Tokenised shares are offered to eligible non-US investors only. Not investment advice.";
+      }
+      renderLive(); if (!S.run) renderWallet(); renderReceive(); renderHero(); renderUtil(false);
+    });
+  }
+
+
+
+
+  // ---------- Active management: one decision, every personal portfolio ----------
+  var RP = { phase: "idle" };
+  var RINV = [{ n: "Maya", place: "Jakarta", risk: 1, theme: "AI & chips", amt: 1000, c: "#2d55b2" }, { n: "Diego", place: "Mexico City", risk: 0, theme: null, amt: 250, c: "#0a7d4f" }, { n: "Aisha", place: "Dubai", risk: 2, theme: "Energy transition", amt: 5000, c: "#a86a0b" }];
+  function rw(inv, ver, t) { var R = RISK[inv.risk], core = R.core + (inv.theme ? 0 : R.sat), sat = inv.theme ? R.sat : 0;
+    return core * (MODEL[ver][t] || 0) / 100 + (inv.theme && SLEEVES[inv.theme].indexOf(t) >= 0 ? sat / SLEEVES[inv.theme].length : 0); }
+  function renderRipple(published) {
+    var el = $("ripple"); if (!el) return;
+    if (published && RP.phase === "idle") RP.phase = "due";
+    var ph = RP.phase, st = function (k) { return ph === "idle" ? 0 : ph === "due" ? (k < 2 ? 2 : 0) : ph === "running" ? (k < 3 ? 2 : 1) : 2; };
+    var dec = '<div class="rdec"><div class="who"><i>S</i><span>Global Quality Equity team</span></div><span class="vtag">Schroders Quality 7 · model v2 · Oct 2026</span>' +
+      '<h3>Amazon out, Broadcom in</h3><p>We prefer Broadcom\'s direct exposure to custom AI chips and networking. We keep the AI theme through Microsoft and Alphabet.</p>' +
+      '<ol class="rsteps">' + ["Schroders decides", "Published to every portfolio", "Glider rebalances each wallet"].map(function (x, k) { var d = st(k); return '<li class="' + (d === 2 ? "done" : "") + '"><i>' + (d === 2 ? "✓" : k + 1) + '</i><span>' + (k === 2 && ph === "running" ? "<b>Rebalancing now…</b>" : x) + '</span></li>'; }).join("") + '</ol>' +
+      (ph === "idle" ? '<button type="button" class="btn light" data-rp="pub">Publish the decision</button>' : ph === "due" ? '<button type="button" class="btn light" data-rp="run">Run tonight\'s rebalance</button>' : ph === "running" ? '<button type="button" class="btn light" disabled>Rebalancing…</button>' : '<button type="button" class="btn dark" data-rp="reset">Replay</button>') + '</div>';
+    var cards = RINV.map(function (inv, i) {
+      var done = ph === "done" || (ph === "running" && RP.doneN > i), due = !done && ph !== "idle";
+      var rows = ["AMZN", "AVGO"].map(function (t) { var a = rw(inv, 1, t), b = rw(inv, 2, t), d = inv.amt * (b - a) / 100;
+        return '<div><span>' + mark(t, "xs") + NAMES[t] + (inv.theme && SLEEVES[inv.theme].indexOf(t) >= 0 ? ' <span class="faint" style="font-weight:400">· also in her sleeve</span>' : "") + '</span><span class="w">' + a.toFixed(1) + '% → <b>' + b.toFixed(1) + '%</b></span><span class="amt ' + (d < 0 ? "s" : "b") + '">' + (ph === "idle" ? "" : (d < 0 ? "Sell " : "Buy ") + usd(Math.abs(d))) + '</span></div>'; }).join("");
+      var buys = ["AMZN", "AVGO"].reduce(function (s, t) { var d = inv.amt * (rw(inv, 2, t) - rw(inv, 1, t)) / 100; return s + (d > 0 ? d : 0); }, 0);
+      return '<div class="rcard ' + (done ? "done" : due ? "due" : "") + '"><div class="rh"><span class="rav" style="background:' + inv.c + '">' + inv.n[0] + '</span><div><b>' + inv.n + ' · ' + usd(inv.amt, 0) + '</b><span>' + inv.place + '</span></div></div>' +
+        '<div class="chips"><span>' + RISK[inv.risk].n + '</span><span>' + (inv.theme ? "+ " + inv.theme + " sleeve" : "Core only") + '</span><span>' + RISK[inv.risk].cash + '% cash</span></div>' +
+        '<div class="rchg">' + rows + '</div><span class="faint" style="font-size:.74rem">Everything else in ' + (inv.n === "Diego" ? "his" : "her") + ' portfolio stays as it is.</span>' +
+        '<span class="rs ' + (done ? "done" : due ? "due" : "idle") + '"><i></i>' + (done ? "Rebalanced in " + (inv.n === "Diego" ? "his" : "her") + " own wallet · fee " + usd(buys * GLIDER_FEE) : due ? "Rebalance due at tonight's run" : "Holds the current model") + '</span></div>';
+    }).join("");
+    el.innerHTML = dec + '<div style="display:grid;gap:10px"><div class="rinv">' + cards + '</div><p class="rfoot">Three of thousands. Each investor has a different mix, so the same decision means different trades in each wallet. Each one is rebalanced automatically at the next daily run. <a class="link" href="#scale">See it at scale →</a></p></div>';
+  }
+  if ($("ripple")) {
+    renderRipple(false);
+    $("ripple").addEventListener("click", function (e) { var b = e.target.closest("[data-rp]"); if (!b) return; var a = b.dataset.rp;
+      if (a === "pub") { RP.phase = "due"; renderRipple(); }
+      else if (a === "run") { RP.phase = "running"; RP.doneN = 0; renderRipple(); var k = 0, tick = function () { k++; RP.doneN = k; if (k >= RINV.length) { RP.phase = "done"; } renderRipple(); if (k < RINV.length) setTimeout(tick, reduce ? 0 : 700); }; setTimeout(tick, reduce ? 0 : 800); }
+      else { RP.phase = "idle"; renderRipple(); } });
+  }
+
+  // ---------- What tokenisation unlocks ----------
+  var UT = { i: 0, timer: null, user: false };
+  function slices(on) { var h = ""; for (var k = 0; k < 100; k++) h += '<i class="' + (k < on ? "on" : "") + '"></i>'; return '<div class="fr" aria-hidden="true">' + h + '</div>'; }
+  var UTIL = [
+    { k: "Fractional", s: "Any amount, any share",
+      met: function () { var p = S.px.NVDA && S.px.NVDA.price; return p ? [(5 / p).toFixed(4), "Nvidia shares for $5, at " + usd(p) + " live"] : ["$5", "buys a slice of any share"]; },
+      h: "Own a slice of any company, from $5",
+      old: "Shares trade in whole units. Where brokers offer fractions, they exist only in the broker's own books and usually can't be moved out.",
+      nu: "Each token divides to 18 decimal places. A slice is a real holding the investor can keep, move or sell.",
+      viz: function () { var p = S.px.NVDA && S.px.NVDA.price; var pct = p ? 500 / p : 2; return slices(Math.max(1, Math.round(pct))) + '<p class="ucav" style="margin-top:8px">One Nvidia share, in 100 slices of ' + (p ? usd(p / 100) : "1%") + ' each. $5 buys ' + pct.toFixed(1) + '% of a share, and the investor owns exactly that.</p>'; },
+      inv: "A $100 portfolio still holds every company at Schroders' exact weights. Nothing is rounded away.",
+      sch: "Schroders' full model reaches investors with small amounts: a market that fund minimums and platform economics don't serve." },
+    { k: "Always on", s: "Moves outside market hours",
+      met: function () { return ["24/7", "transfers, every day of the year"]; },
+      h: "Holdings move at any hour",
+      old: "Trading follows exchange hours. Moving shares between brokers takes days of paperwork.",
+      nu: "Tokens transfer between wallets 24/7. Ondo issues and redeems tokens 24 hours a day, five days a week, alongside US market sessions.",
+      viz: function () { return '<div class="clock" aria-hidden="true"><span>Listed share</span><div class="bar"><i style="left:60.4%;width:27.1%"></i></div><span>Token transfer</span><div class="bar"><i style="left:0;width:100%"></i></div><span>Ondo issue / redeem</span><div class="bar"><i class="g" style="left:0;width:100%"></i></div></div><p class="ucav" style="margin-top:8px">One weekday, in UK time. Coinbase tokens also trade on Base around the clock; weekend prices come from onchain markets only.</p>'; },
+      inv: "An investor in Jakarta or Lagos can fund, check or move their portfolio in their own evening, not New York's.",
+      sch: "A global, mobile audience without an operations desk working to every time zone." },
+    { k: "Instant settlement", s: "Seconds, not T+1",
+      met: function () { return ["~3s", "BNB Chain block time"]; },
+      h: "Trades settle the moment they happen",
+      old: "Listed trades settle the next business day (T+1), through brokers, custodians and a central depository.",
+      nu: "The trade and the settlement are the same step. Cash and shares swap in one transaction, in seconds.",
+      viz: function () { return '<div class="chain" aria-hidden="true"><span>Trade</span><em>→</em><span class="x">Broker</span><em>→</em><span class="x">Clearing</span><em>→</em><span class="x">Custodian</span><em>→</em><span class="me">Settled in your wallet</span></div>'; },
+      inv: "A rebalance is complete as soon as it runs. Nothing is left in transit, and nothing is owed.",
+      sch: "No settlement fails, no reconciliation between parties. Daily rebalancing becomes cheap enough to run for every wallet." },
+    { k: "Direct ownership", s: "In the investor's own wallet",
+      met: function () { return ["1:1", "each token backed by a real share"]; },
+      h: "The investor holds it, not a platform",
+      old: "Investors hold units of a fund, or a claim through a platform's nominee account. Their name isn't on the register.",
+      nu: "The token sits in the investor's own wallet, backed 1:1 by a share the issuer holds with a regulated custodian. Neither Schroders nor Glider can move it.",
+      viz: function () { return '<div class="chain" aria-hidden="true"><span class="x">Platform</span><em>·</em><span class="x">Nominee</span><em>·</em><span class="x">Fund wrapper</span><em>→</em><span class="me">Investor\'s wallet</span><em>←</em><span>Ondo or Coinbase holds the share 1:1</span></div>'; },
+      inv: "They can see each holding in their own wallet, and withdraw the shares themselves at any time.",
+      sch: "Schroders' strategy, without having to build a fund, a platform or a custody arrangement for each market." },
+    { k: "Programmable", s: "Rules that run themselves",
+      met: function () { return ["Daily", "automatic rebalance, every wallet"]; },
+      h: "The portfolio follows Schroders' rules by itself",
+      old: "Rebalancing needs a fund administrator or a person sending instructions to a broker. Most individuals never do it.",
+      nu: "Rules are code. Glider checks every wallet daily and trades only what's needed to get back to Schroders' weights, within set guardrails.",
+      viz: function () { return '<div class="rules" aria-hidden="true"><code>schedule: daily</code><code>target: Schroders model v2</code><code>trade if drift ≥ $5</code><code>max slippage: 1%</code><code>custody: investor</code></div>'; },
+      inv: "Set it once and do nothing. The discipline of a managed portfolio, without having to act.",
+      sch: "One model update reaches every investor's wallet at the next daily run, with no operations team in between." },
+    { k: "Portable", s: "Moves without selling",
+      met: function () { return ["In kind", "move shares, not cash"]; },
+      h: "Take the shares anywhere, without selling",
+      old: "Changing provider usually means selling and buying back, or a slow transfer. Either way, investors lose time in the market.",
+      nu: "Tokens move in kind to any wallet or app the investor chooses. The same holdings can be put to work elsewhere.",
+      viz: function () { return '<div class="chain" aria-hidden="true"><span class="me">SPROUT portfolio</span><em>→ in kind →</em><span>Another wallet</span><em>·</em><span>Another app</span><em>·</em><span>Future: collateral, payments</span></div>'; },
+      inv: "No lock-in. Withdrawing doesn't force a sale.",
+      sch: "Schroders earns its place through the quality of the strategy, not through switching friction. Its models can also sit inside partner apps." },
+    { k: "Transparent", s: "Verifiable by anyone",
+      met: function () { return ["Public", "every holding and trade onchain"]; },
+      h: "Every holding and trade can be checked",
+      old: "Investors see a monthly statement. Fund holdings are disclosed with a delay, often quarterly.",
+      nu: "Holdings and trades are recorded onchain and can be checked on a public explorer at any moment.",
+      viz: function () { var a = ADDR.NVDA; return '<p style="margin:0;font-size:.9rem">' + (a ? 'Nvidia (Ondo) token on BNB Chain: <a class="link" target="_blank" rel="noopener" href="https://bscscan.com/token/' + a + '">' + a.slice(0, 8) + "…" + a.slice(-6) + ' on BscScan ↗</a>' : "Token contracts are public on BscScan and BaseScan.") + '</p>'; },
+      inv: "Trust that doesn't depend on a statement: they can check it themselves.",
+      sch: "A clear record of every model change and trade, useful for oversight, reporting and showing investors the strategy at work." }
+  ];
+  function utTabs() {
+    $("utabs").innerHTML = UTIL.map(function (u, i) { return '<button type="button" role="tab" data-ut="' + i + '" aria-selected="' + (i === UT.i) + '"><em>0' + (i + 1) + '</em><b>' + u.k + '</b><small>' + u.s + '</small><span class="tm' + (!UT.user && !reduce ? " run" : "") + '"></span></button>'; }).join("");
+  }
+  function renderUtil(swap) {
+    if (!$("ustage")) return;
+    var u = UTIL[UT.i], m = u.met(), st = $("ustage");
+    st.innerHTML = '<div class="uhead"><h3>' + u.h + '</h3><div class="umet"><b>' + m[0] + '</b><span>' + m[1] + '</span></div></div>' +
+      '<div class="uvs"><div class="old"><label>A share today</label><p>' + u.old + '</p></div><div class="arr" aria-hidden="true">→</div><div class="new"><label>As a tokenised share</label><p>' + u.nu + '</p></div></div>' +
+      '<div class="uviz">' + u.viz() + '</div>' +
+      '<div class="uuse"><div><span>What it means for you</span><p>' + u.inv + '</p></div><div class="sch" data-aud="brief"><span>Why it matters for Schroders</span><p>' + u.sch + '</p></div></div>';
+    if (swap) { st.classList.remove("swap"); void st.offsetWidth; st.classList.add("swap"); }
+  }
+  function utGo(i, user) { UT.i = (i + UTIL.length) % UTIL.length; if (user) { UT.user = true; clearInterval(UT.timer); } utTabs(); renderUtil(true); }
+  if ($("utabs")) {
+    utTabs(); renderUtil(false);
+    $("utabs").addEventListener("click", function (e) { var b = e.target.closest("[data-ut]"); if (b) utGo(+b.dataset.ut, true); });
+    $("utabs").addEventListener("keydown", function (e) { if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); utGo(UT.i + 1, true); $("utabs").children[UT.i].focus(); } if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); utGo(UT.i - 1, true); $("utabs").children[UT.i].focus(); } });
+    if (!reduce && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (en) { clearInterval(UT.timer); if (en.isIntersecting && !UT.user) UT.timer = setInterval(function () { utGo(UT.i + 1, false); }, 7000); }); }, { threshold: 0.4 }).observe($("utility"));
+    }
+  }
+
+  // ---------- What you receive ----------
+  var RC = { amt: 1000, risk: 1, theme: "AI & chips" }, ADDR = {};
+  fetch("/api/assets").then(function (r) { return r.json(); }).then(function (list) {
+    list.forEach(function (a) { if (a.chain_id === 56) { ADDR[a.symbol] = a.caip_id.split(":").pop(); CAIP[a.symbol] = a.caip_id; } }); renderReceive();
+  }).catch(function () {});
+  function opts(id, vals, cur, key) {
+    $(id).innerHTML = vals.map(function (v) { var lab = v[1], val = v[0]; return '<button type="button" class="opt" data-rc="' + key + '" data-val="' + val + '" aria-pressed="' + (String(cur) === String(val)) + '">' + lab + '</button>'; }).join(" ");
+  }
+  function receiveAlloc() {
+    var R = RISK[RC.risk], hasT = RC.theme !== "none", core = R.core + (hasT ? 0 : R.sat), sat = hasT ? R.sat : 0, cash = R.cash;
+    var net = RC.amt * (1 - (core + sat) / 100 * GLIDER_FEE), items = {}, model = MODEL[S.v], tot = 0;
+    Object.keys(model).forEach(function (t) { tot += model[t]; });
+    Object.keys(model).forEach(function (t) { items[t] = { t: t, core: net * core / 100 * model[t] / tot, sat: 0 }; });
+    if (hasT) SLEEVES[RC.theme].forEach(function (t) { items[t] = items[t] || { t: t, core: 0, sat: 0 }; items[t].sat += net * sat / 100 / SLEEVES[RC.theme].length; });
+    items.USDT = { t: "USDT", core: 0, sat: 0, cash: net * cash / 100 };
+    return { core: core, sat: sat, cash: cash, net: net, list: Object.keys(items).map(function (k) { var x = items[k]; x.v = x.core + x.sat + (x.cash || 0); return x; }).sort(function (a, b) { return (b.core > 0) - (a.core > 0) || (a.t === "USDT") - (b.t === "USDT") || b.v - a.v; }) };
+  }
+  // ---------- Compose your portfolio (same composition rule as the app) ----------
+  var CX_STRATS = [
+    { id: "quality", purpose: "Growth", name: "Schroders Quality 7", short: "Quality 7", team: "Global Quality Equity", dec: "Amazon out, Broadcom in", v1: MODEL[1], v2: MODEL[2] },
+    { id: "income", purpose: "Income", name: "Schroders Global Income", short: "Global Income", team: "Global Equity Income", dec: "Merck out, Abbott in", v1: { KO: 12, PEP: 10, MCD: 10, WMT: 10, COST: 8, V: 8, ABBV: 10, MRK: 8, SO: 8, GLD: 6, USDT: 10 } },
+    { id: "sustain", purpose: "Sustainable", name: "Schroders Sustainable Leaders", short: "Sustainable Leaders", team: "Global Sustainable Equity", dec: "Enphase out, GE Vernova in", v1: { MSFT: 14, ASML: 12, ETN: 12, ISRG: 10, NVO: 10, V: 10, COST: 10, PWR: 8, ABT: 8, ENPH: 6 } },
+    { id: "t-ai", theme: true, purpose: "Theme", name: "Schroders AI & Semiconductors", short: "AI & Semiconductors", team: "Thematic Equity", dec: "Marvell added for custom AI chips", hook: "The chips behind the AI boom", v1: { NVDA: 16, AVGO: 14, TSM: 14, ASML: 12, AMD: 10, AMAT: 10, MU: 8, ANET: 8, MRVL: 8 } },
+    { id: "t-power", theme: true, purpose: "Theme", name: "Schroders Power for the AI Era", short: "Power for the AI Era", team: "Thematic Equity", dec: "Talen added for nuclear supply to data centres", hook: "Electricity is AI's next bottleneck", v1: { CEG: 16, VST: 14, GEV: 14, ETN: 12, VRT: 12, PWR: 12, TLN: 10, CCJ: 10 } },
+    { id: "t-health", theme: true, purpose: "Theme", name: "Schroders Healthcare Innovation", short: "Healthcare Innovation", team: "Thematic Equity", dec: "Vertex raised on new approvals", hook: "New medicines, robotic surgery", v1: { LLY: 18, NVO: 14, ISRG: 14, VRTX: 14, REGN: 12, ABT: 10, ABBV: 10, UNH: 8 } },
+    { id: "t-space", theme: true, purpose: "Theme", name: "Schroders Defence & Space", short: "Defence & Space", team: "Thematic Equity", dec: "Planet Labs added for earth data", hook: "Rockets, satellites, security", v1: { LMT: 16, NOC: 14, RTX: 14, GD: 12, GE: 12, RKLB: 12, ASTS: 10, PL: 10 } },
+    { id: "t-minerals", theme: true, purpose: "Theme", name: "Schroders Critical Minerals", short: "Critical Minerals", team: "Thematic Equity", dec: "USA Rare Earth added for magnet supply", hook: "Copper, lithium, rare earths", v1: { FCX: 18, SCCO: 14, NEM: 14, MP: 14, ALB: 12, CCJ: 10, USAR: 10, UUUU: 8 } },
+    { id: "t-fin", theme: true, purpose: "Theme", name: "Schroders Digital Finance", short: "Digital Finance", team: "Thematic Equity", dec: "Robinhood raised as retail trading grows", hook: "How money moves next", v1: { V: 16, MA: 16, AXP: 12, PYPL: 12, COIN: 12, HOOD: 12, SOFI: 10, XYZ: 10 } }];
+  var CAIP = {}; // symbol -> Glider asset id (BNB Chain), filled from /api/assets
+  var PROMISE = { quality: "Seven global leaders with durable earnings, weighted by Schroders' conviction.", income: "Dependable dividend payers with gold and cash for a steadier ride.", sustain: "Companies leading the shift to cleaner energy, healthier lives and fairer finance." };
+  function renderReceive() {
+    if (!$("rg-core")) return;
+    $("rg-core").innerHTML = CX_STRATS.filter(function (x) { return !x.theme; }).map(function (x) {
+      var b = x.id === "quality" && S.v === 2 ? x.v2 : x.v1, syms = Object.keys(b).filter(function (t) { return t !== "USDT" && t !== "GLD"; }).slice(0, 6);
+      var dec = x.id === "quality" && S.v !== 2 ? "Latest review: no change needed" : x.dec;
+      return '<a class="rg-card ' + x.id + '" href="/app?strategy=' + x.id + '"><span class="k">' + x.purpose + '</span><h3>' + x.name + '</h3><p>' + PROMISE[x.id] + '</p><span class="lg">' + syms.map(function (t) { return mark(t); }).join("") + '</span>' +
+        '<span class="meta"><span>Managed by <b>' + x.team + '</b></span><span>Latest: <b>' + dec + '</b></span></span><span class="go">Start with this →</span></a>';
+    }).join("");
+    var THEME_AC = { "t-ai": "#7f9bef", "t-power": "#e5b25b", "t-health": "#5fd49b", "t-space": "#9fb6d1", "t-minerals": "#d98b5f", "t-fin": "#7cc4f5" };
+    $("rg-themes").innerHTML = CX_STRATS.filter(function (x) { return x.theme; }).map(function (x) {
+      var ks = Object.keys(x.v1);
+      return '<div class="rg-th" style="--ac:' + (THEME_AC[x.id] || "#7cc4f5") + '"><small>' + x.hook + '</small><b>' + x.short + '</b><div class="rg-th-f"><span class="lg">' + ks.slice(0, 5).map(function (t) { return mark(t); }).join("") + '</span><span class="rg-n">' + ks.length + ' companies</span></div></div>';
+    }).join("");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-rc]"); if (!b) return;
+    var k = b.dataset.rc, v = b.dataset.val; RC[k] = k === "theme" ? v : +v; renderReceive();
+  });
+
+
+  // ---------- Live Glider data (read-only, via our server) ----------
+  function loadLive() {
+    return fetch("/api/glider/live").then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.connected) { $("liveas").textContent = d.message || "Glider not connected"; return; }
+      var b = d.bitwise || {}, t = new Date(d.asOf * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      $("liveas").textContent = "Updated " + t + " · read live through Schroders' own API access";
+      $("livegrid").innerHTML =
+        '<div><span>Bitwise Mag7X wallets</span><b>' + (b.portfolios || 0).toLocaleString() + '</b><small>An asset manager\'s model, live</small></div>' +
+        '<div><span>Bitwise Mag7X assets</span><b>' + compact(b.tvlUsd || 0) + '</b><small>In investors\' own wallets</small></div>' +
+        '<div><span>Public strategies on Glider</span><b>' + d.publicStrategies + '</b><small>Across ' + d.publicPortfolios.toLocaleString() + ' portfolios</small></div>' +
+        '<div><span>Assets in public strategies</span><b>' + compact(d.publicTvlUsd) + '</b><small>Live total</small></div>';
+      if (b.portfolios) $("benchline").textContent = "Illustrative network. Real benchmark, live: Bitwise Mag7X has " + b.portfolios.toLocaleString() + " wallets and " + compact(b.tvlUsd) + " on Glider today.";
+    }).catch(function () { $("liveas").textContent = "Glider data unavailable right now"; });
+  }
+  loadLive(); setInterval(loadLive, 60000);
+
+
+  // ---------- Hero wallet card (live prices) ----------
+  function renderHero() {
+    var el = $("hlist"); if (!el || !S.asOf) return;
+    var RCb = { amt: 1000, risk: 1, theme: "AI & chips" }, keep = { a: RC.amt, r: RC.risk, t: RC.theme };
+    RC.amt = RCb.amt; RC.risk = RCb.risk; RC.theme = RCb.theme;
+    var A = receiveAlloc(); RC.amt = keep.a; RC.risk = keep.r; RC.theme = keep.t;
+    var total = 0, rows = A.list.filter(function (x) { return x.t !== "USDT"; }).map(function (x) {
+      var p = price(x.t), q = S.px[x.t] || {}, s0 = S.start[x.t] || p, units = s0 ? x.v / s0 : 0, now = units * p; total += now;
+      return { t: x.t, units: units, now: now, day: q.prevClose ? (p / q.prevClose - 1) * 100 : 0 };
+    });
+    var cash = (A.list.filter(function (x) { return x.t === "USDT"; })[0] || { v: 0 }).v; total += cash;
+    var prevT = S.heroTotal; S.heroTotal = total; $("hv").textContent = usd(total);
+    if (prevT && Math.abs(prevT - total) >= 0.005 && window.SproutLive) SproutLive.flash($("hv"), total > prevT ? 1 : -1);
+    $("hs").textContent = "Retirement goal · Quality 7 · level 3 + AI & chips · funded " + S.fundedOn;
+    $("hnext").textContent = "Next rebalance in " + nextRun();
+    el.innerHTML = rows.sort(function (a, b) { return b.now - a.now; }).slice(0, 5).map(function (r) {
+      var pv = (S.heroRow || {})[r.t], fl = pv && Math.abs(pv - r.now) >= 0.005 ? (r.now > pv ? " lv-fu" : " lv-fd") : ""; S.heroRow = S.heroRow || {}; S.heroRow[r.t] = r.now;
+      return '<li class="' + fl + '">' + mark(r.t) + '<span>' + NAMES[r.t] + '<small>' + r.units.toFixed(4) + ' shares</small></span><span class="r">' + usd(r.now) + '<small class="' + (r.day >= 0 ? 'up' : 'down') + '" style="color:' + (r.day >= 0 ? '#5fd49b' : '#f08b7f') + '">' + sgn(r.day, 2) + ' today</small></span></li>';
+    }).join("") + '<li><span class="ic">+' + (rows.length - 5 + 1) + '</span><span style="color:var(--stage-sub)">more holdings incl. cash</span><span></span></li>';
+  }
+
+  // ---------- Distribution ----------
+  function renderDist() {
+    var byCh = CHANNELS.map(function (c, ci) { var a = 0, n = 0; W.forEach(function (w) { if (w.ch === ci) { a += w.amt; n++; } }); return { name: c.name, kind: c.kind, a: a, n: n }; });
+    var byPlace = {}; W.forEach(function (w) { byPlace[w.place] = (byPlace[w.place] || 0) + 1; });
+    var places = Object.keys(byPlace).sort(function (a, b) { return byPlace[b] - byPlace[a]; }).slice(0, 6), maxP = byPlace[places[0]];
+    var maxA = Math.max.apply(null, byCh.map(function (c) { return c.a; })), total = aum();
+    var median = W.map(function (w) { return w.amt; }).sort(function (a, b) { return a - b; })[Math.floor(W.length / 2)];
+    $("dist").innerHTML =
+      '<div class="card"><h3>By partner</h3><div class="hbars">' + byCh.map(function (c) { return '<div class="hb"><div class="row"><span>' + c.name + ' <span class="faint">· ' + c.kind + '</span></span><span class="num">' + compact(c.a) + '</span></div><div class="track"><span style="width:' + (c.a / maxA * 100) + '%"></span></div><span class="faint" style="font-size:.76rem">' + c.n.toLocaleString() + ' investors</span></div>'; }).join("") + '</div></div>' +
+      '<div class="card"><h3>Where investors are</h3><div class="hbars">' + places.map(function (p) { return '<div class="hb"><div class="row"><span>' + p + '</span><span class="num">' + byPlace[p].toLocaleString() + '</span></div><div class="track"><span style="width:' + (byPlace[p] / maxP * 100) + '%;background:var(--green)"></span></div></div>'; }).join("") + '</div></div>' +
+      '<div class="card"><h3>Unit economics</h3><div class="tiles">' +
+        '<div class="tile"><span>Median investor</span><b class="num">' + usd(median, 0) + '</b><small>Digital-first, small tickets</small></div>' +
+        '<div class="tile"><span>Model fee, if licensed like Bitwise</span><b class="num">' + compact(total * MGR_FEE) + ' / yr</b><small>0.15% on ' + compact(total) + ' (illustrative)</small></div>' +
+        '<div class="tile"><span>Marginal cost of one more portfolio</span><b>≈ $0</b><small>Same model, one more wallet</small></div></div></div>';
+  }
+
+
+  // ---------- Direct: the chain between Schroders and the investor ----------
+  (function () {
+    var box = document.querySelector(".chainv"); if (!box) return;
+    var brief = document.documentElement.dataset.view === "brief";
+    var N = [["end", "S", "Schroders", "Your fund manager"],
+      ["mid", "A", "Administrator and transfer agent", "Price units, keep the register", "Keeps the register"],
+      ["mid", "P", "Platform and nominee", "Hold units in the platform's name", "Holds it in its name"],
+      ["mid", "I", "Adviser or distributor", "Sell and service the product", "Takes a fee"],
+      ["rail", "G", "Glider", brief ? "Executes Schroders' model in each wallet" : "Runs the rebalancing", "Never holds money"],
+      ["you", "You", "You", "Own every holding, in your own account"]];
+    var ROWS = [["Who holds your investments", "A nominee, in the platform's name", "You, in your own account"], ["What you own", "Units in a pooled fund", "Your own holdings, each backed 1:1"],
+      ["Personalised to you", "One fund for everyone", "Your own risk level, themes and exclusions"], ["A new Schroders strategy", "Months: fund setup, registration, listings", "Days: publish a model"]];
+    var STATS = [["Firms in between", "3", "1", "each can hold money or take a fee", "and it never holds your money"], ["Settlement", "T+1", "Seconds", "next business day or later", "every trade, any time"], ["Smallest investment", "High", "$5", "often a fund minimum", "every holding at Schroders' weights"]];
+    var row = $("chainrow"), flow = box.querySelector(".flowp");
+    row.innerHTML = '<div class="fl-line" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="fl-direct">Schroders <em>↔</em> your wallet, direct</span>' + N.map(function (n, i) {
+      if (n[0] === "end" || n[0] === "you") return '<div class="fl-end ' + n[0] + '" data-i="' + i + '"><span class="av">' + n[1] + '</span><b>' + n[2] + '</b><small>' + n[3] + '</small></div>';
+      return '<div class="fl-node ' + n[0] + '" data-i="' + i + '" style="--d:' + (n[0] === "mid" ? (i - 1) * 70 : 260) + 'ms"><span class="ic">' + n[1] + '</span><b>' + n[2] + '</b><span>' + n[3] + '</span><em>' + n[4] + '</em></div>';
+    }).join("");
+    $("chaintab").innerHTML = '<div class="cr h"><span></span><span class="old">Today</span><span class="new">With SPROUT</span></div>' + ROWS.map(function (r) { return '<div class="cr"><span>' + r[0] + '</span><span class="old">' + r[1] + '</span><span class="new">' + r[2] + '</span></div>'; }).join("");
+    function set(s) {
+      box.dataset.s = s; flow.dataset.s = s;
+      box.querySelectorAll("[data-ch]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.ch === s)); });
+      N.forEach(function (n, i) { var gone = s === "today" ? n[0] === "rail" : n[0] === "mid"; var el = row.querySelector('[data-i="' + i + '"]'); if (el) el.classList.toggle("gone", gone); });
+      $("chainstats").innerHTML = STATS.map(function (x) { var t = s === "today"; return '<div><span>' + x[0] + '</span><b class="flip">' + (t ? x[1] : x[2]) + '</b><small>' + (t ? x[3] : x[4]) + '</small></div>'; }).join("");
+      $("chaincount").textContent = s === "today" ? "3 firms between Schroders and you" : "1 firm in between, and it never holds your money";
+      $("chainnote").innerHTML = s === "today" ? "Each layer holds your money, keeps its own records or charges a fee." : "Every holding is backed 1:1 by the real share" + (brief ? ", held by the token issuer (Ondo or Coinbase) with a regulated custodian" : " at a regulated custodian") + ". Nobody in between can move your money.";
+    }
+    box.addEventListener("click", function (e) { var b = e.target.closest("[data-ch]"); if (!b) return; box.dataset.auto = "0"; if (b.dataset.ch === "replay") { set("today"); setTimeout(function () { set("sprout"); }, reduce ? 0 : 900); } else set(b.dataset.ch); });
+    set("today");
+    if (!reduce && "IntersectionObserver" in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting && box.dataset.auto !== "0") { io.disconnect(); setTimeout(function () { if (box.dataset.auto !== "0") set("sprout"); }, 1600); } }); }, { threshold: 0.5 }); io.observe(box); }
+  })();
+
+  // ---------- Nav: highlight the section in view ----------
+  (function () {
+    var links = [].slice.call(document.querySelectorAll('nav .links a[href^="#"]')); if (!links.length || !("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (!en.isIntersecting) return; links.forEach(function (l) { l.classList.toggle("on", l.getAttribute("href") === "#" + en.target.id); }); }); }, { rootMargin: "-45% 0px -50% 0px" });
+    links.forEach(function (l) { var t = document.querySelector(l.getAttribute("href")); if (t) io.observe(t); });
+  })();
+
+  // ---------- Life: scroll reveal and hero activity ----------
+  (function () {
+    if (!reduce && "IntersectionObserver" in window) {
+      var els = document.querySelectorAll(".sec > header, .sec > div, .sec > p, .cta, #scale > div");
+      var io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }); }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+      els.forEach(function (el) { if (el.offsetParent !== null && el.getBoundingClientRect().top > innerHeight) { el.classList.add("rv"); io.observe(el); } });
+    }
+    var tk = $("htick"); if (!tk || reduce) return;
+    var EV = [["S", "#0074b7", "Schroders' team reviewed Quality 7 · no change needed", "Today"], ["⟳", "#2d55b2", "Daily check: Maya's portfolio is on target", "14:00 UTC"], ["✓", "#0a7d4f", "Last rebalance settled in her own wallet", "Seconds"], ["S", "#0074b7", "October update: Amazon out, Broadcom in", "Schroders"]], k = 0;
+    setInterval(function () { k = (k + 1) % EV.length; var sp = tk.querySelector("span"); sp.style.opacity = 0;
+      setTimeout(function () { var e = EV[k], ic = tk.querySelector("i"); ic.textContent = e[0]; ic.style.background = e[1]; sp.textContent = e[2]; tk.querySelector("small").textContent = e[3]; sp.style.opacity = 1; }, 300); }, 3800);
+  })();
+
+  // ---------- Boot ----------
+  renderPersonas(); renderDist(); renderCounters(); layout();
+  status('Each dot is one investor. Press <b>Publish a model update</b> to send one Schroders decision to all of them.');
+  window.addEventListener("resize", function () { layout(); });
+  requestAnimationFrame(draw);
+  load(true).catch(function () { if ($("walletview")) $("walletview").innerHTML = '<div class="card"><p class="sub">Could not load live prices. Check the internet connection and that server.py is running.</p></div>'; });
+  setInterval(function () { load(false).catch(function () {}); }, 10000);
+  setInterval(function () { if (S.asOf) renderLive(); }, 1000);
+})();
+
+// FAQ topics: one panel at a time, arrow keys move between topics, and "Expand all" opens every answer in the panel.
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll(".fq-tab"));
+  function show(tab) {
+    tabs.forEach(function (t) { var on = t === tab; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; document.getElementById("fq-" + t.dataset.fq).hidden = !on; });
+  }
+  tabs.forEach(function (t, i) {
+    t.tabIndex = t.getAttribute("aria-selected") === "true" ? 0 : -1;
+    t.addEventListener("click", function () { show(t); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0; if (!d) return;
+      var vis = tabs.filter(function (x) { return x.offsetParent; }), n = vis[(vis.indexOf(t) + d + vis.length) % vis.length];
+      e.preventDefault(); show(n); n.focus();
+    });
+  });
+  function syncAll(panel) { var b = panel.querySelector("[data-fq-all]"), items = panel.querySelectorAll(".fq-item"); b.textContent = [].every.call(items, function (d) { return d.open; }) ? "Collapse all" : "Expand all"; }
+  document.querySelectorAll(".fq-panel").forEach(function (panel) {
+    panel.querySelector("[data-fq-all]").addEventListener("click", function () {
+      var items = panel.querySelectorAll(".fq-item"), open = ![].every.call(items, function (d) { return d.open; });
+      items.forEach(function (d) { d.open = open; }); syncAll(panel);
+    });
+    panel.querySelectorAll(".fq-item").forEach(function (d) { d.addEventListener("toggle", function () { syncAll(panel); }); });
+  });
+})();
+</script>
+<script src="/nav.js" defer></script>
+</body>
+</html>

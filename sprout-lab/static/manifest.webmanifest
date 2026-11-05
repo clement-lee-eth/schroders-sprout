@@ -1,0 +1,10 @@
+{
+  "name": "SPROUT",
+  "short_name": "SPROUT",
+  "description": "Schroders portfolios, held in your own wallet.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#001e41",
+  "theme_color": "#001e41",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SPROUT Pilot Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column. Three blocks: access proof, the equity universe, a working rebalance. */
+:root {
+  --paper: #f3f6f2; --sheet: #ffffff; --ink: #17251d; --muted: #5b6b61; --rule: #d5ddd6;
+  --leaf: #1f6b45; --leaf-soft: #e1eee5; --amber: #a5620f; --amber-soft: #f6ead8; --alert: #a3352a;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101813; --sheet: #16211a; --ink: #e4ece6; --muted: #9aab9f; --rule: #2a3a30;
+    --leaf: #6cc495; --leaf-soft: #1c3226; --amber: #e0a55a; --amber-soft: #33281a; --alert: #ef8f83; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101813; --sheet: #16211a; --ink: #e4ece6; --muted: #9aab9f; --rule: #2a3a30;
+  --leaf: #6cc495; --leaf-soft: #1c3226; --amber: #e0a55a; --amber-soft: #33281a; --alert: #ef8f83; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 1.0625rem; line-height: 1.6;
+  padding: env(safe-area-inset-top, 0px) 20px env(safe-area-inset-bottom, 0px); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 64px; display: grid; gap: 52px; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; line-height: 1.1; margin: 0; }
+h1 { font-size: clamp(2.6rem, 8vw, 4rem); font-weight: 700; letter-spacing: -0.03em; color: var(--leaf); }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+p { margin: 0; max-width: 62ch; }
+.label { font-family: var(--f-data); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.note { color: var(--muted); font-size: 0.95rem; }
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 16px; }
+.strip { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+.strip .conf { color: var(--alert); }
+.lede { font-family: var(--f-display); font-weight: 500; font-size: 1.3rem; line-height: 1.4; max-width: 36ch; }
+
+/* API proof */
+.calls { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.calls li { display: grid; grid-template-columns: 3.2rem minmax(0, 15rem) minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.calls code { font-family: var(--f-data); font-size: 0.86rem; overflow-wrap: anywhere; }
+.ok { font-family: var(--f-data); font-size: 0.8125rem; color: var(--leaf); background: var(--leaf-soft); border-radius: 4px; padding: 1px 6px; justify-self: start; }
+@media (max-width: 560px) { .calls li { grid-template-columns: 3.2rem minmax(0, 1fr); } .calls li span:last-child { grid-column: 2; } }
+
+/* Universe */
+.issuers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px; }
+@media (max-width: 620px) { .issuers { grid-template-columns: minmax(0, 1fr); } }
+.issuer { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.issuer h3 { margin: 0; font-family: var(--f-display); font-size: 1.15rem; display: flex; justify-content: space-between; gap: 8px; }
+.tickers { font-family: var(--f-data); font-size: 0.8rem; line-height: 1.9; color: var(--ink); word-spacing: 0.35em; max-height: 13.5rem; overflow-y: auto; }
+.tickers s { color: var(--alert); }
+
+/* Rebalance demo */
+.demo { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 18px; }
+.demo-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.state { font-family: var(--f-data); font-size: 0.8125rem; padding: 3px 10px; border-radius: 999px; background: var(--amber-soft); color: var(--amber); }
+.state.done { background: var(--leaf-soft); color: var(--leaf); }
+.rows { display: grid; gap: 10px; }
+.row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 4.2rem 4.2rem; gap: 10px; align-items: center; font-size: 0.95rem; }
+.row .name { font-family: var(--f-data); font-size: 0.86rem; }
+.track { position: relative; height: 14px; background: var(--paper); border-radius: 3px; }
+.fill { position: absolute; inset: 0 auto 0 0; background: var(--leaf); border-radius: 3px; transition: width 600ms ease; }
+.fill.over { background: var(--amber); }
+.tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.row .num { text-align: right; font-size: 0.86rem; }
+.row.headrow { color: var(--muted); }
+.row.headrow span { font-family: var(--f-data); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.trades { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.trades th, .trades td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--rule); }
+.trades th { font-family: var(--f-data); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 400; color: var(--muted); }
+.trades td.r, .trades th.r { text-align: right; padding-right: 0; }
+.sell { color: var(--amber); } .buy { color: var(--leaf); } .skip { color: var(--muted); }
+.buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font-family: var(--f-display); font-weight: 500; font-size: 1rem; padding: 9px 16px; border-radius: 6px; cursor: pointer; border: 1px solid var(--leaf); background: var(--leaf); color: var(--sheet); }
+button.ghost { background: transparent; color: var(--leaf); }
+button:disabled { opacity: 0.45; cursor: default; }
+button:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+
+/* Steps */
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; max-width: 62ch; }
+.steps li::marker { font-family: var(--f-data); color: var(--leaf); }
+footer { border-top: 1px solid var(--rule); padding-top: 14px; color: var(--muted); font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="strip">
+    <span class="label">Pilot briefing · For Marita · 1 October 2026</span>
+    <span class="label conf">Confidential · Internal only</span>
+  </div>
+
+  <header style="display:grid;gap:16px">
+    <h1>SPROUT</h1>
+    <p class="lede">How a portfolio of tokenised equities rebalances itself onchain, inside each client's own wallet.</p>
+  </header>
+
+  <section>
+    <span class="label">1 · Access</span>
+    <h2>We have live API access to the underlying equities</h2>
+    <p>Production API, all ten permission scopes. These calls were run against the live platform on 1 October 2026.</p>
+    <ul class="calls">
+      <li><span class="ok">200</span><code>GET /v2/whoami</code><span>Our key is active with full scopes, including strategies, enrolment and rebalancing.</span></li>
+      <li><span class="ok">200</span><code>GET /v2/discovery/strategies</code><span>31 live public strategies on the platform.</span></li>
+      <li><span class="ok">200</span><code>POST /v2/assets/allocation-breakdown</code><span>174 assets resolved to their real company names and sectors.</span></li>
+      <li><span class="ok">200</span><code>POST /v2/strategies/validate</code><span>177 of 178 assets accepted for a new strategy of our own.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="label">2 · What we can hold</span>
+    <h2>151 tokenised US equities and ETFs</h2>
+    <div class="issuers">
+      <div class="issuer">
+        <h3>Coinbase <span class="label">Base · 8</span></h3>
+        <div class="tickers">AAPL AMZN GOOGL META MSFT NVDA TSLA SPCX</div>
+      </div>
+      <div class="issuer">
+        <h3>Ondo <span class="label">BNB Chain · 143</span></h3>
+        <div class="tickers" tabindex="0" aria-label="Ondo tickers, scrollable">AAPL ABBV ABT ACHR AG ALB AMAT AMD AMZN ANET APLD ARM ARQQ ASML ASTS AUR AVGO AXP BA BAC BBAI BE BTDR CCJ CEG CIFR CLF CMG COIN COP CORZ COST CRCL CRWD CRWV CSCO CVX DIS DNN ENPH EQT ETN F FCX FLNC GD GE GEV GLD GOOGL HAL HD HIVE HOOD IBIT IBM INTC IONQ IRDM IREN ISRG KEEL KO LI LLY LMT LUNR MA MBLY MCD META MP MRK MRVL MSFT MTZ MU NBIS <s title="Blocklisted by the platform">NEE</s> NEM NET NFLX NIO NKE NNE NOC NVDA NVO OKLO ORCL OXY PANW PEP PFE PL PLTR PPLT PWR PYPL QBTS QCOM QUBT RDW REGN RGTI RIOT RIVN RKLB RTX SBUX SCCO SCHW SHOP SLB SLV SMCI SMR SNDK SO SOFI SPCX STM TER TLN TM TSLA TSM UBER UEC UNH USAR UUUU V VRSN VRT VRTX VST WMB WMT WULF WYFI XOM XYZ</div>
+      </div>
+    </div>
+    <p class="note">Issuers confirmed by reading each token contract onchain. Each strategy holds assets from one chain. <s style="color:var(--alert)">NEE</s> is blocked by the platform.</p>
+  </section>
+
+  <section>
+    <span class="label">3 · Rebalancing</span>
+    <h2>One client portfolio, drifted and brought back to target</h2>
+    <div class="demo">
+      <div class="demo-head">
+        <span class="label">Illustrative · $1,000 portfolio · Ondo on BNB Chain</span>
+        <span class="state" id="state">Drifted · rebalance due</span>
+      </div>
+      <div class="rows" id="rows" aria-live="polite"></div>
+      <div class="scroll">
+        <table class="trades">
+          <thead><tr><th>Trade</th><th>Asset</th><th class="r">Amount</th><th>Status</th></tr></thead>
+          <tbody id="trades"></tbody>
+        </table>
+      </div>
+      <div class="buttons">
+        <button id="go" type="button">Run rebalance</button>
+        <button id="reset" type="button" class="ghost">Reset to drifted</button>
+      </div>
+      <p class="note" id="summary"></p>
+    </div>
+    <p class="note">Bars show current weight. The dark tick marks the target. Prices are a sample market move, not live quotes.</p>
+  </section>
+
+  <section>
+    <span class="label">What happens onchain</span>
+    <ol class="steps">
+      <li>We publish a strategy: the assets and their target weights.</li>
+      <li>The client signs once to create their own smart account and grant a limited trading permission.</li>
+      <li>Prices move and the portfolio drifts from target.</li>
+      <li>On schedule, or on demand through the API, the platform's agent swaps overweight holdings into underweight ones inside the client's account. Trades under $5 are skipped, and slippage is capped.</li>
+      <li>The portfolio is back on target. The client keeps custody throughout and can withdraw at any time.</li>
+    </ol>
+  </section>
+
+  <footer>SPROUT pilot · Confidential working document · Access results from live API calls on 1 October 2026. The rebalancing panel is an illustration of the mechanism.</footer>
+</div>
+
+<script>
+(function () {
+  var TOTAL = 1000, MIN_TRADE = 5, FEE = 0.003;
+  var assets = [
+    { t: "NVDAon", target: 25, move: 0.18 },
+    { t: "MSFTon", target: 25, move: 0.04 },
+    { t: "AAPLon", target: 20, move: -0.02 },
+    { t: "LLYon",  target: 15, move: -0.08 },
+    { t: "USDT",   target: 15, move: 0 }
+  ];
+  var rows = document.getElementById("rows"), trades = document.getElementById("trades"),
+      state = document.getElementById("state"), summary = document.getElementById("summary"),
+      go = document.getElementById("go"), reset = document.getElementById("reset");
+  var fmt = function (v) { return "$" + v.toFixed(2); };
+
+  function drifted() {
+    return assets.map(function (a) { return { t: a.t, target: a.target, value: TOTAL * a.target / 100 * (1 + a.move) }; });
+  }
+  function weights(h) { var s = h.reduce(function (x, a) { return x + a.value; }, 0); return { sum: s, w: h.map(function (a) { return a.value / s * 100; }) }; }
+  function plan(h) {
+    var s = weights(h).sum;
+    return h.map(function (a) { var d = s * a.target / 100 - a.value; return { t: a.t, delta: d, skip: Math.abs(d) < MIN_TRADE }; })
+            .filter(function (p) { return Math.abs(p.delta) >= 0.005; })
+            .sort(function (a, b) { return a.delta - b.delta; });
+  }
+  function draw(h, executed) {
+    var W = weights(h);
+    var html = '<div class="row headrow"><span>Asset</span><span>Weight vs target</span><span class="num">Now</span><span class="num">Target</span></div>';
+    h.forEach(function (a, i) {
+      var over = W.w[i] > a.target + 0.5;
+      html += '<div class="row"><span class="name">' + a.t + '</span><div class="track"><div class="fill' + (over ? ' over' : '') + '" style="width:' + Math.min(W.w[i] / 35 * 100, 100) + '%"></div><div class="tick" style="left:' + (a.target / 35 * 100) + '%"></div></div><span class="num">' + W.w[i].toFixed(1) + '%</span><span class="num">' + a.target + '%</span></div>';
+    });
+    rows.innerHTML = html;
+    var p = executed || plan(h), body = "";
+    p.forEach(function (x) {
+      var kind = x.skip ? "skip" : (x.delta < 0 ? "sell" : "buy");
+      var label = x.skip ? "Skip" : (x.delta < 0 ? "Sell" : "Buy");
+      var status = x.skip ? "Below $5 minimum" : (executed ? "Completed" : "Planned");
+      body += '<tr><td class="' + kind + '">' + label + '</td><td class="num">' + x.t + '</td><td class="r num">' + fmt(Math.abs(x.delta)) + '</td><td>' + status + '</td></tr>';
+    });
+    trades.innerHTML = body;
+    var traded = p.filter(function (x) { return !x.skip && x.delta > 0; }).reduce(function (s, x) { return s + x.delta; }, 0);
+    summary.textContent = "Portfolio value " + fmt(W.sum) + ". " + (executed ? "Traded " : "Will trade ") + fmt(traded) + " of buys funded by sells, about " + fmt(traded * FEE) + " in platform fees at 0.30%.";
+  }
+  var holdings;
+  function start() { holdings = drifted(); state.textContent = "Drifted · rebalance due"; state.className = "state"; go.disabled = false; draw(holdings); }
+  go.addEventListener("click", function () {
+    var p = plan(holdings);
+    p.forEach(function (x) { if (!x.skip) holdings.forEach(function (a) { if (a.t === x.t) a.value += x.delta; }); });
+    state.textContent = "Rebalanced · operation completed"; state.className = "state done"; go.disabled = true;
+    draw(holdings, p);
+  });
+  reset.addEventListener("click", start);
+  start();
+})();
+</script>
+</body>
+</html>

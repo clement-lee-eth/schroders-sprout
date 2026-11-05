@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SPROUT App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<style>
+/* Layout: phone-width app on the left, "Under the hood" panel on the right (stacks below on small screens).
+   Navy = Schroders, green = Glider / on target, amber = off target, violet = Privy. */
+:root {
+  --bg: #f5f8f6; --card: #ffffff; --ink: #0c1712; --sub: #5c6a63; --faint: #8b9891; --line: #e3eae5; --hover: #f0f4f1;
+  --navy: #1f2f6b; --navy-soft: #e9ecf7; --blue: #4f6fd6; --green: #12824f; --green-soft: #e3f4ea; --amber: #b47a12; --amber-soft: #f8f0dd;
+  --red: #b2382c; --red-soft: #f8e4e1; --violet: #6a4fd6; --violet-soft: #eeeafc;
+  --stage: #0d1813; --stage-ink: #e8efeb; --stage-sub: #8fa197; --stage-line: #22322a;
+  --shadow: 0 1px 2px rgba(10,30,20,.04), 0 10px 30px -12px rgba(10,30,20,.12);
+  --f: "Geist", "Helvetica Neue", Arial, sans-serif; --m: "Geist Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b110e; --card: #111a15; --ink: #e8efeb; --sub: #9aa9a1; --faint: #6d7b74; --line: #1f2b25; --hover: #16211b;
+    --navy: #a3b4f2; --navy-soft: #1b2445; --blue: #7f9bef; --green: #5fd49b; --green-soft: #133222; --amber: #e5b25b; --amber-soft: #312715;
+    --red: #f08b7f; --red-soft: #3a201c; --violet: #ad9cf5; --violet-soft: #251f42; --stage: #070d0a; --stage-line: #1b2821; --shadow: 0 1px 0 rgba(255,255,255,.03); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b110e; --card: #111a15; --ink: #e8efeb; --sub: #9aa9a1; --faint: #6d7b74; --line: #1f2b25; --hover: #16211b;
+  --navy: #a3b4f2; --navy-soft: #1b2445; --blue: #7f9bef; --green: #5fd49b; --green-soft: #133222; --amber: #e5b25b; --amber-soft: #312715;
+  --red: #f08b7f; --red-soft: #3a201c; --violet: #ad9cf5; --violet-soft: #251f42; --stage: #070d0a; --stage-line: #1b2821; --shadow: 0 1px 0 rgba(255,255,255,.03); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: radial-gradient(1000px 560px at 90% -10%, rgba(95,212,155,.12), transparent 60%), var(--bg); background-repeat: no-repeat;
+  color: var(--ink); font-family: var(--f); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top, 0px) 18px env(safe-area-inset-bottom, 0px); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+.mono { font-family: var(--m); font-variant-numeric: tabular-nums; }
+.sub { color: var(--sub); } .faint { color: var(--faint); } .up { color: var(--green); } .down { color: var(--red); }
+.top { max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 16px; }
+.logo { font-weight: 600; font-size: 1.1rem; letter-spacing: -.03em; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
+.logo i { width: 16px; height: 16px; border-radius: 50% 50% 50% 3px; background: var(--green); transform: rotate(-45deg); display: inline-block; }
+.toplinks { display: flex; gap: 8px; align-items: center; font-size: .84rem; }
+.toplinks a { color: var(--sub); text-decoration: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); }
+.layout { max-width: 1180px; margin: 0 auto 64px; display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Phone */
+.phone { background: var(--card); border: 1px solid var(--line); border-radius: 36px; box-shadow: 0 40px 80px -40px rgba(10,30,20,.35); overflow: hidden; display: grid; grid-template-rows: auto auto 1fr; min-height: 760px; position: sticky; top: 16px; }
+@media (max-width: 960px) { .phone { position: static; min-height: 0; } }
+.bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; font-size: .78rem; color: var(--sub); }
+.bar b { color: var(--ink); font-weight: 600; letter-spacing: -.02em; display: flex; align-items: center; gap: 6px; }
+.bar b i { width: 12px; height: 12px; border-radius: 50% 50% 50% 2px; background: var(--green); transform: rotate(-45deg); display: inline-block; }
+.prog { height: 3px; background: var(--hover); margin: 0 20px; border-radius: 3px; overflow: hidden; }
+.prog span { display: block; height: 100%; background: var(--green); transition: width 300ms ease; }
+.screen { padding: 18px 20px 24px; display: grid; gap: 16px; align-content: start; }
+.screen h1 { font-size: 1.65rem; font-weight: 600; letter-spacing: -.035em; line-height: 1.1; text-wrap: balance; }
+.screen h1 em { font-family: "Newsreader", Georgia, serif; font-style: italic; font-weight: 400; }
+.screen h2 { font-size: 1.25rem; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; }
+.screen h3 { font-size: .98rem; font-weight: 600; letter-spacing: -.01em; }
+.screen p { color: var(--sub); }
+.step { font-size: .74rem; color: var(--faint); font-family: var(--m); }
+.btn { appearance: none; border: 0; border-radius: 999px; padding: 14px 18px; font-weight: 500; cursor: pointer; background: var(--ink); color: var(--card); width: 100%; transition: transform 150ms ease; }
+.btn:not(:disabled):hover { transform: translateY(-1px); }
+.btn.green { background: var(--green); color: #fff; } .btn.violet { background: var(--violet); color: #fff; }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: default; }
+:root[data-theme="dark"] .btn.green, :root[data-theme="dark"] .btn.violet { color: #06110b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.green, :root:not([data-theme="light"]) .btn.violet { color: #06110b; } }
+.back { appearance: none; border: 0; background: none; color: var(--sub); cursor: pointer; padding: 0; justify-self: start; font-size: .86rem; }
+.box { border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 10px; background: var(--card); }
+.box.soft { background: var(--hover); border-color: transparent; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 500; padding: 3px 9px; border-radius: 999px; justify-self: start; white-space: nowrap; }
+.tag i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.tag.navy { background: var(--navy-soft); color: var(--navy); } .tag.green { background: var(--green-soft); color: var(--green); }
+.tag.amber { background: var(--amber-soft); color: var(--amber); } .tag.red { background: var(--red-soft); color: var(--red); } .tag.violet { background: var(--violet-soft); color: var(--violet); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: .8rem; color: var(--sub); }
+.field input, .field select { border: 1.5px solid var(--line); background: var(--card); border-radius: 14px; padding: 12px 14px; width: 100%; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; color: var(--ink); cursor: pointer; }
+.check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--green); flex: none; }
+.opts { display: grid; gap: 8px; }
+.opt { appearance: none; text-align: left; border: 1.5px solid var(--line); background: var(--card); border-radius: 16px; padding: 12px 14px; cursor: pointer; display: grid; gap: 2px; }
+.opt[aria-pressed="true"] { border-color: var(--green); background: var(--green-soft); }
+.opt b { font-weight: 500; } .opt span { font-size: .8rem; color: var(--sub); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.kv { display: grid; gap: 8px; font-size: .88rem; }
+.kv .row span:first-child { color: var(--sub); } .kv .row span:last-child { font-family: var(--m); text-align: right; }
+.addr { font-family: var(--m); font-size: .76rem; padding: 8px 10px; border-radius: 10px; background: var(--hover); overflow-wrap: anywhere; }
+.code { display: flex; gap: 8px; justify-content: space-between; }
+.code input { width: 100%; text-align: center; font-family: var(--m); font-size: 1.3rem; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 0; background: var(--card); }
+.privy { border: 1px solid var(--line); border-radius: 22px; padding: 18px; display: grid; gap: 14px; box-shadow: var(--shadow); }
+.privy .ph { display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--sub); }
+.privy .ph b { color: var(--violet); font-weight: 600; }
+.meter { height: 10px; border-radius: 10px; background: linear-gradient(90deg, var(--green), var(--amber), var(--red)); position: relative; }
+.meter i { position: absolute; top: -5px; width: 4px; height: 20px; border-radius: 4px; background: var(--ink); transform: translateX(-2px); transition: left 400ms ease; }
+.pcard { appearance: none; text-align: left; border: 1.5px solid var(--line); border-radius: 20px; padding: 14px; display: grid; gap: 10px; cursor: pointer; background: var(--card); }
+.pcard[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.pcard .hold { display: flex; flex-wrap: wrap; gap: 4px; }
+.pcard .hold span { font-family: var(--m); font-size: .68rem; padding: 2px 6px; border-radius: 6px; background: var(--hover); }
+.mix { display: flex; height: 8px; border-radius: 8px; overflow: hidden; gap: 2px; }
+.mix span { height: 100%; border-radius: 2px; }
+.toks { display: grid; }
+.tok { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.tok:last-child { border-bottom: 0; }
+.ic { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--m); font-size: .56rem; background: var(--hover); border: 1px solid var(--line); }
+.tok b { font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .tok small { color: var(--faint); font-family: var(--m); font-size: .7rem; }
+.tok .r { text-align: right; font-family: var(--m); font-size: .82rem; } .tok .r small { display: block; }
+.alloc { display: grid; gap: 3px; }
+.alloc .bar2 { height: 6px; border-radius: 6px; background: var(--hover); position: relative; }
+.alloc .bar2 span { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--green); transition: width 600ms ease; }
+.alloc .bar2 span.off { background: var(--amber); }
+.alloc .bar2 em { position: absolute; top: -3px; bottom: -3px; width: 2px; border-radius: 2px; background: var(--navy); }
+.big { font-size: 2.3rem; font-weight: 500; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; color: var(--faint); font-size: .86rem; }
+.steps li i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-style: normal; font-size: .64rem; }
+.steps li.on { color: var(--ink); } .steps li.on i { border-color: var(--green); }
+.steps li.done { color: var(--ink); } .steps li.done i { background: var(--green); border-color: var(--green); color: #fff; }
+.steps code { display: block; font-family: var(--m); font-size: .7rem; color: var(--faint); }
+.feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: .82rem; }
+.feed li { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.feed li:last-child { border-bottom: 0; }
+.warn { font-size: .84rem; padding: 10px 12px; border-radius: 12px; background: var(--amber-soft); color: var(--amber); }
+.bad { font-size: .84rem; padding: 10px 12px; border-radius: 12px; background: var(--red-soft); color: var(--red); }
+.good { font-size: .84rem; padding: 10px 12px; border-radius: 12px; background: var(--green-soft); color: var(--green); }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btns .btn { padding: 11px 12px; font-size: .86rem; }
+
+/* Under the hood */
+.hood { display: grid; gap: 16px; }
+.hood h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -.035em; }
+.hood .lede { color: var(--sub); max-width: 62ch; }
+.who { display: flex; gap: 8px; flex-wrap: wrap; }
+.call { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 10px; box-shadow: var(--shadow); }
+.call .h { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.call .h b { font-weight: 600; }
+.call code.ep { font-family: var(--m); font-size: .8rem; overflow-wrap: anywhere; }
+.verb { font-family: var(--m); font-size: .7rem; padding: 2px 7px; border-radius: 6px; margin-right: 6px; background: var(--green-soft); color: var(--green); }
+.verb.p { background: var(--violet-soft); color: var(--violet); } .verb.c { background: var(--amber-soft); color: var(--amber); } .verb.s { background: var(--navy-soft); color: var(--navy); }
+pre { margin: 0; background: var(--stage); color: var(--stage-ink); padding: 12px 14px; border-radius: 12px; font-family: var(--m); font-size: .72rem; line-height: 1.55; overflow: auto; max-height: 300px; }
+.real { font-size: .7rem; padding: 2px 8px; border-radius: 999px; }
+.real.y { background: var(--green-soft); color: var(--green); } .real.n { background: var(--amber-soft); color: var(--amber); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .78rem; color: var(--sub); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+/* Presentation mode (default): phone only, centred. Add ?hood=1 to show the technical panel. */
+body.solo .layout { grid-template-columns: minmax(0, 420px); justify-content: center; }
+body.solo .hood { display: none; }
+body.solo .phone { position: relative; top: 0; }
+body.solo .tech { display: none !important; }
+.phone { position: relative; }
+/* Privy-style login modal */
+.pm-back { position: absolute; inset: 0; background: rgba(8,16,12,.42); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: grid; place-items: end center; z-index: 5; }
+.pm-back.anim { animation: fadein 200ms ease; }
+@media (min-width: 500px) { .pm-back { place-items: center; } }
+.pm { width: calc(100% - 24px); margin-bottom: 12px; background: var(--card); border-radius: 24px; padding: 22px 20px 16px; display: grid; gap: 14px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.4); position: relative; }
+.pm.anim { animation: rise 260ms cubic-bezier(.2,.8,.2,1); }
+@keyframes rise { from { transform: translateY(18px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.pm .x { position: absolute; top: 12px; right: 12px; appearance: none; border: 0; background: var(--hover); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; color: var(--sub); }
+.pm-logo { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 1.2rem; letter-spacing: -.03em; margin-top: 4px; }
+.pm-logo i { width: 18px; height: 18px; border-radius: 50% 50% 50% 3px; background: var(--green); transform: rotate(-45deg); display: inline-block; }
+.pm h3 { text-align: center; font-size: 1.05rem; font-weight: 600; }
+.pm .lead { text-align: center; font-size: .86rem; color: var(--sub); }
+.pm-email { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 14px; padding: 6px 6px 6px 12px; }
+.pm-email:focus-within { border-color: var(--green); }
+.pm-email input { flex: 1; border: 0; background: transparent; outline: none; padding: 8px 0; min-width: 0; }
+.pm-email button { appearance: none; border: 0; border-radius: 10px; padding: 9px 14px; background: var(--green); color: #fff; font-weight: 500; cursor: pointer; }
+.pm-email button:disabled { opacity: .4; }
+.pm-or { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: .76rem; }
+.pm-or::before, .pm-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.pm-sso { appearance: none; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1.5px solid var(--line); background: var(--card); border-radius: 14px; padding: 11px; cursor: pointer; font-weight: 500; }
+.pm-sso b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; background: var(--hover); }
+.pm-foot { text-align: center; font-size: .72rem; color: var(--faint); padding-top: 4px; border-top: 1px solid var(--line); }
+.pm-foot b { color: var(--ink); letter-spacing: -.02em; }
+.pm-env { justify-self: center; width: 52px; height: 52px; border-radius: 50%; background: var(--green-soft); color: var(--green); display: grid; place-items: center; font-size: 1.4rem; }
+.pm .code input { font-size: 1.2rem; padding: 9px 0; }
+.pm .code input.filled { border-color: var(--green); }
+.spin { justify-self: center; width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--green); animation: rot 800ms linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.okmark { justify-self: center; width: 52px; height: 52px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 1.4rem; }
+footer { max-width: 1180px; margin: 0 auto 40px; color: var(--faint); font-size: .74rem; line-height: 1.6; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="logo" href="/"><i aria-hidden="true"></i>sprout</a>
+  <div class="toplinks"><span class="faint" id="pricestatus">Loading live prices…</span><a href="/">Back to overview</a></div>
+</div>
+
+<div class="layout">
+  <section class="phone" aria-label="SPROUT app">
+    <div class="bar"><b><i></i>SPROUT</b><span id="barright">Schroders · Glider</span></div>
+    <div class="prog" aria-hidden="true"><span id="prog" style="width:0%"></span></div>
+    <main class="screen" id="screen" aria-live="polite"></main>
+    <div id="modal"></div>
+  </section>
+
+  <section class="hood" aria-label="Under the hood">
+    <div style="display:grid;gap:8px"><span class="tag green" style="justify-self:start"><i></i>Under the hood</span>
+      <h2 id="hoodtitle">What happens at each step</h2>
+      <p class="lede" id="hoodlede">Each screen in the app on the left maps to real Privy and Glider calls. Values below update as you go.</p></div>
+    <div class="legend"><span><span class="verb p">PRIVY</span>Privy SDK in the app</span><span><span class="verb">GLIDER</span>Glider B2B API</span><span><span class="verb s">SPROUT</span>SPROUT backend</span><span><span class="verb c">CHAIN</span>Onchain</span></div>
+    <div id="hood" class="hood"></div>
+  </section>
+</div>
+
+<footer><span class="tech">Technical note: </span>Prototype with mock funds and live share prices. Not investment advice.<span class="tech"> Real today: Real today: the wallet key and signature (generated in your browser, standing in for Privy's embedded wallet), live share prices, and Glider's live validation of each Schroders portfolio. Simulated: Privy email login, Glider enrolment, funding and rebalancing execution, which follow Glider's documented request and response shapes. Eligibility and risk rules are illustrative and need Schroders compliance sign-off.</span></footer>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const usd = (v, d = 2) => (v < 0 ? "−$" : "$") + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+  const sgn = (v, d = 2, u = "%") => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d) + u;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+
+  const HOOD = new URLSearchParams(location.search).has("hood");
+  if (!HOOD) document.body.classList.add("solo");
+  const CFG = { privyAppId: null, strategies: {} };
+  fetch("/api/config").then((r) => r.json()).then((c) => { Object.assign(CFG, c); PORTFOLIOS.forEach((p) => { if (CFG.strategies[p.name]) { p.sid = CFG.strategies[p.name]; p.live = true; } }); if (CFG.privyAppId) loadPrivy(CFG.privyAppId); }).catch(() => {});
+
+  // ---------- Real Privy (React island), used automatically when PRIVY_APP_ID is set in .env.local ----------
+  function loadPrivy(appId) {
+    const m = document.createElement("script"); m.type = "module";
+    m.textContent = `
+      import React from "https://esm.sh/react@18.3.1";
+      import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
+      import * as Privy from "https://esm.sh/@privy-io/react-auth?deps=react@18.3.1,react-dom@18.3.1";
+      const h = React.createElement;
+      function Bridge() {
+        const { ready, authenticated, user } = Privy.usePrivy();
+        const { wallets } = Privy.useWallets();
+        const { signMessage } = Privy.useSignMessage();
+        const { login } = Privy.useLogin();
+        React.useEffect(() => {
+          window.sproutPrivy = { ready, login,
+            sign: async (message) => (await signMessage({ message }, { uiOptions: { showWalletUIs: false } })).signature };
+          const w = wallets.find((x) => x.walletClientType === "privy") || wallets[0];
+          if (ready && authenticated && w && window.onPrivyAuth) window.onPrivyAuth(w.address, (user && user.email && user.email.address) || "");
+        }, [ready, authenticated, wallets.length]);
+        return null;
+      }
+      const el = document.createElement("div"); document.body.appendChild(el);
+      createRoot(el).render(h(Privy.PrivyProvider, { appId: ${JSON.stringify("__APPID__")}, config: {
+        loginMethods: ["email", "google", "apple"],
+        appearance: { theme: "light", accentColor: "#12824f", landingHeader: "Sign in to SPROUT", walletChainType: "ethereum-only" },
+        embeddedWallets: { ethereum: { createOnLogin: "users-without-wallets" }, showWalletUIs: false }
+      } }, h(Bridge)));`.replace("__APPID__", appId);
+    document.body.appendChild(m);
+  }
+  window.onPrivyAuth = (address, email) => {
+    if (S.wallet && S.wallet.address === address) return;
+    S.wallet = { address, real: true }; S.email = email || S.email; S.modal = null; go("wallet");
+  };
+
+  // ---------- Schroders portfolios (each validated on Glider's live API as a single-chain strategy) ----------
+  const NAMES = { KO: "Coca-Cola", PEP: "PepsiCo", MCD: "McDonald's", WMT: "Walmart", COST: "Costco", V: "Visa", ABBV: "AbbVie", MRK: "Merck", SO: "Southern Co.",
+    GLD: "Gold (GLD)", USDT: "Cash (USDT)", MSFT: "Microsoft", NVDA: "Nvidia", AAPL: "Apple", GOOGL: "Alphabet", TSM: "TSMC", AMZN: "Amazon", LLY: "Eli Lilly",
+    AVGO: "Broadcom", ASML: "ASML", AMD: "AMD", PLTR: "Palantir", CRWD: "CrowdStrike", ISRG: "Intuitive Surgical", CEG: "Constellation Energy", ABT: "Abbott", ANET: "Arista" };
+  const PORTFOLIOS = [
+    { id: "income", risk: 1, name: "Schroders Global Income", short: "Global Income", sid: "01K7SPRT0INC0ME00000000001",
+      blurb: "Dependable dividend payers, a little gold and a cash buffer. Aims for a steadier ride.",
+      v1: { KO: 12, PEP: 10, MCD: 10, WMT: 10, COST: 8, V: 8, ABBV: 10, MRK: 8, SO: 8, GLD: 6, USDT: 10 },
+      v2: { KO: 12, PEP: 10, MCD: 10, WMT: 10, COST: 8, V: 8, ABBV: 10, ABT: 8, SO: 8, GLD: 6, USDT: 10 }, change: "Merck out, Abbott in" },
+    { id: "quality", risk: 2, name: "Schroders Quality 7", short: "Quality 7", sid: "01K7SPRT0QUA11TY700000002",
+      blurb: "Seven global leaders with durable earnings, weighted by Schroders' conviction.",
+      v1: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AMZN: 12, LLY: 12 },
+      v2: { MSFT: 18, NVDA: 16, AAPL: 14, GOOGL: 14, TSM: 14, AVGO: 12, LLY: 12 }, change: "Amazon out, Broadcom in" },
+    { id: "future", risk: 3, name: "Schroders Future Leaders", short: "Future Leaders", sid: "01K7SPRT0FUTURE0000000003",
+      blurb: "Companies building AI, chips, cybersecurity and the power behind them. Bigger swings.",
+      v1: { NVDA: 16, AVGO: 14, TSM: 12, ASML: 10, AMD: 10, PLTR: 10, CRWD: 10, ISRG: 9, CEG: 9 },
+      v2: { NVDA: 16, AVGO: 14, TSM: 12, ASML: 10, AMD: 10, PLTR: 10, ANET: 10, ISRG: 9, CEG: 9 }, change: "CrowdStrike out, Arista in" }
+  ];
+  const RISK = { 1: "Cautious", 2: "Balanced", 3: "Adventurous" };
+  const ALL = Array.from(new Set(PORTFOLIOS.flatMap((p) => Object.keys(p.v1).concat(Object.keys(p.v2))))).filter((t) => t !== "USDT");
+
+  // ---------- Eligibility (illustrative, from Ondo's published jurisdiction rules) ----------
+  const COUNTRIES = [
+    ["SG", "Singapore", "pro"], ["HK", "Hong Kong", "pro"], ["AE", "United Arab Emirates", "ok"], ["ID", "Indonesia", "ok"], ["TH", "Thailand", "ok"],
+    ["PH", "Philippines", "ok"], ["MY", "Malaysia", "pro"], ["MX", "Mexico", "ok"], ["BR", "Brazil", "pro"], ["NG", "Nigeria", "ok"], ["KE", "Kenya", "ok"],
+    ["GB", "United Kingdom", "pro"], ["DE", "Germany (EEA)", "pro"], ["CH", "Switzerland", "pro"], ["CA", "Canada", "no"], ["US", "United States", "no"]
+  ];
+  const QUESTIONS = [
+    { q: "When might you need this money?", a: [["Within 3 years", 1], ["In 3 to 7 years", 2], ["Not for 7 years or more", 3]] },
+    { q: "If your portfolio fell 20% in a month, you would…", a: [["Sell to stop further losses", 1], ["Hold and wait it out", 2], ["Invest more at lower prices", 3]] },
+    { q: "What matters most to you?", a: [["Protecting what I have", 1], ["Steady growth with some ups and downs", 2], ["The highest long-term growth", 3]] },
+    { q: "How much have you invested in shares or crypto before?", a: [["Never", 1], ["A little", 2], ["Regularly", 3]] },
+    { q: "How much of your savings is this?", a: [["More than half", 1], ["Between 10% and 50%", 2], ["Less than 10%", 3]] }
+  ];
+
+  // ---------- State ----------
+  const S = { step: "welcome", email: "", code: "", wallet: null, country: "", usPerson: false, pro: false, answers: [], risk: null, capped: false,
+    pid: null, ack: false, amount: 1000, sig: null, sigOk: false, portfolio: null, units: {}, v: 1, op: null, feed: [], fastForward: false,
+    px: {}, start: {}, asOf: 0, validation: null };
+  const ORDER = ["welcome", "login", "code", "wallet", "eligibility", "risk", "result", "choose", "amount", "authorise", "fund", "home"];
+  const price = (t) => (t === "USDT" ? 1 : (S.px[t] && S.px[t].price) || 0);
+  const P = () => PORTFOLIOS.find((p) => p.id === S.pid);
+  const model = () => (S.v === 2 ? P().v2 : P().v1);
+  const smart = () => S.wallet ? "0x" + ethers.keccak256(ethers.toUtf8Bytes("smart:" + S.wallet.address)).slice(26) : "";
+
+  function go(step) { S.step = step; render(); document.querySelector(".phone").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" }); }
+  const back = (to) => '<button class="back" type="button" data-go="' + to + '">← Back</button>';
+
+  // ---------- Screens ----------
+  const SCREENS = {
+    welcome: () => `
+      <span class="tag navy"><i></i>Schroders model portfolios</span>
+      <h1>Invest in Schroders portfolios from your own <em>wallet.</em></h1>
+      <p>Answer a few questions, get a Schroders portfolio matched to you, and own the tokenised shares yourself. Glider keeps it on target every day.</p>
+      <div class="box soft"><div class="kv">
+        <div class="row"><span>Sign in</span><span>Email, no seed phrase</span></div>
+        <div class="row"><span>Start from</span><span>$100</span></div>
+        <div class="row"><span>Rebalancing</span><span>Daily, automatic</span></div>
+        <div class="row"><span>Custody</span><span>Your own wallet</span></div></div></div>
+      <button class="btn" type="button" data-act="openlogin">Get started</button>
+      <p class="faint" style="font-size:.76rem;text-align:center">Demo with mock funds. Takes about two minutes.</p>`,
+    login: () => `
+      ${back("welcome")}
+      <div class="privy"><div class="ph"><span>Log in or sign up</span><b>Privy</b></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="off" placeholder="you@example.com" value="${esc(S.email)}"></div>
+        <button class="btn violet" type="button" data-act="sendcode">Continue</button>
+        <p class="faint" style="font-size:.76rem">Protected by Privy. SPROUT never sees a password or a private key.</p></div>`,
+    code: () => `
+      ${back("login")}
+      <div class="privy"><div class="ph"><span>Enter confirmation code</span><b>Privy</b></div>
+        <p style="font-size:.86rem">We sent a code to <b style="color:var(--ink)">${esc(S.email)}</b>.</p>
+        <div class="code">${[0, 1, 2, 3, 4, 5].map((i) => `<input id="c${i}" inputmode="numeric" maxlength="1" aria-label="Digit ${i + 1}" value="${S.code[i] || ""}">`).join("")}</div>
+        <p class="faint" style="font-size:.76rem">Demo code: <b class="mono">384216</b></p>
+        <button class="btn violet" type="button" data-act="verify">Verify</button></div>`,
+    wallet: () => `
+      <span class="tag violet"><i></i>Wallet created</span>
+      <h2>Your wallet is ready</h2>
+      <p>Privy created a wallet that only you control. Your Schroders portfolio will live here, not in a pooled fund.</p>
+      <div class="box"><span class="faint" style="font-size:.78rem">Your wallet address</span><div class="addr">${S.wallet.address}</div>
+        <div class="kv"><div class="row"><span>Signed in as</span><span>${esc(S.email)}</span></div><div class="row"><span>Recovery</span><span>Email login</span></div></div></div>
+      <button class="btn" type="button" data-go="eligibility">Continue</button>`,
+    eligibility: () => {
+      const c = COUNTRIES.find((x) => x[0] === S.country), rule = c ? c[2] : null;
+      let verdict = "";
+      if (c && (rule === "no" || S.usPerson)) verdict = `<div class="bad">Tokenised shares can't be offered to US persons or residents of ${esc(c[1])}. You can't continue in this demo.</div>`;
+      else if (rule === "pro") verdict = `<div class="warn">In ${esc(c[1])}, tokenised shares are for professional or qualified investors only.</div>
+        <label class="check"><input type="checkbox" id="pro" ${S.pro ? "checked" : ""}> I confirm I am a professional or qualified investor and can provide evidence if asked.</label>`;
+      else if (rule === "ok") verdict = `<div class="good">Eligible for retail investors in ${esc(c[1])}.</div>`;
+      const ok = c && rule !== "no" && !S.usPerson && (rule === "ok" || S.pro);
+      return `${back("wallet")}<span class="step">Step 1 of 4 · Eligibility</span><h2>Where do you live?</h2>
+        <div class="field"><label for="country">Country of residence</label><select id="country"><option value="">Choose a country</option>${COUNTRIES.map((x) => `<option value="${x[0]}" ${S.country === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></div>
+        <label class="check"><input type="checkbox" id="usp" ${S.usPerson ? "checked" : ""}> I am a US citizen, US tax resident or otherwise a US person.</label>
+        ${verdict}<button class="btn" type="button" data-go="risk" ${ok ? "" : "disabled"}>Continue</button>`;
+    },
+    risk: () => {
+      const i = S.answers.length < QUESTIONS.length ? S.answers.length : QUESTIONS.length - 1, Q = QUESTIONS[i];
+      return `<button class="back" type="button" data-act="qback">← Back</button><span class="step">Step 2 of 4 · Risk profile · Question ${i + 1} of ${QUESTIONS.length}</span>
+        <div class="prog" style="margin:0"><span style="width:${(i / QUESTIONS.length) * 100}%"></span></div>
+        <h2>${Q.q}</h2><div class="opts">${Q.a.map((a, k) => `<button class="opt" type="button" data-ans="${k}" aria-pressed="${S.answers[i] === k}"><b>${a[0]}</b></button>`).join("")}</div>`;
+    },
+    result: () => {
+      const r = S.risk, p = PORTFOLIOS.find((x) => x.risk === r);
+      return `${back("risk")}<span class="step">Step 3 of 4 · Your result</span><span class="tag ${r === 1 ? "green" : r === 2 ? "navy" : "amber"}"><i></i>${RISK[r]} investor</span>
+        <h2>${r === 1 ? "You value steadiness over big gains." : r === 2 ? "You want growth, and can ride out the dips." : "You're aiming for long-term growth and can handle big swings."}</h2>
+        <div class="meter" aria-label="Risk score ${S.score} out of 15"><i style="left:${((S.score - 5) / 10) * 100}%"></i></div>
+        <div class="row faint" style="font-size:.74rem"><span>Cautious</span><span>Score ${S.score} / 15</span><span>Adventurous</span></div>
+        ${S.capped ? `<div class="warn">You need this money soon and it's most of your savings, so we've capped your profile at Cautious to protect against losses you couldn't absorb.</div>` : ""}
+        <div class="box"><span class="faint" style="font-size:.78rem">Recommended for you</span><b>${p.name}</b><p style="font-size:.86rem">${p.blurb}</p></div>
+        <button class="btn" type="button" data-go="choose">See my Schroders portfolios</button>`;
+    },
+    choose: () => {
+      const sel = PORTFOLIOS.find((x) => x.id === S.pid), above = sel && sel.risk > S.risk;
+      return `${back("result")}<span class="step">Step 4 of 4 · Choose a portfolio</span><h2>Schroders portfolios</h2>
+        <div class="opts">${PORTFOLIOS.map((p) => {
+          const w = p.v1, keys = Object.keys(w), rec = p.risk === S.risk;
+          return `<button class="pcard" type="button" data-pick="${p.id}" aria-pressed="${S.pid === p.id}">
+            <div class="row"><b>${p.name}</b>${rec ? '<span class="tag green"><i></i>Matches you</span>' : p.risk > S.risk ? '<span class="tag amber"><i></i>Higher risk</span>' : '<span class="tag navy"><i></i>Lower risk</span>'}</div>
+            <span class="sub" style="font-size:.84rem">${p.blurb}</span>
+            <div class="mix">${keys.map((t, i) => `<span style="flex:${w[t]};background:${t === "USDT" ? "var(--faint)" : t === "GLD" ? "#c99a33" : `color-mix(in srgb, var(--navy) ${100 - i * 7}%, transparent)`}"></span>`).join("")}</div>
+            <div class="hold">${keys.map((t) => `<span>${t} ${w[t]}%</span>`).join("")}</div>
+            <div class="row faint" style="font-size:.74rem"><span>${RISK[p.risk]} · ${keys.length} holdings</span><span>Rebalanced daily</span></div></button>`;
+        }).join("")}</div>
+        ${above ? `<div class="warn">This portfolio is riskier than your profile. You can still choose it.</div><label class="check"><input type="checkbox" id="ack" ${S.ack ? "checked" : ""}> I understand it may fall further than I'm comfortable with.</label>` : ""}
+        <button class="btn" type="button" data-go="amount" ${S.pid && (!above || S.ack) ? "" : "disabled"}>Continue</button>`;
+    },
+    amount: () => {
+      const p = P(), w = p.v1, fee = S.amount * 0.003 * (1 - (w.USDT || 0) / 100), net = S.amount - fee;
+      const v = S.validation;
+      return `${back("choose")}<h2>How much would you like to invest?</h2>
+        <div class="field"><label for="amt">Amount in USD</label><input id="amt" inputmode="numeric" value="${S.amount}"></div>
+        <div class="opts" style="grid-template-columns:repeat(4,1fr)">${[100, 500, 1000, 5000].map((a) => `<button class="opt" type="button" data-amt="${a}" aria-pressed="${S.amount === a}" style="text-align:center;padding:9px 4px"><b>$${a.toLocaleString()}</b></button>`).join("")}</div>
+        ${S.amount < 100 ? '<div class="warn">The minimum is $100, so every holding clears Glider\'s $5 minimum trade.</div>' : ""}
+        <div class="box"><div class="row"><h3>You'll receive</h3><span class="faint" style="font-size:.74rem">Live prices</span></div>
+          <div class="toks">${Object.keys(w).map((t) => { const val = net * w[t] / 100, px = price(t); return `<div class="tok"><span class="ic">${t.slice(0, 4)}</span><div><b>${NAMES[t]}</b><small>${t === "USDT" ? "USDT" : t + "on"} · ${w[t]}%</small></div><div class="r">${px ? (val / px).toFixed(t === "USDT" ? 2 : 4) : "…"}<small>${usd(val)}</small></div></div>`; }).join("")}</div></div>
+        <div class="kv"><div class="row"><span>Trading fee (0.30%, first buy)</span><span>${usd(fee)}</span></div><div class="row"><span>Schroders model fee</span><span>0.15% a year</span></div><div class="row"><span>Network fees</span><span>Covered by Glider</span></div></div>
+        <div class="${v === null ? "box soft" : v.ok ? "good" : "bad"}" style="font-size:.84rem">${v === null ? "Checking your portfolio…" : v.ok ? "✓ Portfolio checked and ready to invest" + (HOOD ? " (Glider live dry run)" : "") : "We couldn\u2019t confirm this portfolio right now: " + esc(v.msg)}</div>
+        <button class="btn" type="button" data-go="authorise" ${S.amount >= 100 ? "" : "disabled"}>Review and approve</button>`;
+    },
+    authorise: () => `
+      ${back("amount")}<h2>Approve autopilot</h2>
+      <p>One signature lets Glider keep your ${esc(P().short)} portfolio on target. Here is exactly what you're allowing.</p>
+      <div class="box"><div class="kv">
+        <div class="row"><span>Can</span><span>Trade inside your portfolio</span></div>
+        <div class="row"><span>Cannot</span><span>Withdraw or send funds anywhere</span></div>
+        <div class="row"><span>Follows</span><span>${esc(P().name)}</span></div>
+        <div class="row"><span>Revoke</span><span>Anytime</span></div></div></div>
+      ${S.sig ? `<div class="good">✓ Autopilot approved</div><div class="addr tech">${S.sig.slice(0, 66)}…</div>
+        <button class="btn" type="button" data-go="fund">Continue to funding</button>`
+      : `<button class="btn green" type="button" data-act="sign">Approve autopilot</button><p class="faint" style="font-size:.76rem;text-align:center">Secured by your wallet. No pop-ups, no seed phrase.</p>`}`,
+    fund: () => {
+      const st = S.fundStep || 0, items = ["Deposit of " + usd(S.amount) + " USDT received", "Glider buys your " + Object.keys(P().v1).length + " holdings", "Portfolio live · autopilot on"];
+      return `${st ? "" : back("authorise")}<h2>Fund your portfolio</h2>
+        <div class="box"><span class="faint" style="font-size:.78rem">Your portfolio account on BNB Chain</span><div class="addr">${smart()}</div>
+          <div class="kv"><div class="row"><span>Send</span><span>${usd(S.amount)} USDT (BNB Chain)</span></div><div class="row"><span>Owner</span><span>${S.wallet.address.slice(0, 6)}…${S.wallet.address.slice(-4)} (you)</span></div></div></div>
+        <ol class="steps">${items.map((t, i) => `<li class="${st > i + 1 ? "done" : st === i + 1 ? "on" : ""}"><i>${st > i + 1 ? "✓" : i + 1}</i><span>${t}</span></li>`).join("")}</ol>
+        ${st ? "" : `<button class="btn green" type="button" data-act="fund">Deposit ${usd(S.amount)} (demo)</button><p class="faint" style="font-size:.76rem;text-align:center">No real money moves in this demo.</p>`}`;
+    },
+    home: () => {
+      const st = position(), chg = st.total - S.amount, op = S.op;
+      const steps = [["Daily run starts", "POST /v2/portfolios/{id}/rebalance → accepted"], ["Glider's agent signs with your approved key", "Scoped: trade only"], ["Swaps on BNB Chain, sells then buys", "Max slippage 1%"], ["Shares settle in your wallet", "GET …/operations/{opId} → completed"]];
+      return `<div class="row"><span class="tag navy"><i></i>${esc(P().short)} · v${S.v}</span><span class="tag green"><i></i>Autopilot on</span></div>
+        <div><span class="sub" style="font-size:.84rem">Portfolio value</span><div class="big">${usd(st.total)}</div>
+          <span class="mono ${chg >= 0 ? "up" : "down"}" style="font-size:.86rem">${sgn(chg, 2, "").replace(/^([+−])/, "$1$")} (${sgn(chg / S.amount * 100)})</span> <span class="faint" style="font-size:.8rem">${S.fastForward ? "since " + S.fundedOn + " (real prices)" : "since you invested"}</span></div>
+        <div class="box"><div class="row"><h3>Off target</h3><b class="mono">${st.drift.toFixed(2)}%</b></div>
+          <div class="alloc"><div class="bar2"><span class="off" style="width:${Math.min(st.drift / 5 * 100, 100)}%"></span></div></div>
+          <span class="faint" style="font-size:.76rem">Glider checks daily and trades your mix back to Schroders' targets. Trades under $5 are skipped.</span>
+          ${op ? `<ol class="steps">${steps.map((s, i) => `<li class="${op.stage > i ? "done" : op.stage === i ? "on" : ""}"><i>${op.stage > i ? "✓" : i + 1}</i><span>${s[0]}<code class="tech">${s[1]}</code></span></li>`).join("")}</ol>` : ""}
+          <div class="btns"><button class="btn ghost" type="button" data-act="ff" ${S.fastForward || (op && op.stage < 4) ? "disabled" : ""}>Fast-forward a month</button><button class="btn green" type="button" data-act="rebal" ${st.drift < 0.05 || (op && op.stage < 4) ? "disabled" : ""}>Run daily rebalance</button></div></div>
+        <div class="box"><div class="row"><h3>Your holdings</h3><span class="faint" style="font-size:.72rem">bar = now · navy mark = Schroders target</span></div>
+          <div class="toks">${st.rows.map((r) => `<div class="tok"><span class="ic">${r.t.slice(0, 4)}</span><div class="alloc"><b>${NAMES[r.t]}</b><div class="bar2"><span class="${Math.abs(r.d) > 0.5 ? "off" : ""}" style="width:${Math.min(r.cw / 25 * 100, 100)}%"></span>${r.tw ? `<em style="left:calc(${Math.min(r.tw / 25 * 100, 100)}% - 1px)"></em>` : ""}</div><small>${r.cw.toFixed(1)}% now · ${r.tw ? r.tw + "% target" : "exiting"}</small></div><div class="r">${usd(r.v)}<small>${(r.units).toFixed(r.t === "USDT" ? 2 : 4)} ${r.t === "USDT" ? "USDT" : r.t + "on"}</small></div></div>`).join("")}</div></div>
+        <div class="box"><div class="row"><h3>Schroders updates</h3><span class="tag navy"><i></i>Model</span></div>
+          ${S.v === 1 ? `<p style="font-size:.86rem">Schroders can change the model anytime. Your portfolio follows at the next daily run.</p><button class="btn ghost" type="button" data-act="v2">Simulate Schroders update: ${esc(P().change)}</button>` : `<p style="font-size:.86rem">Schroders published v2: ${esc(P().change)}. Your target has changed; run the daily rebalance to follow it.</p>`}</div>
+        <div class="box"><h3>Activity</h3><ul class="feed">${S.feed.slice().reverse().map((f) => `<li><span>${f.t}</span><span class="faint" style="font-size:.72rem">${f.w}</span></li>`).join("")}</ul></div>
+        <button class="btn ghost" type="button" data-act="restart">Start over</button>`;
+    }
+  };
+
+  // ---------- Privy-style login modal (fallback when no Privy App ID is configured) ----------
+  let lastModal = null;
+  function modal() {
+    const m = S.modal, prev = lastModal; lastModal = m; if (!m) return "";
+    const fresh = m !== prev, openAnim = fresh && !prev ? " anim" : "", stepAnim = fresh ? " anim" : "";
+    const foot = '<div class="pm-foot">Protected by <b>privy</b></div>';
+    const close = '<button class="x" type="button" data-act="pm-close" aria-label="Close">✕</button>';
+    let body = "";
+    if (m === "email") body = `<div class="pm-logo"><i></i>sprout</div><h3>Log in or sign up</h3>
+      <div class="pm-email"><span aria-hidden="true">✉</span><input id="pm-email" type="email" autocomplete="email" placeholder="your@email.com" aria-label="Email" value="${esc(S.email)}"><button type="button" data-act="pm-submit">Submit</button></div>
+      <div class="pm-or">or</div>
+      <button class="pm-sso" type="button" data-act="pm-sso" data-who="Google"><b>G</b>Continue with Google</button>
+      <button class="pm-sso" type="button" data-act="pm-sso" data-who="Apple"><b><svg width="11" height="13" viewBox="0 0 14 17" aria-hidden="true"><path fill="currentColor" d="M11.6 9c0-2 1.6-2.9 1.7-3-1-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7s-1.6-.7-2.6-.7C3.400 4.4 2.100 5.200 1.400 6.500c-1.400 2.500-.4 6.100 1 8.100.7 1 1.500 2.100 2.500 2 1 0 1.400-.6 2.600-.6s1.500.6 2.600.6c1.100 0 1.800-1 2.400-2 .8-1.100 1.100-2.200 1.100-2.300 0 0-2.200-.8-2.200-3.300zM9.700 3.100c.5-.7.900-1.600.8-2.600-.8 0-1.800.5-2.400 1.200-.5.600-1 1.600-.8 2.500.9.100 1.800-.4 2.400-1.100z"/></svg></b>Continue with Apple</button>`;
+    else if (m === "code") body = `<div class="pm-env" aria-hidden="true">✉</div><h3>Enter confirmation code</h3>
+      <p class="lead">Please check <b style="color:var(--ink)">${esc(S.email)}</b> for an email from privy.io and enter your code below.</p>
+      <div class="code">${[0, 1, 2, 3, 4, 5].map((i) => `<input id="c${i}" inputmode="numeric" maxlength="1" aria-label="Digit ${i + 1}" value="${S.code[i] || ""}" class="${S.code[i] ? "filled" : ""}">`).join("")}</div>
+      <p class="lead" style="font-size:.78rem">Didn't get an email? <span style="color:var(--green)">Resend code</span></p>`;
+    else if (m === "creating") body = `<div class="spin" aria-hidden="true"></div><h3>Setting up your secure wallet</h3><p class="lead">This only takes a moment.</p>`;
+    else if (m === "done") body = `<div class="okmark" aria-hidden="true">✓</div><h3>You're in</h3><p class="lead">Your wallet is ready.</p>`;
+    return `<div class="pm-back${openAnim}"><div class="pm${stepAnim}" role="dialog" aria-modal="true" aria-label="Log in or sign up">${m === "email" || m === "code" ? close : ""}${body}${foot}</div></div>`;
+  }
+  async function autoCode() {
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    S.code = ""; render(); await wait(1100);
+    for (let i = 0; i < 6; i++) { if (S.modal !== "code") return; S.code += code[i]; render(); await wait(110); }
+    await wait(350); finishLogin();
+  }
+  async function finishLogin() {
+    if (S.modal !== "code" && S.modal !== "email") return;
+    S.modal = "creating"; render(); await wait(1100);
+    S.wallet = ethers.Wallet.createRandom(); S.modal = "done"; render(); await wait(700);
+    S.modal = null; go("wallet");
+  }
+
+  // ---------- Under the hood, per step ----------
+  const J = (o) => esc(JSON.stringify(o, null, 2));
+  function call(kind, title, ep, real, body) {
+    const v = { p: "PRIVY", g: "GLIDER", s: "SPROUT", c: "CHAIN" }[kind];
+    return `<div class="call"><div class="h"><b>${title}</b><span class="real ${real ? "y" : "n"}">${real ? "Real in this demo" : "Simulated, real shape"}</span></div>
+      <code class="ep"><span class="verb ${kind === "g" ? "" : kind}">${v}</span>${esc(ep)}</code>${body ? `<pre>${body}</pre>` : ""}</div>`;
+  }
+  function hood() {
+    const st = S.step, p = S.pid ? P() : null, owner = S.wallet ? "eip155:0:" + S.wallet.address : "eip155:0:0x…";
+    const pos = st === "home" && p ? position() : { total: 0, rows: [] };
+    const map = {
+      welcome: ["Three parties, one app", "SPROUT is the app. Privy handles sign-in and the wallet. Glider runs the portfolio. Schroders designs the models.",
+        call("s", "Schroders models published as Glider strategies", "POST /v2/strategies (one per portfolio, created once)", false, J(PORTFOLIOS.map((x) => ({ strategyId: x.sid, name: x.name, schedule: { type: "interval", frequency: "daily" }, assets: Object.keys(x.v1).length })))) +
+        call("g", "Each portfolio checked against Glider's rules", "POST /v2/strategies/validate", true, J({ "Schroders Global Income": "valid", "Schroders Quality 7": "valid", "Schroders Future Leaders": "valid" }))],
+      login: ["Sign in with Privy", "Email login. Privy, not SPROUT, handles the code and the key.",
+        call("p", "Send a one-time code", "const { sendCode, loginWithCode } = useLoginWithEmail()\nawait sendCode({ email })", false, "")],
+      code: ["Verify the code", "On success Privy creates an embedded wallet for users who don't have one.",
+        call("p", "Log in with the code", "await loginWithCode({ code })\n// PrivyProvider config: embeddedWallets.ethereum.createOnLogin = 'users-without-wallets'", false, "")],
+      wallet: ["A wallet the investor controls", "In this demo, a real key is generated in your browser to stand in for Privy's embedded wallet.",
+        call("p", "Read the embedded wallet", "const { wallets } = useWallets()  // wallets[0].address", true, J({ address: S.wallet && S.wallet.address, ownerAccountId: owner }))],
+      eligibility: ["Eligibility before anything else", "Glider doesn't check eligibility. SPROUT, as the distributor, must block restricted jurisdictions under Glider's API terms.",
+        call("s", "Jurisdiction and investor-status check", "SPROUT backend · eligibility rules (Schroders compliance owns these)", false, J({ country: S.country || null, usPerson: S.usPerson, professionalConfirmed: S.pro, source: "Ondo published eligibility (illustrative)" }))],
+      risk: ["Risk assessment", "Five questions produce a score from 5 to 15. Time horizon and share of savings can cap the result (capacity for loss).",
+        call("s", "Score the answers", "SPROUT backend · suitability engine", false, J({ answers: S.answers.map((a, i) => QUESTIONS[i].a[a][0]) }))],
+      result: ["Risk profile", "The profile decides which Schroders portfolio is recommended. The investor can choose differently with a clear warning.",
+        call("s", "Profile result", "SPROUT backend · stored with the investor record", false, J({ score: S.score, profile: RISK[S.risk], cappedForCapacityForLoss: S.capped }))],
+      choose: ["Three Schroders portfolios", "Each is a single-chain Glider strategy of Ondo tokenised shares on BNB Chain. All three were validated live.",
+        call("g", "Portfolio definition", "GET /v2/strategies/{strategyId}", false, p ? J({ strategyId: p.sid, name: p.name, allocation: { assets: Object.entries(p.v1).map(([t, w]) => ({ assetId: t + "on (BNB Chain)", weight: String(w) })) } }) : "")],
+      amount: ["Checked live with Glider", "SPROUT sends this exact allocation to Glider's dry-run validator. Nothing is created.",
+        call("g", "Validate the allocation", "POST /v2/strategies/validate", true, J(S.validation ? (S.validation.ok ? { success: true, data: { valid: true } } : { success: false, error: S.validation.msg }) : { status: "pending" }))],
+      authorise: ["Enrolment: two stages", "Stage 1 returns a message for the investor to sign. Stage 2 submits the signature and Glider creates the smart account.",
+        call("g", "Stage 1: prepare the authorisation", "POST /v2/enroll/signature", false, J({ request: { ownerAccountId: owner, strategyId: p && p.sid, chainIds: [56], accountType: "ECDSA" }, response: { message: { kind: "ecdsa", raw: "0x…" }, agentAccountId: "eip155:0:0x…", accountIndex: "0", flowId: "flow_…" } })) +
+        call("p", "Investor signs in their wallet", "provider.request({ method: 'personal_sign', params: [message, address] })", true, S.sig ? J({ signer: S.wallet.address, signature: S.sig.slice(0, 42) + "…", verified: S.sigOk }) : "Waiting for signature…") +
+        call("g", "Stage 2: create the portfolio", "POST /v2/enroll", false, J({ request: { flowId: "flow_…", signature: S.sig ? S.sig.slice(0, 20) + "…" : null, portfolioName: S.email ? S.email.split("@")[0] + "'s " + (p ? p.short : "") : "" }, response: { portfolioId: "pf_demo", smartAccounts: [{ accountId: "eip155:56:" + smart() }] } }))],
+      fund: ["Funding goes straight to the investor's account", "Glider never holds the money. The deposit lands in the investor's own smart account; the first scheduled run buys the holdings.",
+        call("c", "Deposit USDT", "USDT.transfer(" + (smart() || "smartAccount") + ", amount) on BNB Chain", false, "") +
+        call("g", "Confirm the deposit", "GET /v2/portfolios/{portfolioId}/positions", false, "") +
+        call("g", "Turn on the daily schedule", "POST /v2/portfolios/{portfolioId}/start", false, J({ schedule: { status: "active", frequency: "daily" } }))],
+      home: ["Rebalancing in action", "Prices drift the mix away from Schroders' targets. Glider's daily run trades it back inside the investor's own account.",
+        call("g", "Live positions", "GET /v2/portfolios/{portfolioId}/positions", false, J({ totalValueUsd: pos.total.toFixed(6), assets: pos.rows.slice(0, 3).map((r) => ({ symbol: r.t === "USDT" ? "USDT" : r.t + "on", valueUsd: r.v.toFixed(6) })) })) +
+        call("g", "Daily run, or on demand", "POST /v2/portfolios/{portfolioId}/rebalance", false, J({ operationId: "op_…", state: S.op ? ["accepted", "running", "running", "running", "completed"][S.op.stage] : "idle", trades: S.op ? S.op.trades.length : 0 })) +
+        call("g", "Schroders updates the model", "POST /v2/strategies/{strategyId}/versions", false, J({ allocation: p ? Object.entries(model()).map(([t, w]) => t + " " + w + "%").join(", ") : "", note: "Every enrolled portfolio re-targets at its next run" }))]
+    };
+    const m = map[st] || map.welcome;
+    $("hoodtitle").textContent = m[0]; $("hoodlede").textContent = m[1]; $("hood").innerHTML = m[2];
+  }
+
+  // ---------- Logic ----------
+  function enrolMessage() {
+    const p = P();
+    return "SPROUT · Glider session-key authorisation\n\nOwner: " + S.wallet.address + "\nStrategy: " + p.name + " (" + p.sid + ")\nChain: BNB Chain (56)\nPermission: rebalance within this portfolio only; no withdrawals\nIssued: " + new Date().toISOString();
+  }
+  function scoreRisk() {
+    const sc = S.answers.reduce((s, a, i) => s + QUESTIONS[i].a[a][1], 0);
+    let r = sc <= 8 ? 1 : sc <= 12 ? 2 : 3;
+    S.capped = S.answers[0] === 0 && S.answers[4] === 0 && r > 1; if (S.capped) r = 1;
+    S.score = sc; S.risk = r; S.pid = PORTFOLIOS.find((p) => p.risk === r).id; S.ack = false;
+  }
+  function position() {
+    const tg = model(), syms = Array.from(new Set(Object.keys(tg).concat(Object.keys(S.units))));
+    let total = 0; const rows = syms.map((t) => { const units = S.units[t] || 0, v = units * price(t); total += v; return { t, units, v, tw: tg[t] || 0 }; });
+    rows.forEach((r) => { r.cw = total ? r.v / total * 100 : 0; r.d = r.cw - r.tw; });
+    rows.sort((a, b) => b.tw - a.tw || b.cw - a.cw);
+    return { rows, total, drift: rows.reduce((s, r) => s + Math.abs(r.d), 0) / 2 };
+  }
+  function buyAt(prices) {
+    const w = P().v1, cashW = (w.USDT || 0) / 100, fee = S.amount * 0.003 * (1 - cashW), net = S.amount - fee;
+    S.units = {}; Object.keys(w).forEach((t) => { S.units[t] = net * w[t] / 100 / (t === "USDT" ? 1 : prices(t)); });
+  }
+  function validate() {
+    const p = P();
+    fetch("/api/assets").then((r) => r.json()).then((list) => {
+      const id = {}; list.forEach((a) => { if (a.chain_id === 56) id[a.symbol] = a.caip_id; });
+      const body = { name: p.name, frequency: "daily", slippage_bps: 100, price_impact_bps: 100, threshold_usd: "5.00",
+        allocation: Object.entries(p.v1).map(([t, w]) => ({ caip_id: id[t], weight: String(w), symbol: t })) };
+      return fetch("/api/glider-validate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    }).then((r) => r.json()).then((j) => {
+      const g = j.glider;
+      S.validation = g && g.success ? { ok: true } : { ok: false, msg: (g && g.error && g.error.message) || j.message || "unavailable" };
+      if (S.step === "amount" || S.step === "choose") render();
+    }).catch(() => { S.validation = { ok: false, msg: "Glider check unavailable" }; if (S.step === "amount") render(); });
+  }
+  function log(t, w) { S.feed.push({ t, w: w + " · " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }); }
+
+  async function rebalance() {
+    const st = position(), trades = st.rows.map((r) => ({ t: r.t, d: st.total * r.tw / 100 - r.v })).filter((x) => Math.abs(x.d) >= 5).sort((a, b) => a.d - b.d);
+    const fee = trades.filter((x) => x.d > 0).reduce((s, x) => s + x.d, 0) * 0.003;
+    S.op = { stage: 0, trades }; render();
+    await wait(700); S.op.stage = 1; render(); await wait(800); S.op.stage = 2; render(); await wait(1100);
+    // Apply only the trades Glider would make (skips anything under $5), then take the fee across holdings.
+    trades.forEach((x) => { S.units[x.t] = (S.units[x.t] || 0) + x.d / price(x.t); if (S.units[x.t] * price(x.t) < 0.01) delete S.units[x.t]; });
+    const after = position().total, k = after ? (after - fee) / after : 1; Object.keys(S.units).forEach((t) => { S.units[t] *= k; });
+    const skipped = st.rows.filter((r) => { const d = Math.abs(st.total * r.tw / 100 - r.v); return d >= 0.01 && d < 5; }).length;
+    S.op.stage = 4; log("Glider rebalanced your portfolio: " + trades.length + " swap" + (trades.length === 1 ? "" : "s") + ", fee " + usd(fee) + (skipped ? ", " + skipped + " tiny trade" + (skipped === 1 ? "" : "s") + " under $5 skipped" : ""), "Glider"); render();
+  }
+
+  // ---------- Render + events ----------
+  function render() {
+    $("screen").innerHTML = SCREENS[S.step]();
+    $("modal").innerHTML = modal();
+    const i = ORDER.indexOf(S.step); $("prog").style.width = (S.step === "home" ? 100 : (i / (ORDER.length - 1)) * 100) + "%";
+    $("barright").textContent = S.wallet ? S.wallet.address.slice(0, 6) + "…" + S.wallet.address.slice(-4) : "Schroders · Glider";
+    hood(); wire();
+  }
+  function wire() {
+    const em = $("email"); if (em) em.addEventListener("input", () => { S.email = em.value.trim(); });
+    const pe = $("pm-email"); if (pe) { pe.addEventListener("input", () => { S.email = pe.value.trim(); }); pe.addEventListener("keydown", (e) => { if (e.key === "Enter") document.querySelector('[data-act="pm-submit"]').click(); }); if (!S.email) pe.focus(); }
+    for (let k = 0; k < 6; k++) { const c = $("c" + k); if (!c) break;
+      c.addEventListener("input", () => { c.value = c.value.replace(/\D/g, "").slice(-1); S.code = Array.from({ length: 6 }, (_, j) => ($("c" + j).value || "")).join(""); if (c.value && k < 5) $("c" + (k + 1)).focus(); if (S.modal === "code" && S.code.length === 6) finishLogin(); });
+      c.addEventListener("paste", (e) => { const d = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6); if (d.length === 6) { e.preventDefault(); S.code = d; render(); } }); }
+    const co = $("country"); if (co) co.addEventListener("change", () => { S.country = co.value; S.pro = false; render(); });
+    const us = $("usp"); if (us) us.addEventListener("change", () => { S.usPerson = us.checked; render(); });
+    const pr = $("pro"); if (pr) pr.addEventListener("change", () => { S.pro = pr.checked; render(); });
+    const ack = $("ack"); if (ack) ack.addEventListener("change", () => { S.ack = ack.checked; render(); });
+    const amt = $("amt"); if (amt) amt.addEventListener("change", () => { S.amount = Math.max(0, parseInt(amt.value.replace(/[^0-9]/g, ""), 10) || 0); render(); });
+  }
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("button"); if (!b || b.disabled) return;
+    const d = b.dataset;
+    if (d.go) { if (d.go === "amount" && !S.validation) validate(); return go(d.go); }
+    if (d.ans != null) { const i = S.answers.length < QUESTIONS.length ? S.answers.length : QUESTIONS.length - 1; S.answers[i] = +d.ans; S.answers = S.answers.slice(0, i + 1);
+      if (S.answers.length === QUESTIONS.length) { scoreRisk(); return go("result"); } return render(); }
+    if (d.pick) { S.pid = d.pick; S.ack = false; S.validation = null; validate(); return render(); }
+    if (d.amt) { S.amount = +d.amt; return render(); }
+    switch (d.act) {
+      case "openlogin":
+        if (window.sproutPrivy && window.sproutPrivy.ready) { window.sproutPrivy.login(); return; }
+        S.modal = "email"; return render();
+      case "pm-close": S.modal = null; return render();
+      case "pm-submit":
+        if (!/^\S+@\S+\.\S+$/.test(S.email)) { const f = $("pm-email"); f.setCustomValidity("Enter an email address"); f.reportValidity(); f.setCustomValidity(""); return; }
+        S.modal = "code"; return autoCode();
+      case "pm-sso": S.email = S.email || "investor@" + (d.who === "Google" ? "gmail.com" : "icloud.com"); S.modal = "email"; return finishLogin();
+      case "sendcode":
+        if (!/^\S+@\S+\.\S+$/.test(S.email)) { const f = $("email"); f.setCustomValidity("Enter an email address"); f.reportValidity(); f.setCustomValidity(""); return; }
+        b.disabled = true; b.textContent = "Sending code…"; await wait(700); return go("code");
+      case "verify":
+        if (S.code !== "384216") { S.code = ""; render(); const box = document.querySelector(".privy"); box.insertAdjacentHTML("beforeend", '<div class="bad">That code doesn\'t match. Use the demo code 384216.</div>'); return; }
+        b.disabled = true; b.textContent = "Creating your wallet…"; await wait(900);
+        S.wallet = ethers.Wallet.createRandom(); return go("wallet");
+      case "qback": {
+        const i = Math.min(S.answers.length, QUESTIONS.length - 1);
+        if (i === 0) return go("eligibility");
+        S.answers = S.answers.slice(0, i - 1); return render(); }
+      case "sign":
+        b.disabled = true; b.textContent = "Waiting for signature…";
+        const msg = enrolMessage(); S.sig = S.wallet.real && window.sproutPrivy ? await window.sproutPrivy.sign(msg) : await S.wallet.signMessage(msg); S.sigOk = ethers.verifyMessage(msg, S.sig).toLowerCase() === S.wallet.address.toLowerCase();
+        log("You approved autopilot for " + P().name, "Privy · signature verified"); return render();
+      case "fund":
+        S.fundStep = 1; render(); await wait(900); S.fundStep = 2; render(); await wait(1200);
+        buyAt(price); S.fundStep = 3; render();
+        log("Deposited " + usd(S.amount) + " USDT and bought " + Object.keys(P().v1).length + " holdings", "Glider"); await wait(900);
+        S.fundStep = 4; return go("home");
+      case "ff": {
+        const t0 = (S.px.MSFT && S.px.MSFT.closes && S.px.MSFT.closes[0]) || null;
+        S.fundedOn = t0 ? new Date(t0.t * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "a month ago";
+        buyAt((t) => S.start[t] || price(t)); S.fastForward = true; S.op = null;
+        log("Fast-forward: bought at " + S.fundedOn + " closing prices; today's prices are live", "Demo"); return render(); }
+      case "rebal": return rebalance();
+      case "v2": S.v = 2; S.op = null; log("Schroders published v2 of " + P().short + ": " + P().change, "Schroders"); return render();
+      case "restart": location.reload(); return;
+    }
+  });
+
+  // ---------- Live prices ----------
+  function loadPrices() {
+    return fetch("/api/prices?symbols=" + ALL.join(",")).then((r) => r.json()).then((j) => {
+      let open = false;
+      Object.values(j.prices).forEach((p) => { if (!p.price) return; S.px[p.symbol] = p; open = open || p.marketOpen; if (p.closes && p.closes.length && !S.start[p.symbol]) S.start[p.symbol] = p.closes[0].c; });
+      S.asOf = j.asOf;
+      $("pricestatus").textContent = "Live prices · US market " + (open ? "open" : "closed");
+      if (["amount", "home"].includes(S.step) && !(S.op && S.op.stage < 4)) render();
+    }).catch(() => { $("pricestatus").textContent = "Live prices unavailable"; });
+  }
+  render(); loadPrices(); setInterval(loadPrices, 30000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Secrets
+.env
+.env.*
+
+# Local database, rebuilt with: python3 seed.py
+*.db
+*.db-journal
+
+# Local clutter
+__pycache__/
+*.pyc
+*.log
+.DS_Store
